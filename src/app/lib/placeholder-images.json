@@ -1,0 +1,35 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-bg",
+      "description": "Abstract 3D financial grid",
+      "imageUrl": "https://picsum.photos/seed/finance1/1200/800",
+      "imageHint": "finance technology"
+    },
+    {
+      "id": "course-1",
+      "description": "Investing 101 Course",
+      "imageUrl": "https://picsum.photos/seed/invest/400/300",
+      "imageHint": "stock market"
+    },
+    {
+      "id": "course-2",
+      "description": "Crypto Mastery Course",
+      "imageUrl": "https://picsum.photos/seed/crypto/400/300",
+      "imageHint": "blockchain crypto"
+    },
+    {
+      "id": "course-3",
+      "description": "Personal Finance Course",
+      "imageUrl": "https://picsum.photos/seed/money/400/300",
+      "imageHint": "savings wealth"
+    },
+    {
+      "id": "avatar-user",
+      "description": "User profile avatar",
+      "imageUrl": "https://picsum.photos/seed/user123/100/100",
+      "imageHint": "person portrait"
+    }
+  ]
+}
