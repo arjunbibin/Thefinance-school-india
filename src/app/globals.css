@@ -10,20 +10,20 @@
     --card-foreground: 238 52% 15%;
     --popover: 0 0% 100%;
     --popover-foreground: 238 52% 15%;
-    --primary: 238 52% 38%; /* #2E3192 - Deep Navy Blue */
+    --primary: 247 68% 48%; /* #4F46E5 - Vibrant Indigo/Purple from logo */
     --primary-foreground: 0 0% 98%;
     --secondary: 210 20% 96.1%;
     --secondary-foreground: 238 52% 38%;
     --muted: 210 20% 90%;
     --muted-foreground: 238 10% 45.1%;
-    --accent: 180 100% 50%; /* #00FFFF - Bright Cyan (as per hex #00FFFF in proposal) */
+    --accent: 191 91% 50%; /* #0EA5E9 - Sky Blue/Cyan from logo gradient */
     --accent-foreground: 238 52% 15%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 214 20% 85%;
     --input: 214 20% 85%;
-    --ring: 238 52% 38%;
-    --radius: 1rem;
+    --ring: 247 68% 48%;
+    --radius: 1.5rem;
   }
   .dark {
     --background: 238 52% 10%;
@@ -32,19 +32,19 @@
     --card-foreground: 0 0% 98%;
     --popover: 238 52% 12%;
     --popover-foreground: 0 0% 98%;
-    --primary: 180 100% 50%;
+    --primary: 191 91% 50%;
     --primary-foreground: 238 52% 10%;
     --secondary: 238 52% 20%;
     --secondary-foreground: 0 0% 98%;
     --muted: 238 52% 20%;
     --muted-foreground: 238 10% 63.9%;
-    --accent: 180 100% 50%;
+    --accent: 191 91% 50%;
     --accent-foreground: 238 52% 10%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 238 52% 20%;
     --input: 238 52% 20%;
-    --ring: 180 100% 50%;
+    --ring: 191 91% 50%;
   }
 }
 
@@ -62,7 +62,7 @@
 }
 
 .glass-morphism {
-  background: rgba(224, 229, 236, 0.7);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.3);

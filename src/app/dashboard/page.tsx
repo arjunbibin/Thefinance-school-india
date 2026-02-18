@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -48,6 +47,10 @@ export default function Dashboard() {
       setAppName(brandingData.appName || '');
       setTagline(brandingData.tagline || '');
       setLogoUrl(brandingData.logoUrl || '');
+    } else {
+      // Default values matching the logo text
+      setAppName('The Finance School');
+      setTagline('Let\'s Deal with The Wealth');
     }
   }, [brandingData]);
 
@@ -117,7 +120,7 @@ export default function Dashboard() {
                    <Label htmlFor="appName" className="text-sm font-bold text-slate-500">App Name</Label>
                    <Input 
                      id="appName" 
-                     placeholder="The Finance School India" 
+                     placeholder="The Finance School" 
                      value={appName} 
                      onChange={(e) => setAppName(e.target.value)}
                      className="rounded-xl border-slate-100"
@@ -137,7 +140,7 @@ export default function Dashboard() {
                    <Label htmlFor="logoUrl" className="text-sm font-bold text-slate-500">Logo URL</Label>
                    <Input 
                      id="logoUrl" 
-                     placeholder="https://..." 
+                     placeholder="Paste your Firebase Storage URL here" 
                      value={logoUrl} 
                      onChange={(e) => setLogoUrl(e.target.value)}
                      className="rounded-xl border-slate-100"
