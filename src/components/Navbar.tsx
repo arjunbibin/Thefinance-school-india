@@ -1,10 +1,9 @@
-
 'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { User, Zap, Bell } from 'lucide-react';
+import { User } from 'lucide-react';
 import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -51,17 +50,11 @@ export default function Navbar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="text-primary hover:bg-primary/5 rounded-xl hidden sm:flex">
-          <Bell className="w-5 h-5" />
-        </Button>
         <Link href="/dashboard">
           <Button variant="ghost" size="icon" className="text-primary hover:bg-accent/20 rounded-xl finance-3d-shadow-inner bg-white/50 border border-white/40">
             <User className="w-5 h-5" />
           </Button>
         </Link>
-        <Button className="bg-primary text-white hover:bg-primary/95 h-12 px-8 rounded-xl font-bold shadow-xl transition-all hover:scale-105 hidden md:flex">
-          <Zap className="w-4 h-4 mr-2 fill-accent text-accent" /> Join Now
-        </Button>
       </div>
     </nav>
   );
