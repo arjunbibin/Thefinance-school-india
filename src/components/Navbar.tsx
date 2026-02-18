@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -46,7 +47,6 @@ export default function Navbar() {
       <div className="hidden lg:flex items-center gap-10">
         <Link href="/" className="text-sm font-bold text-primary/70 hover:text-primary hover:scale-105 transition-all uppercase tracking-widest">Home</Link>
         <Link href="#courses" className="text-sm font-bold text-primary/70 hover:text-primary hover:scale-105 transition-all uppercase tracking-widest">Courses</Link>
-        <Link href="#tools" className="text-sm font-bold text-primary/70 hover:text-primary hover:scale-105 transition-all uppercase tracking-widest">Tools</Link>
         <Link href="#news" className="text-sm font-bold text-primary/70 hover:text-primary hover:scale-105 transition-all uppercase tracking-widest">Pulse Feed</Link>
       </div>
 

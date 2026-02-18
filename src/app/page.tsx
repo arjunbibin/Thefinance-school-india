@@ -3,7 +3,6 @@ import React from 'react';
 import ThreeHero from '@/components/ThreeHero';
 import Navbar from '@/components/Navbar';
 import CourseCatalog from '@/components/sections/CourseCatalog';
-import FinancialTools from '@/components/sections/FinancialTools';
 import NewsFeed from '@/components/sections/NewsFeed';
 import Footer from '@/components/Footer';
 import FinanceIcon3D from '@/components/FinanceIcon3D';
@@ -153,8 +152,6 @@ export default function Home() {
             </Card>
           </div>
         </section>
-        
-        <FinancialTools />
         
         <div className="bg-gradient-to-b from-transparent to-slate-100/50">
           <NewsFeed />
