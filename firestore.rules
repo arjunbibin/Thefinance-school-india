@@ -1,0 +1,143 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * FINANCEVERSE 3D SECURITY RULES
+     *
+     * Core Philosophy:
+     * This ruleset enforces a strict user-ownership model for personal data (profiles, enrollments, 
+     * achievements) while providing global read access to educational content and news. 
+     * Administrative access is managed through a Database-Backed Access Control (DBAC) pattern.
+     *
+     * Data Structure:
+     * - /userProfiles/{userId}: Private user data and their subcollections.
+     * - /courses, /financialTools, /newsArticles: Global educational resources.
+     * - /roles_admin/{userId}: Designated administrative UIDs.
+     *
+     * Key Security Decisions:
+     * - Denormalization for Authorization: User-specific documents contain a 'userId' or 'id' field 
+     *   that MUST match the document ID and the parent path. This allows for atomic, high-performance 
+     *   checks without cross-document lookups.
+     * - DBAC Admin Model: Admin privileges are granted by the existence of a document in the 
+     *   'roles_admin' collection, providing a secure, auditable way to manage permissions.
+     * - Prototyping Flexibility: Rules focus strictly on authorization and relational integrity 
+     *   (e.g., ensuring a user cannot write data into another user's path) rather than 
+     *   strict schema/type validation.
+     */
+
+    // --- GLOBAL HELPER FUNCTIONS ---
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Combined existence and ownership check for destructive/modifying operations.
+    function isExistingOwner(userId) {
+      return resource != null && isOwner(userId);
+    }
+
+    // Database-Backed Access Control: Checks if the current user is an admin.
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Administrative role designation. Presence of a UID document grants admin rights.
+     * @path /roles_admin/{userId}
+     * @allow (get) Any signed-in user can check if a user is an admin.
+     * @deny (write) Only existing admins can modify administrative roles.
+     * @principle DBAC (Database-Backed Access Control).
+     */
+    match /roles_admin/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description User profile management. Users manage their own identity.
+     * @path /userProfiles/{userId}
+     * @allow (create) If the document ID matches the Auth UID and the internal 'id' field is consistent.
+     * @deny (update) If the 'id' field is being modified to point to another user.
+     * @principle Ownership-based access with path-to-data consistency.
+     */
+    match /userProfiles/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description User course enrollments. Tracks progress and status.
+       * @path /userProfiles/{userId}/enrollments/{enrollmentId}
+       * @allow (list) The owner of the parent profile can list their own enrollments.
+       * @deny (create) If the internal 'userId' field does not match the parent path.
+       * @principle Authorization Independence via denormalized ownership fields.
+       */
+      match /enrollments/{enrollmentId} {
+        allow get: if isOwner(userId) || isAdmin();
+        allow list: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description User earned achievements.
+       * @path /userProfiles/{userId}/achievements/{achievementId}
+       * @allow (read) The owner can view their achievements.
+       * @deny (write) Non-admin users cannot manually grant themselves achievements.
+       * @principle Restricted write access for system-generated records.
+       */
+      match /achievements/{achievementId} {
+        allow get: if isOwner(userId) || isAdmin();
+        allow list: if isOwner(userId) || isAdmin();
+        allow create, update, delete: if isAdmin();
+      }
+    }
+
+    /**
+     * @description Catalog of financial education courses.
+     * @path /courses/{courseId}
+     * @allow (read) All authenticated users.
+     * @deny (write) Any user who is not an admin.
+     * @principle Publicly readable content with administrative control.
+     */
+    match /courses/{courseId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Interactive financial tools available to users.
+     * @path /financialTools/{toolId}
+     * @allow (read) All authenticated users.
+     * @deny (write) Any user who is not an admin.
+     * @principle Publicly readable content with administrative control.
+     */
+    match /financialTools/{toolId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Financial news articles.
+     * @path /newsArticles/{articleId}
+     * @allow (read) All authenticated users.
+     * @deny (write) Any user who is not an admin.
+     * @principle Publicly readable content with administrative control.
+     */
+    match /newsArticles/{articleId} {
+      allow get, list: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+  }
+}
