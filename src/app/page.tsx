@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ThreeHero from '@/components/ThreeHero';
 import Navbar from '@/components/Navbar';
@@ -17,7 +18,8 @@ import {
   Calendar, 
   Video, 
   MessageCircle, 
-  CheckCircle 
+  CheckCircle,
+  Target
 } from 'lucide-react';
 
 export default function Home() {
@@ -80,6 +82,49 @@ export default function Home() {
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 animate-bounce cursor-pointer hover:opacity-100 transition-opacity">
           <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Explore Programs</span>
           <MousePointer2 className="w-5 h-5 text-primary rotate-180" />
+        </div>
+      </section>
+
+      {/* Vision & Mission Section */}
+      <section className="max-w-7xl mx-auto px-6 py-24">
+        <div className="grid lg:grid-cols-2 gap-16">
+          <Card className="p-10 border-none bg-white finance-3d-shadow rounded-[3rem] relative overflow-hidden group">
+            <div className="relative z-10 space-y-6">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-bold uppercase tracking-widest">
+                <Globe className="w-4 h-4" /> Our Vision
+              </div>
+              <h2 className="text-4xl font-headline font-bold text-primary">Building a <span className="text-accent">Secure Future</span></h2>
+              <p className="text-xl text-muted-foreground leading-relaxed">
+                To build a financially literate and economically independent generation capable of
+                making informed, responsible, and confident financial decisions for a secure and
+                fulfilling life.
+              </p>
+            </div>
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+          </Card>
+
+          <Card className="p-10 border-none bg-primary text-white rounded-[3rem] finance-3d-shadow relative overflow-hidden">
+            <div className="relative z-10 space-y-6">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 text-white text-sm font-bold uppercase tracking-widest">
+                <Target className="w-4 h-4" /> Our Mission
+              </div>
+              <h2 className="text-4xl font-headline font-bold">Practical <span className="text-accent">Empowerment</span></h2>
+              <ul className="space-y-4">
+                {[
+                  "To provide practical financial education to students and elders through interactive workshops and structured programs.",
+                  "To teach individuals how to manage their income effectively, irrespective of its size.",
+                  "To empower people to escape from scams, debt traps, and poor money habits.",
+                  "To develop a new generation of financially responsible citizens who value saving, investing, and ethical wealth creation."
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <CheckCircle className="w-6 h-6 text-accent shrink-0 mt-1" />
+                    <span className="text-lg opacity-90">{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
+          </Card>
         </div>
       </section>
 
