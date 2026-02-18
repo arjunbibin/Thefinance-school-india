@@ -47,16 +47,6 @@ export default function Home() {
           <p className="text-xl md:text-2xl text-muted-foreground/80 mb-14 max-w-3xl mx-auto leading-relaxed font-medium">
             From budgeting basics to investment insights, The Finance School India empowers children to take charge of their money with confidence. Learn how to grow, protect, and manage wealth step by step.
           </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
-            <Button size="lg" className="h-16 bg-primary hover:bg-primary/95 text-white px-10 text-xl font-bold rounded-2xl transition-all hover:scale-110 shadow-2xl hover:shadow-primary/40 group">
-              Start Learning Step-by-Step
-              <ArrowRight className="ml-2 w-6 h-6 transition-transform group-hover:translate-x-1" />
-            </Button>
-            <Button size="lg" variant="outline" className="h-16 px-10 text-xl font-bold rounded-2xl glass-morphism hover:bg-white/60 border-2 transition-all hover:scale-105 finance-3d-shadow">
-              Explore Our Vision
-            </Button>
-          </div>
         </div>
 
         {/* Floating Interactive Icons */}
