@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Box, User, LayoutDashboard, Globe, Zap, Bell } from 'lucide-react';
@@ -10,7 +11,7 @@ export default function Navbar() {
           <Box className="text-accent w-7 h-7" />
         </div>
         <span className="text-2xl font-headline font-bold text-primary tracking-tighter">
-          Finance<span className="text-accent italic drop-shadow-sm">Verse</span>
+          The Finance<span className="text-accent italic drop-shadow-sm"> School India</span>
         </span>
       </Link>
       

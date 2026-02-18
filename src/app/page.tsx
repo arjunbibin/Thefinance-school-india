@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ThreeHero from '@/components/ThreeHero';
 import Navbar from '@/components/Navbar';
@@ -33,7 +34,7 @@ export default function Home() {
           
           <p className="text-xl md:text-2xl text-muted-foreground/80 mb-14 max-w-3xl mx-auto leading-relaxed font-medium">
             Navigate the complexity of global finance with immersive visualizations, 
-            intelligent simulation engines, and live institutional-grade data.
+            intelligent simulation engines, and live institutional-grade data at The Finance School India.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
@@ -68,7 +69,7 @@ export default function Home() {
 
         {/* Scroll Indicator */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 animate-bounce cursor-pointer hover:opacity-100 transition-opacity">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Explore Verse</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Explore School</span>
           <MousePointer2 className="w-5 h-5 text-primary rotate-180" />
         </div>
       </section>
