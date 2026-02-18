@@ -36,8 +36,7 @@ export default function Home() {
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground/80 mb-14 max-w-3xl mx-auto leading-relaxed font-medium">
-            Navigate the complexity of global finance with immersive visualizations, 
-            intelligent simulation engines, and live institutional-grade data at The Finance School India.
+            From budgeting basics to investment insights, The Finance School empowers individuals to take charge of their money with confidence. Learn how to grow, protect, and manage your wealth step by step.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
