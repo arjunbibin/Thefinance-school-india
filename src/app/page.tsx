@@ -5,15 +5,12 @@ import Navbar from '@/components/Navbar';
 import CourseCatalog from '@/components/sections/CourseCatalog';
 import Footer from '@/components/Footer';
 import FinanceIcon3D from '@/components/FinanceIcon3D';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
-  ArrowRight, 
   Globe, 
   Layers, 
   Shield, 
   Zap, 
-  MousePointer2, 
   Clock, 
   Calendar, 
   Video, 
@@ -24,7 +21,7 @@ import {
 
 export default function Home() {
   return (
-    <div className="relative min-h-screen overflow-x-hidden selection:bg-accent selection:text-primary">
+    <div className="relative min-h-screen overflow-x-hidden selection:bg-accent selection:text-primary text-foreground">
       <Navbar />
       
       {/* Hero Section */}
@@ -34,7 +31,7 @@ export default function Home() {
         <div className="relative z-10 text-center max-w-5xl animate-in fade-in zoom-in duration-1000">
           <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full glass-morphism mb-10 border border-white/40 finance-3d-shadow transition-all hover:scale-105 cursor-pointer group">
             <Zap className="w-5 h-5 text-accent animate-pulse fill-accent" />
-            <span className="text-sm font-bold text-primary tracking-[0.2em] uppercase">Empowering Young Minds</span>
+            <span className="text-sm font-bold text-primary tracking-[0.2em] uppercase">The Future of Financial Literacy</span>
           </div>
           
           <h1 className="text-6xl md:text-9xl font-headline font-bold text-primary mb-8 leading-[1] tracking-tighter">
@@ -45,7 +42,7 @@ export default function Home() {
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground/80 mb-14 max-w-3xl mx-auto leading-relaxed font-medium">
-            From budgeting basics to investment insights, The Finance School India empowers children to take charge of their money with confidence. Learn how to grow, protect, and manage wealth step by step.
+            From budgeting basics to investment insights, The Finance School India empowers individuals to take charge of their money with confidence. Learn how to grow, protect, and manage your wealth step by step.
           </p>
         </div>
 
@@ -66,12 +63,6 @@ export default function Home() {
             className="absolute top-1/3 right-1/4 animate-float" 
             style={{ animationDuration: '8s', animationDelay: '2s' }} 
            />
-        </div>
-
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 animate-bounce cursor-pointer hover:opacity-100 transition-opacity">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Explore Programs</span>
-          <MousePointer2 className="w-5 h-5 text-primary rotate-180" />
         </div>
       </section>
 
@@ -177,9 +168,6 @@ export default function Home() {
                       <span>Pre-class & Post-class Recorded Sessions</span>
                     </div>
                   </div>
-                  <Button className="w-full h-14 bg-accent text-primary font-bold rounded-2xl text-lg hover:scale-[1.02] transition-transform">
-                    Join the Waitlist
-                  </Button>
                </div>
                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
             </Card>
