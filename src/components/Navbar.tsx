@@ -22,7 +22,7 @@ export default function Navbar() {
   const tagline = branding?.tagline || "Let's Deal with The Wealth";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 glass-morphism border-b border-white/20 shadow-lg animate-in fade-in duration-700">
+    <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 glass-morphism border-b border-white/20 shadow-lg animate-in fade-in duration-700">
       <Link href="/" className="flex items-center gap-3 group">
         <div className="relative w-12 h-12 rounded-xl overflow-hidden finance-3d-shadow group-hover:scale-110 transition-transform duration-300 bg-white">
           <Image 
