@@ -1,9 +1,7 @@
-
 import React from 'react';
 import ThreeHero from '@/components/ThreeHero';
 import Navbar from '@/components/Navbar';
 import CourseCatalog from '@/components/sections/CourseCatalog';
-import NewsFeed from '@/components/sections/NewsFeed';
 import Footer from '@/components/Footer';
 import FinanceIcon3D from '@/components/FinanceIcon3D';
 import { Button } from '@/components/ui/button';
@@ -45,7 +43,7 @@ export default function Home() {
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground/80 mb-14 max-w-3xl mx-auto leading-relaxed font-medium">
-            From budgeting basics to investment insights, Finance School empowers children to take charge of their money with confidence. Learn how to grow, protect, and manage wealth step by step.
+            From budgeting basics to investment insights, The Finance School India empowers children to take charge of their money with confidence. Learn how to grow, protect, and manage wealth step by step.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
@@ -85,7 +83,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Course Catalog */}
+      {/* Main Content Area */}
       <div className="relative z-10 space-y-32 pb-32">
         <div className="bg-white/40 backdrop-blur-sm rounded-[4rem] mx-4 py-8 finance-3d-shadow-inner border border-white/20">
           <CourseCatalog />
@@ -152,10 +150,6 @@ export default function Home() {
             </Card>
           </div>
         </section>
-        
-        <div className="bg-gradient-to-b from-transparent to-slate-100/50">
-          <NewsFeed />
-        </div>
       </div>
       
       <Footer />
