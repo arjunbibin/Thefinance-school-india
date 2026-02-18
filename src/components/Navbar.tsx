@@ -1,16 +1,26 @@
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Box, User, LayoutDashboard, Globe, Zap, Bell } from 'lucide-react';
+import { User, Zap, Bell } from 'lucide-react';
+import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 
 export default function Navbar() {
+  const logoUrl = PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '';
+
   return (
     <nav className="fixed top-6 left-6 right-6 z-50 flex items-center justify-between px-8 py-4 glass-morphism border-white/40 finance-3d-shadow rounded-3xl animate-in fade-in slide-in-from-top-4 duration-1000">
       <Link href="/" className="flex items-center gap-3 group">
-        <div className="bg-primary p-2.5 rounded-2xl finance-3d-shadow group-hover:scale-110 transition-transform duration-300">
-          <Box className="text-accent w-7 h-7" />
+        <div className="relative w-12 h-12 rounded-2xl overflow-hidden finance-3d-shadow group-hover:scale-110 transition-transform duration-300 bg-white">
+          <Image 
+            src={logoUrl} 
+            alt="The Finance School India Logo" 
+            fill 
+            className="object-contain p-1"
+            data-ai-hint="finance logo"
+          />
         </div>
-        <span className="text-2xl font-headline font-bold text-primary tracking-tighter">
+        <span className="text-2xl font-headline font-bold text-primary tracking-tighter hidden sm:block">
           The Finance<span className="text-accent italic drop-shadow-sm"> School India</span>
         </span>
       </Link>

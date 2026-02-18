@@ -1,14 +1,24 @@
 
-import { Box, Twitter, Linkedin, Github, Mail } from 'lucide-react';
+import Image from 'next/image';
+import { Twitter, Linkedin, Github, Mail } from 'lucide-react';
+import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 
 export default function Footer() {
+  const logoUrl = PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '';
+
   return (
     <footer className="bg-primary text-white pt-24 pb-12 px-6">
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-16">
         <div className="col-span-2">
-          <div className="flex items-center gap-2 mb-6">
-            <div className="bg-accent p-2 rounded-lg">
-              <Box className="text-primary w-6 h-6" />
+          <div className="flex items-center gap-3 mb-6">
+            <div className="relative w-12 h-12 bg-white rounded-xl overflow-hidden p-1">
+              <Image 
+                src={logoUrl} 
+                alt="Logo" 
+                fill 
+                className="object-contain"
+                data-ai-hint="finance logo"
+              />
             </div>
             <span className="text-2xl font-headline font-bold text-white tracking-tight">
               The Finance<span className="text-accent"> School India</span>
