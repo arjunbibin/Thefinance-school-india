@@ -2,7 +2,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Twitter, Linkedin, Github, Mail } from 'lucide-react';
+import { Twitter, Linkedin, Github, Mail, MessageSquare } from 'lucide-react';
 import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -35,38 +35,38 @@ export default function Footer() {
             </span>
           </div>
           <p className="text-slate-400 max-w-sm mb-8">
-            Empowering the next generation of investors with 3D immersive education and cutting-edge financial tools.
+            An Edu-Tech initiative focused on building financial awareness, leadership skills, and real-life readiness among children.
           </p>
           <div className="flex gap-4">
             <div className="p-2 rounded-lg bg-white/10 hover:bg-accent hover:text-primary transition-colors cursor-pointer"><Twitter className="w-5 h-5" /></div>
             <div className="p-2 rounded-lg bg-white/10 hover:bg-accent hover:text-primary transition-colors cursor-pointer"><Linkedin className="w-5 h-5" /></div>
-            <div className="p-2 rounded-lg bg-white/10 hover:bg-accent hover:text-primary transition-colors cursor-pointer"><Github className="w-5 h-5" /></div>
+            <div className="p-2 rounded-lg bg-white/10 hover:bg-accent hover:text-primary transition-colors cursor-pointer"><MessageSquare className="w-5 h-5" /></div>
           </div>
         </div>
 
         <div>
-          <h4 className="font-headline font-bold mb-6">Platform</h4>
+          <h4 className="font-headline font-bold mb-6">Our Programs</h4>
           <ul className="space-y-4 text-slate-400">
-            <li className="hover:text-accent cursor-pointer">Course Catalog</li>
-            <li className="hover:text-accent cursor-pointer">Simulation Tools</li>
-            <li className="hover:text-accent cursor-pointer">News Aggregator</li>
-            <li className="hover:text-accent cursor-pointer">Leaderboards</li>
+            <li className="hover:text-accent cursor-pointer">Finance for Life</li>
+            <li className="hover:text-accent cursor-pointer">Rise and Lead</li>
+            <li className="hover:text-accent cursor-pointer">Little CEO (Premium)</li>
+            <li className="hover:text-accent cursor-pointer">Offline Workshops</li>
           </ul>
         </div>
 
         <div>
           <h4 className="font-headline font-bold mb-6">Support</h4>
           <ul className="space-y-4 text-slate-400">
-            <li className="hover:text-accent cursor-pointer">Knowledge Base</li>
-            <li className="hover:text-accent cursor-pointer">Help Center</li>
-            <li className="hover:text-accent cursor-pointer">Terms of Service</li>
+            <li className="hover:text-accent cursor-pointer">Mentor WhatsApp</li>
+            <li className="hover:text-accent cursor-pointer">Doubt Clearing</li>
+            <li className="hover:text-accent cursor-pointer">Recorded Sessions</li>
             <li className="hover:text-accent cursor-pointer">Privacy Policy</li>
           </ul>
         </div>
       </div>
       
       <div className="max-w-7xl mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
-        <p>© 2024 {appName}. All rights reserved.</p>
+        <p>© 2024 {appName}. Building tomorrow's entrepreneurs.</p>
         <div className="flex gap-8">
           <span className="flex items-center gap-2"><Mail className="w-4 h-4" /> support@financeschool.in</span>
         </div>

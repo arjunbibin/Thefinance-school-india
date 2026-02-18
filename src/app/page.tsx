@@ -8,7 +8,20 @@ import NewsFeed from '@/components/sections/NewsFeed';
 import Footer from '@/components/Footer';
 import FinanceIcon3D from '@/components/FinanceIcon3D';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Globe, Layers, Shield, Zap, MousePointer2 } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { 
+  ArrowRight, 
+  Globe, 
+  Layers, 
+  Shield, 
+  Zap, 
+  MousePointer2, 
+  Clock, 
+  Calendar, 
+  Video, 
+  MessageCircle, 
+  CheckCircle 
+} from 'lucide-react';
 
 export default function Home() {
   return (
@@ -22,7 +35,7 @@ export default function Home() {
         <div className="relative z-10 text-center max-w-5xl animate-in fade-in zoom-in duration-1000">
           <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full glass-morphism mb-10 border border-white/40 finance-3d-shadow transition-all hover:scale-105 cursor-pointer group">
             <Zap className="w-5 h-5 text-accent animate-pulse fill-accent" />
-            <span className="text-sm font-bold text-primary tracking-[0.2em] uppercase">The Future of Financial Literacy</span>
+            <span className="text-sm font-bold text-primary tracking-[0.2em] uppercase">Empowering Young Minds</span>
           </div>
           
           <h1 className="text-6xl md:text-9xl font-headline font-bold text-primary mb-8 leading-[1] tracking-tighter">
@@ -33,16 +46,16 @@ export default function Home() {
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground/80 mb-14 max-w-3xl mx-auto leading-relaxed font-medium">
-            From budgeting basics to investment insights, The Finance School empowers individuals to take charge of their money with confidence. Learn how to grow, protect, and manage your wealth step by step.
+            From budgeting basics to investment insights, Finance School empowers children to take charge of their money with confidence. Learn how to grow, protect, and manage wealth step by step.
           </p>
           
           <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
             <Button size="lg" className="h-16 bg-primary hover:bg-primary/95 text-white px-10 text-xl font-bold rounded-2xl transition-all hover:scale-110 shadow-2xl hover:shadow-primary/40 group">
-              Get Started Free
+              Start Learning Step-by-Step
               <ArrowRight className="ml-2 w-6 h-6 transition-transform group-hover:translate-x-1" />
             </Button>
             <Button size="lg" variant="outline" className="h-16 px-10 text-xl font-bold rounded-2xl glass-morphism hover:bg-white/60 border-2 transition-all hover:scale-105 finance-3d-shadow">
-              Watch 3D Demo
+              Explore Our Vision
             </Button>
           </div>
         </div>
@@ -68,16 +81,78 @@ export default function Home() {
 
         {/* Scroll Indicator */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-50 animate-bounce cursor-pointer hover:opacity-100 transition-opacity">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Explore School</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Explore Programs</span>
           <MousePointer2 className="w-5 h-5 text-primary rotate-180" />
         </div>
       </section>
 
-      {/* Content Wrappers for Layered Feel */}
+      {/* Course Catalog */}
       <div className="relative z-10 space-y-32 pb-32">
         <div className="bg-white/40 backdrop-blur-sm rounded-[4rem] mx-4 py-8 finance-3d-shadow-inner border border-white/20">
           <CourseCatalog />
         </div>
+
+        {/* Course Structure Section */}
+        <section className="max-w-7xl mx-auto px-6 py-24">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <h2 className="text-4xl md:text-5xl font-headline font-bold text-primary">Course Structure & <span className="text-accent">Support</span></h2>
+                <p className="text-lg text-muted-foreground leading-relaxed">
+                  Our programs are designed for long-term impact, combining live interaction with practical workshops and dedicated mentorship.
+                </p>
+              </div>
+
+              <div className="grid gap-6">
+                <Card className="p-6 border-none finance-3d-shadow flex items-start gap-4 bg-white rounded-2xl">
+                  <div className="p-3 bg-primary/10 rounded-xl text-primary"><Clock className="w-6 h-6" /></div>
+                  <div>
+                    <h4 className="font-bold text-lg mb-1">9-Month Journey</h4>
+                    <p className="text-sm text-muted-foreground">Comprehensive curriculum that can be fast-tracked to 6 months for accelerated learners.</p>
+                  </div>
+                </Card>
+                <Card className="p-6 border-none finance-3d-shadow flex items-start gap-4 bg-white rounded-2xl">
+                  <div className="p-3 bg-accent/10 rounded-xl text-primary"><Calendar className="w-6 h-6" /></div>
+                  <div>
+                    <h4 className="font-bold text-lg mb-1">Flexible Schedule</h4>
+                    <p className="text-sm text-muted-foreground">Weekly 1-hour live online classes on weekends and public holidays to fit into school life.</p>
+                  </div>
+                </Card>
+                <Card className="p-6 border-none finance-3d-shadow flex items-start gap-4 bg-white rounded-2xl">
+                  <div className="p-3 bg-primary/10 rounded-xl text-primary"><Video className="w-6 h-6" /></div>
+                  <div>
+                    <h4 className="font-bold text-lg mb-1">Hybrid Learning</h4>
+                    <p className="text-sm text-muted-foreground">A mix of Online interactive sessions and Offline practical workshops for real-world exposure.</p>
+                  </div>
+                </Card>
+              </div>
+            </div>
+
+            <Card className="p-10 border-none bg-primary text-white rounded-[3rem] finance-3d-shadow relative overflow-hidden">
+               <div className="relative z-10 space-y-8">
+                  <h3 className="text-3xl font-headline font-bold">Unmatched Support</h3>
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-4">
+                      <div className="bg-white/20 p-2 rounded-lg"><MessageCircle className="w-5 h-5" /></div>
+                      <span>Dedicated Mentor Support via WhatsApp & Email</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="bg-white/20 p-2 rounded-lg"><CheckCircle className="w-5 h-5" /></div>
+                      <span>Live Doubt-Clearing Calls whenever you need</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="bg-white/20 p-2 rounded-lg"><Layers className="w-5 h-5" /></div>
+                      <span>Pre-class & Post-class Recorded Sessions</span>
+                    </div>
+                  </div>
+                  <Button className="w-full h-14 bg-accent text-primary font-bold rounded-2xl text-lg hover:scale-[1.02] transition-transform">
+                    Join the Waitlist
+                  </Button>
+               </div>
+               <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
+            </Card>
+          </div>
+        </section>
         
         <FinancialTools />
         
