@@ -14,16 +14,7 @@ service cloud.firestore {
      * - /userProfiles/{userId}: Private user data and their subcollections.
      * - /courses, /financialTools, /newsArticles: Global educational resources.
      * - /roles_admin/{userId}: Designated administrative UIDs.
-     *
-     * Key Security Decisions:
-     * - Denormalization for Authorization: User-specific documents contain a 'userId' or 'id' field 
-     *   that MUST match the document ID and the parent path. This allows for atomic, high-performance 
-     *   checks without cross-document lookups.
-     * - DBAC Admin Model: Admin privileges are granted by the existence of a document in the 
-     *   'roles_admin' collection, providing a secure, auditable way to manage permissions.
-     * - Prototyping Flexibility: Rules focus strictly on authorization and relational integrity 
-     *   (e.g., ensuring a user cannot write data into another user's path) rather than 
-     *   strict schema/type validation.
+     * - /config/branding: Global branding settings.
      */
 
     // --- GLOBAL HELPER FUNCTIONS ---
@@ -47,6 +38,17 @@ service cloud.firestore {
     }
 
     // --- COLLECTION RULES ---
+
+    /**
+     * @description Global application configuration.
+     * @path /config/branding
+     * @allow (get) Anyone can read the branding info to see the site name/logo.
+     * @allow (write) Only admins can modify the site's brand identity.
+     */
+    match /config/branding {
+      allow get: if true;
+      allow write: if isAdmin();
+    }
 
     /**
      * @description Administrative role designation. Presence of a UID document grants admin rights.
