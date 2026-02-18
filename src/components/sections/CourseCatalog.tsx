@@ -2,10 +2,9 @@
 "use client"
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { PlayCircle, Award, Users, Briefcase, ArrowRight, Star, CheckCircle2 } from 'lucide-react';
+import { PlayCircle, Award, Users, Briefcase, Star, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 
@@ -100,7 +99,7 @@ export default function CourseCatalog() {
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="pt-0 space-y-3">
+            <CardContent className="pt-0 pb-8 space-y-3">
               <div className="grid grid-cols-1 gap-2">
                 {course.highlights.map((item, i) => (
                   <div key={i} className="flex items-center gap-2 text-xs font-medium text-slate-600">
@@ -110,13 +109,6 @@ export default function CourseCatalog() {
                 ))}
               </div>
             </CardContent>
-
-            <CardFooter className="pt-2">
-              <Button className="w-full h-12 bg-primary hover:bg-primary/90 text-white font-bold group rounded-xl transition-all shadow-xl hover:shadow-primary/20">
-                Explore Curriculum
-                <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </Button>
-            </CardFooter>
           </Card>
         ))}
       </div>
