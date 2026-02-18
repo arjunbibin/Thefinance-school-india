@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -52,7 +51,7 @@ export default function Dashboard() {
       setTagline(brandingData.tagline || '');
       setLogoUrl(brandingData.logoUrl || '');
     } else if (!isBrandingLoading) {
-      setAppName('The Finance School');
+      setAppName('The Finance School India');
       setTagline("Let's Deal with The Wealth");
     }
   }, [brandingData, isBrandingLoading]);
@@ -128,7 +127,7 @@ export default function Dashboard() {
                    <Label htmlFor="appName" className="text-sm font-bold text-slate-500 uppercase tracking-tighter">App Name</Label>
                    <Input 
                      id="appName" 
-                     placeholder="The Finance School" 
+                     placeholder="The Finance School India" 
                      value={appName} 
                      onChange={(e) => setAppName(e.target.value)}
                      className="rounded-xl border-slate-100 bg-slate-50/50"

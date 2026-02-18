@@ -1,10 +1,9 @@
-
 import type {Metadata} from 'next';
 import './globals.css';
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'The Finance School - Let\'s Deal with The Wealth',
+  title: 'The Finance School India - Let\'s Deal with The Wealth',
   description: 'Navigate the future of finance with 3D insights and interactive tools.',
 };
 

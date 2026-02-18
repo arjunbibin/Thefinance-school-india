@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -14,7 +13,7 @@ export default function Footer() {
   const { data: branding } = useDoc(brandingRef);
 
   const logoUrl = branding?.logoUrl || localLogo || PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '';
-  const appName = branding?.appName || 'The Finance School';
+  const appName = branding?.appName || 'The Finance School India';
 
   return (
     <footer className="bg-primary text-white pt-24 pb-12 px-6">

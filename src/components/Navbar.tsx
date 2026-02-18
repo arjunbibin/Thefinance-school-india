@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -19,7 +18,7 @@ export default function Navbar() {
 
   // Fallbacks: Firestore -> Local Upload -> Placeholder
   const logoUrl = branding?.logoUrl || localLogo || PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '';
-  const appName = branding?.appName || 'The Finance School';
+  const appName = branding?.appName || 'The Finance School India';
   const tagline = branding?.tagline || "Let's Deal with The Wealth";
 
   return (
