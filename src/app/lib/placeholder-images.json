@@ -9,19 +9,19 @@
     },
     {
       "id": "course-1",
-      "description": "Investing 101 Course",
+      "description": "Market Fundamentals Course",
       "imageUrl": "https://picsum.photos/seed/invest/400/300",
       "imageHint": "stock market"
     },
     {
       "id": "course-2",
-      "description": "Crypto Mastery Course",
+      "description": "Advanced Crypto Assets Course",
       "imageUrl": "https://picsum.photos/seed/crypto/400/300",
       "imageHint": "blockchain crypto"
     },
     {
       "id": "course-3",
-      "description": "Personal Finance Course",
+      "description": "Wealth Architecture Course",
       "imageUrl": "https://picsum.photos/seed/money/400/300",
       "imageHint": "savings wealth"
     },
@@ -33,7 +33,7 @@
     },
     {
       "id": "app-logo",
-      "description": "The Finance School India Logo",
+      "description": "The Finance School Logo",
       "imageUrl": "https://picsum.photos/seed/financelogo/200/200",
       "imageHint": "finance logo circle"
     }

@@ -14,14 +14,14 @@ export default function Navbar() {
         <div className="relative w-12 h-12 rounded-2xl overflow-hidden finance-3d-shadow group-hover:scale-110 transition-transform duration-300 bg-white">
           <Image 
             src={logoUrl} 
-            alt="The Finance School India Logo" 
+            alt="The Finance School Logo" 
             fill 
             className="object-contain p-1"
             data-ai-hint="finance logo"
           />
         </div>
         <span className="text-2xl font-headline font-bold text-primary tracking-tighter hidden sm:block">
-          The Finance<span className="text-accent italic drop-shadow-sm"> School India</span>
+          The Finance<span className="text-accent italic drop-shadow-sm"> School</span>
         </span>
       </Link>
       

@@ -3,7 +3,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'The Finance School India - Modern Financial Intelligence',
+  title: 'The Finance School - Let\'s Deal with The Wealth',
   description: 'Navigate the future of finance with 3D insights and interactive tools.',
 };
 
