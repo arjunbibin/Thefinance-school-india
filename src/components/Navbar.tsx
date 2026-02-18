@@ -43,12 +43,6 @@ export default function Navbar() {
         </div>
       </Link>
       
-      <div className="hidden lg:flex items-center gap-10">
-        <Link href="/" className="text-sm font-bold text-primary/70 hover:text-primary hover:scale-105 transition-all uppercase tracking-widest">Home</Link>
-        <Link href="#courses" className="text-sm font-bold text-primary/70 hover:text-primary hover:scale-105 transition-all uppercase tracking-widest">Courses</Link>
-        <Link href="#news" className="text-sm font-bold text-primary/70 hover:text-primary hover:scale-105 transition-all uppercase tracking-widest">Pulse Feed</Link>
-      </div>
-
       <div className="flex items-center gap-4">
         <Link href="/dashboard">
           <Button variant="ghost" size="icon" className="text-primary hover:bg-accent/20 rounded-xl finance-3d-shadow-inner bg-white/50 border border-white/40">
