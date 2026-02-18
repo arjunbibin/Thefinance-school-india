@@ -1,10 +1,19 @@
 
+'use client';
+
 import Image from 'next/image';
 import { Twitter, Linkedin, Github, Mail } from 'lucide-react';
 import { PlaceHolderImages } from '@/app/lib/placeholder-images';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 export default function Footer() {
-  const logoUrl = PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '';
+  const db = useFirestore();
+  const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
+  const { data: branding } = useDoc(brandingRef);
+
+  const logoUrl = branding?.logoUrl || PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '';
+  const appName = branding?.appName || 'The Finance School';
 
   return (
     <footer className="bg-primary text-white pt-24 pb-12 px-6">
@@ -21,7 +30,7 @@ export default function Footer() {
               />
             </div>
             <span className="text-2xl font-headline font-bold text-white tracking-tight">
-              The Finance<span className="text-accent"> School</span>
+              {appName}
             </span>
           </div>
           <p className="text-slate-400 max-w-sm mb-8">
@@ -56,7 +65,7 @@ export default function Footer() {
       </div>
       
       <div className="max-w-7xl mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
-        <p>© 2024 The Finance School. All rights reserved.</p>
+        <p>© 2024 {appName}. All rights reserved.</p>
         <div className="flex gap-8">
           <span className="flex items-center gap-2"><Mail className="w-4 h-4" /> support@financeschool.in</span>
         </div>

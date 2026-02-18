@@ -11,12 +11,15 @@ import { doc } from 'firebase/firestore';
 
 export default function Navbar() {
   const db = useFirestore();
+  
+  // Real-time branding sync from Firestore
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
 
+  // Fallbacks if Firestore data isn't set yet
   const logoUrl = branding?.logoUrl || PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '';
   const appName = branding?.appName || 'The Finance School';
-  const tagline = branding?.tagline || 'India';
+  const tagline = branding?.tagline || "Let's Deal with The Wealth";
 
   return (
     <nav className="fixed top-6 left-6 right-6 z-50 flex items-center justify-between px-8 py-4 glass-morphism border-white/40 finance-3d-shadow rounded-3xl animate-in fade-in slide-in-from-top-4 duration-1000">
@@ -30,9 +33,14 @@ export default function Navbar() {
             data-ai-hint="finance logo"
           />
         </div>
-        <span className="text-2xl font-headline font-bold text-primary tracking-tighter hidden sm:block">
-          {appName}<span className="text-accent italic drop-shadow-sm ml-1">{tagline}</span>
-        </span>
+        <div className="flex flex-col">
+          <span className="text-xl font-headline font-bold text-primary tracking-tighter leading-none">
+            {appName}
+          </span>
+          <span className="text-[10px] font-bold text-accent uppercase tracking-widest mt-1 opacity-80">
+            {tagline}
+          </span>
+        </div>
       </Link>
       
       <div className="hidden lg:flex items-center gap-10">
