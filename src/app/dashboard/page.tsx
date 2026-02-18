@@ -145,10 +145,10 @@ export default function Dashboard() {
                    />
                  </div>
                  <div className="space-y-2">
-                   <Label htmlFor="logoUrl" className="text-sm font-bold text-slate-500 uppercase tracking-tighter">Logo URL (link to image)</Label>
+                   <Label htmlFor="logoUrl" className="text-sm font-bold text-slate-500 uppercase tracking-tighter">Logo URL (leave empty for local logo)</Label>
                    <Input 
                      id="logoUrl" 
-                     placeholder="Link from Firebase Storage" 
+                     placeholder="Public URL or Firebase Storage link" 
                      value={logoUrl} 
                      onChange={(e) => setLogoUrl(e.target.value)}
                      className="rounded-xl border-slate-100 bg-slate-50/50"
@@ -162,7 +162,7 @@ export default function Dashboard() {
                  </Button>
                  <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground italic mt-4 bg-slate-50 py-2 rounded-lg">
                    <CheckCircle2 className="w-3 h-3 text-accent" />
-                   Changes reflect across the site instantly.
+                   Local logo used if no URL is saved.
                  </div>
                </div>
             </Card>

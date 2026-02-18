@@ -8,6 +8,7 @@ import { User, Zap, Bell } from 'lucide-react';
 import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import localLogo from '@/images/logo.png';
 
 export default function Navbar() {
   const db = useFirestore();
@@ -16,8 +17,8 @@ export default function Navbar() {
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
 
-  // Fallbacks if Firestore data isn't set yet
-  const logoUrl = branding?.logoUrl || PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '';
+  // Fallbacks: Firestore -> Local Upload -> Placeholder
+  const logoUrl = branding?.logoUrl || localLogo || PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '';
   const appName = branding?.appName || 'The Finance School';
   const tagline = branding?.tagline || "Let's Deal with The Wealth";
 

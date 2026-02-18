@@ -6,13 +6,14 @@ import { Twitter, Linkedin, Github, Mail } from 'lucide-react';
 import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import localLogo from '@/images/logo.png';
 
 export default function Footer() {
   const db = useFirestore();
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
 
-  const logoUrl = branding?.logoUrl || PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '';
+  const logoUrl = branding?.logoUrl || localLogo || PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '';
   const appName = branding?.appName || 'The Finance School';
 
   return (
