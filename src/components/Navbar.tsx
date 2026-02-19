@@ -3,15 +3,11 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { User } from 'lucide-react';
-import { PlaceHolderImages } from '@/app/lib/placeholder-images';
-import { useFirestore, useDoc, useMemoFirebase, useUser } from '@/firebase';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 
 export default function Navbar() {
   const db = useFirestore();
-  const { user, isUserLoading } = useUser();
   
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
@@ -41,18 +37,6 @@ export default function Navbar() {
           </span>
         </div>
       </Link>
-      
-      <div className="flex items-center gap-4">
-        {isUserLoading ? (
-          <div className="w-10 h-10 rounded-xl bg-slate-200 animate-pulse" />
-        ) : user ? (
-          <Link href="/dashboard">
-            <Button variant="outline" className="text-primary border-primary/20 bg-white hover:bg-slate-50 rounded-xl finance-3d-shadow font-bold flex items-center gap-2 px-6">
-              <User className="w-4 h-4" /> My Dashboard
-            </Button>
-          </Link>
-        ) : null}
-      </div>
     </nav>
   );
 }
