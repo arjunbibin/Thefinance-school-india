@@ -4,6 +4,7 @@ import Link from 'next/link';
 import ThreeHero from '@/components/ThreeHero';
 import Navbar from '@/components/Navbar';
 import CourseCatalog from '@/components/sections/CourseCatalog';
+import ShowcaseSlideshow from '@/components/sections/ShowcaseSlideshow';
 import Footer from '@/components/Footer';
 import FinanceIcon3D from '@/components/FinanceIcon3D';
 import { Card } from '@/components/ui/card';
@@ -18,7 +19,8 @@ import {
   MessageCircle, 
   CheckCircle,
   Target,
-  ShieldCheck
+  ShieldCheck,
+  CircleCheckBig
 } from 'lucide-react';
 
 export default function Home() {
@@ -100,7 +102,7 @@ export default function Home() {
                   "To develop a new generation of financially responsible citizens who value saving, investing, and ethical wealth creation."
                 ].map((item, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <CheckCircle className="w-6 h-6 text-accent shrink-0 mt-1" />
+                    <CircleCheckBig className="w-6 h-6 text-accent shrink-0 mt-1" />
                     <span className="text-lg opacity-90">{item}</span>
                   </li>
                 ))}
@@ -116,6 +118,8 @@ export default function Home() {
         <div className="bg-white/40 backdrop-blur-sm rounded-[4rem] mx-4 py-8 finance-3d-shadow-inner border border-white/20">
           <CourseCatalog />
         </div>
+
+        <ShowcaseSlideshow />
 
         {/* Course Structure Section */}
         <section className="max-w-7xl mx-auto px-6 py-24">
@@ -162,7 +166,7 @@ export default function Home() {
                       <span>Dedicated Mentor Support via WhatsApp & Email</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <div className="bg-white/20 p-2 rounded-lg"><CheckCircle className="w-5 h-5" /></div>
+                      <div className="bg-white/20 p-2 rounded-lg"><CircleCheckBig className="w-5 h-5" /></div>
                       <span>Live Doubt-Clearing Calls whenever you need</span>
                     </div>
                     <div className="flex items-center gap-4">
