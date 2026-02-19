@@ -34,7 +34,7 @@
     {
       "id": "app-logo",
       "description": "The Finance School Logo",
-      "imageUrl": "https://picsum.photos/seed/financeschool-logo/200/200",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-6721629864-6b462.firebasestorage.app/o/logo%2Flogo.png?alt=media&token=1c70983d-c10f-440b-a75b-99d4013b1c9c",
       "imageHint": "finance logo"
     }
   ]

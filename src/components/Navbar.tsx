@@ -51,13 +51,7 @@ export default function Navbar() {
               <User className="w-4 h-4" /> My Dashboard
             </Button>
           </Link>
-        ) : (
-          <Link href="/login">
-            <Button variant="outline" className="text-primary border-primary/20 bg-white hover:bg-slate-50 rounded-xl finance-3d-shadow font-bold px-6">
-              Log In
-            </Button>
-          </Link>
-        )}
+        ) : null}
       </div>
     </nav>
   );
