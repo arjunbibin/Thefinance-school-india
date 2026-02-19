@@ -34,6 +34,11 @@ const slides = [
 ];
 
 export default function ShowcaseSlideshow() {
+  // Use a ref to maintain a stable plugin instance across renders
+  const plugin = React.useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: false, stopOnMouseEnter: true })
+  );
+
   return (
     <section className="max-w-7xl mx-auto px-6 py-24">
       <div className="mb-12 text-center">
@@ -48,13 +53,7 @@ export default function ShowcaseSlideshow() {
             align: "start",
             loop: true,
           }}
-          plugins={[
-            Autoplay({
-              delay: 4000,
-              stopOnInteraction: false,
-              stopOnMouseEnter: true,
-            }),
-          ]}
+          plugins={[plugin.current]}
           className="w-full"
         >
           <CarouselContent>
