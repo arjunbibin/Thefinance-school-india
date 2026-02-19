@@ -3,6 +3,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Autoplay from 'embla-carousel-autoplay';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Carousel,
@@ -33,6 +34,10 @@ const slides = [
 ];
 
 export default function ShowcaseSlideshow() {
+  const plugin = React.useRef(
+    Autoplay({ delay: 4000, stopOnInteraction: true })
+  );
+
   return (
     <section className="max-w-7xl mx-auto px-6 py-24">
       <div className="mb-12 text-center">
@@ -47,6 +52,9 @@ export default function ShowcaseSlideshow() {
             align: "start",
             loop: true,
           }}
+          plugins={[plugin.current]}
+          onMouseEnter={plugin.current.stop}
+          onMouseLeave={plugin.current.reset}
           className="w-full"
         >
           <CarouselContent>
