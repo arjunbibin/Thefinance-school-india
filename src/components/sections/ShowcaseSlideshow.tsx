@@ -62,7 +62,7 @@ export default function ShowcaseSlideshow() {
               return (
                 <CarouselItem key={slide.id} className="pl-2 md:pl-4">
                   <Card className="border-none bg-white finance-3d-shadow rounded-[2rem] md:rounded-[3rem] overflow-hidden">
-                    <CardContent className="p-0 relative aspect-[3/4] sm:aspect-square md:aspect-[21/9] min-h-[350px] md:min-h-[450px]">
+                    <CardContent className="p-0 relative aspect-video md:aspect-[21/9] min-h-[220px] md:min-h-[450px]">
                       <Image
                         src={imageData?.imageUrl || ''}
                         alt={slide.title}
@@ -70,9 +70,9 @@ export default function ShowcaseSlideshow() {
                         className="object-cover"
                         data-ai-hint={imageData?.imageHint || 'education'}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-6 md:p-12">
-                        <h3 className="text-xl md:text-5xl font-headline font-bold text-white mb-2 md:mb-4">{slide.title}</h3>
-                        <p className="text-white/80 text-xs md:text-xl max-w-2xl leading-relaxed">{slide.description}</p>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex flex-col justify-end p-5 md:p-12">
+                        <h3 className="text-lg md:text-5xl font-headline font-bold text-white mb-1 md:mb-4">{slide.title}</h3>
+                        <p className="text-white/80 text-[10px] md:text-xl max-w-2xl leading-tight md:leading-relaxed">{slide.description}</p>
                       </div>
                     </CardContent>
                   </Card>
