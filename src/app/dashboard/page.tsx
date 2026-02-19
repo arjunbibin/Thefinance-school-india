@@ -16,19 +16,13 @@ import {
   Trophy, 
   BookOpen, 
   Clock, 
-  Activity, 
-  Settings, 
-  LogOut, 
-  Shield, 
   Zap, 
-  Layout,
-  Globe,
-  Briefcase,
-  Users,
-  Code,
-  PieChart,
-  HardHat,
-  Target
+  LogOut, 
+  Star,
+  PlayCircle,
+  TrendingUp,
+  Award,
+  ChevronRight
 } from 'lucide-react';
 import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 
@@ -39,7 +33,6 @@ export default function Dashboard() {
   const router = useRouter();
   const avatarUrl = PlaceHolderImages.find(img => img.id === 'avatar-user')?.imageUrl || '';
 
-  // Role-based User Profile
   const profileRef = useMemoFirebase(() => user ? doc(db, 'userProfiles', user.uid) : null, [db, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
 
@@ -62,154 +55,142 @@ export default function Dashboard() {
     );
   }
 
-  const role = profile?.role || 'user';
-
-  const roleConfigs: Record<string, { title: string, icon: any, color: string, stats: any[] }> = {
-    admin: {
-      title: "Primary Admin",
-      icon: Shield,
-      color: "bg-destructive",
-      stats: [{ label: "Total Users", val: "1,284", icon: Users }, { label: "System Load", val: "12%", icon: Activity }]
-    },
-    tech_head: {
-      title: "Tech Head",
-      icon: Code,
-      color: "bg-primary",
-      stats: [{ label: "Uptime", val: "99.9%", icon: Zap }, { label: "Nodes", val: "24", icon: Globe }]
-    },
-    content_head: {
-      title: "Content Head",
-      icon: BookOpen,
-      color: "bg-accent",
-      stats: [{ label: "Courses", val: "14", icon: Trophy }, { label: "Lessons", val: "142", icon: Clock }]
-    },
-    accounts_head: {
-      title: "Accounts Head",
-      icon: PieChart,
-      color: "bg-green-500",
-      stats: [{ label: "Revenue", val: "$42k", icon: Briefcase }, { label: "Growth", val: "+14%", icon: Activity }]
-    },
-    manager: {
-      title: "General Manager",
-      icon: Layout,
-      color: "bg-indigo-500",
-      stats: [{ label: "Efficiency", val: "94%", icon: Target }, { label: "Team", val: "12", icon: Users }]
-    },
-    user: {
-      title: "Student",
-      icon: Trophy,
-      color: "bg-slate-500",
-      stats: [{ label: "XP", val: "450", icon: Trophy }, { label: "Courses", val: "2", icon: BookOpen }]
-    }
-  };
-
-  const config = roleConfigs[role] || roleConfigs.user;
+  const studentName = profile?.firstName || user?.displayName?.split(' ')[0] || user?.email?.split('@')[0] || 'Student';
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       
       <main className="pt-32 pb-24 px-6 max-w-7xl mx-auto">
-        <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-headline font-bold text-primary mb-2">
-              Welcome, <span className="text-accent">{profile?.firstName || user?.email?.split('@')[0]}</span>
+        {/* Header Section */}
+        <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-2">
+            <h1 className="text-4xl md:text-6xl font-headline font-bold text-primary tracking-tight">
+              Hello, <span className="text-accent underline decoration-accent/30 underline-offset-8">{studentName}</span>
             </h1>
-            <p className="text-muted-foreground text-lg italic capitalize">{config.title} Terminal Access</p>
+            <p className="text-muted-foreground text-lg font-medium">Ready to take charge of your wealth today?</p>
           </div>
-          <Button onClick={handleLogout} variant="outline" className="h-12 px-6 rounded-xl border-2 text-destructive border-destructive/20 hover:bg-destructive hover:text-white transition-all font-bold">
-            <LogOut className="w-5 h-5 mr-2" /> Secure Exit
+          <Button onClick={handleLogout} variant="outline" className="h-14 px-8 rounded-2xl border-2 text-destructive border-destructive/10 hover:bg-destructive hover:text-white transition-all font-bold shadow-sm">
+            <LogOut className="w-5 h-5 mr-3" /> Sign Out
           </Button>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-10">
-          <aside className="w-full lg:w-80 space-y-8">
-            <Card className="finance-3d-shadow border-none bg-white overflow-hidden rounded-[2rem]">
-              <div className={`h-24 ${config.color} relative`}>
-                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
-                  <Avatar className="w-24 h-24 border-8 border-white finance-3d-shadow">
-                    <AvatarImage src={avatarUrl} />
-                    <AvatarFallback className="bg-slate-200 text-primary font-bold">U</AvatarFallback>
+        <div className="grid lg:grid-cols-12 gap-10">
+          {/* Sidebar Stats */}
+          <aside className="lg:col-span-4 space-y-8">
+            <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+              <div className="h-32 bg-primary relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2">
+                  <Avatar className="w-32 h-32 border-8 border-white finance-3d-shadow">
+                    <AvatarImage src={user?.photoURL || avatarUrl} />
+                    <AvatarFallback className="bg-slate-100 text-primary font-bold text-2xl">
+                      {studentName[0]}
+                    </AvatarFallback>
                   </Avatar>
                 </div>
               </div>
-              <CardHeader className="pt-14 text-center">
-                <CardTitle className="text-2xl font-headline font-bold text-primary">{profile?.firstName || 'Staff'}</CardTitle>
-                <Badge className={`${config.color} text-white font-bold px-3 py-1 mx-auto mt-2 w-fit border-none`}>
-                  <config.icon className="w-3 h-3 mr-1 inline" /> {config.title}
-                </Badge>
+              <CardHeader className="pt-20 text-center">
+                <CardTitle className="text-3xl font-headline font-bold text-primary">{studentName}</CardTitle>
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <Badge className="bg-accent text-primary font-bold px-4 py-1.5 border-none rounded-full shadow-sm">
+                    <Star className="w-4 h-4 mr-1.5 fill-primary" /> Level 4 Student
+                  </Badge>
+                </div>
               </CardHeader>
-              <CardContent className="space-y-4 pt-4 border-t border-slate-50">
-                <Button variant="ghost" className="w-full h-12 justify-start gap-4 rounded-xl group font-bold">
-                  <Layout className="w-5 h-5 text-primary" /> Overview
-                </Button>
-                <Button variant="ghost" className="w-full h-12 justify-start gap-4 rounded-xl group font-bold">
-                  <Settings className="w-5 h-5 text-primary" /> Preferences
-                </Button>
+              <CardContent className="p-8 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 finance-3d-shadow-inner text-center">
+                    <div className="text-2xl font-bold text-primary">1,240</div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Total XP</div>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-slate-50 finance-3d-shadow-inner text-center">
+                    <div className="text-2xl font-bold text-accent">12</div>
+                    <div className="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Badges</div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-2 gap-4">
-              {config.stats.map((stat, i) => (
-                <Card key={i} className="p-4 border-none finance-3d-shadow bg-white rounded-2xl text-center">
-                  <div className="bg-slate-50 p-2 rounded-lg w-fit mx-auto mb-2"><stat.icon className="w-4 h-4 text-primary" /></div>
-                  <div className="text-xl font-bold text-primary">{stat.val}</div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{stat.label}</div>
-                </Card>
-              ))}
-            </div>
+            <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] p-8 space-y-6">
+              <h3 className="text-xl font-headline font-bold flex items-center gap-3">
+                <TrendingUp className="w-6 h-6 text-accent" /> Learning Goal
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm font-bold">
+                  <span>Finance for Life</span>
+                  <span className="text-primary">65%</span>
+                </div>
+                <Progress value={65} className="h-3 bg-slate-100" />
+              </div>
+              <p className="text-sm text-muted-foreground italic">"Wealth is the ability to fully experience life."</p>
+            </Card>
           </aside>
 
-          <div className="flex-1 space-y-10">
-            <Card className="bg-white finance-3d-shadow border-none rounded-[2rem] overflow-hidden">
-              <CardHeader className="p-8 border-b border-slate-50 flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="text-2xl font-headline font-bold">Department Terminal</CardTitle>
-                  <CardDescription>Actions and resources for {config.title}s</CardDescription>
+          {/* Main Content */}
+          <div className="lg:col-span-8 space-y-10">
+            <Card className="bg-white finance-3d-shadow border-none rounded-[2.5rem] overflow-hidden">
+              <CardHeader className="p-10 border-b border-slate-50">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl font-headline font-bold">Current Courses</CardTitle>
+                  <Button variant="ghost" className="text-accent font-bold">View All <ChevronRight className="w-4 h-4 ml-1" /></Button>
                 </div>
               </CardHeader>
-              <CardContent className="p-8">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  {role === 'admin' ? (
-                    <>
-                      <Card className="p-6 border-2 border-dashed border-slate-100 hover:border-primary/20 hover:bg-slate-50/50 transition-all cursor-pointer rounded-2xl flex items-center gap-4">
-                        <div className="p-4 bg-primary/10 rounded-xl text-primary"><Users className="w-6 h-6" /></div>
-                        <div><h4 className="font-bold">Staff Directory</h4><p className="text-xs text-muted-foreground">Manage roles & access</p></div>
-                      </Card>
-                      <Card className="p-6 border-2 border-dashed border-slate-100 hover:border-primary/20 hover:bg-slate-50/50 transition-all cursor-pointer rounded-2xl flex items-center gap-4">
-                        <div className="p-4 bg-accent/10 rounded-xl text-primary"><Shield className="w-6 h-6" /></div>
-                        <div><h4 className="font-bold">Security Logs</h4><p className="text-xs text-muted-foreground">Audit system activity</p></div>
-                      </Card>
-                    </>
-                  ) : (
-                    <div className="col-span-2 text-center py-12 space-y-4">
-                      <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto border-2 border-slate-100">
-                        <HardHat className="w-10 h-10 text-slate-300" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-400">Section Under Development</h3>
-                        <p className="text-sm text-slate-400">Your role-specific tools are being synchronized.</p>
-                      </div>
+              <CardContent className="p-10 space-y-8">
+                <div className="group flex flex-col md:flex-row items-center gap-8 p-6 rounded-3xl bg-slate-50/50 hover:bg-white hover:finance-3d-shadow transition-all duration-300 cursor-pointer">
+                  <div className="w-full md:w-40 h-28 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <BookOpen className="w-10 h-10 text-primary" />
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <Badge variant="outline" className="border-primary/20 text-primary">Module 4</Badge>
+                    <h4 className="text-xl font-bold group-hover:text-primary transition-colors">The Magic of Compounding</h4>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground font-medium">
+                      <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> 45 mins</span>
+                      <span className="flex items-center gap-1.5"><Zap className="w-4 h-4" /> 200 XP</span>
                     </div>
-                  )}
+                  </div>
+                  <Button size="icon" className="h-14 w-14 rounded-full bg-primary text-white shadow-lg hover:scale-110 transition-transform">
+                    <PlayCircle className="w-7 h-7" />
+                  </Button>
+                </div>
+
+                <div className="group flex flex-col md:flex-row items-center gap-8 p-6 rounded-3xl bg-slate-50/50 hover:bg-white hover:finance-3d-shadow transition-all duration-300 cursor-pointer">
+                  <div className="w-full md:w-40 h-28 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0">
+                    <Award className="w-10 h-10 text-accent" />
+                  </div>
+                  <div className="flex-1 space-y-3">
+                    <Badge variant="outline" className="border-accent/20 text-accent">Module 5</Badge>
+                    <h4 className="text-xl font-bold group-hover:text-primary transition-colors">Smart Spending & Budgeting</h4>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground font-medium">
+                      <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> 30 mins</span>
+                      <span className="flex items-center gap-1.5"><Zap className="w-4 h-4" /> 150 XP</span>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="icon" className="h-14 w-14 rounded-full border-2 text-slate-300 border-slate-200 cursor-not-allowed">
+                    <Clock className="w-6 h-6" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-white finance-3d-shadow border-none rounded-[2rem] p-8">
-              <div className="flex items-center gap-8">
-                <div className="w-24 h-24 rounded-3xl bg-slate-50 finance-3d-shadow-inner flex items-center justify-center">
-                  <Zap className="w-10 h-10 text-accent fill-accent" />
+            <div className="grid md:grid-cols-2 gap-8">
+              <Card className="p-8 border-none bg-primary text-white rounded-[2.5rem] finance-3d-shadow relative overflow-hidden group cursor-pointer">
+                <div className="relative z-10 space-y-4">
+                  <Trophy className="w-10 h-10 text-accent fill-accent" />
+                  <h4 className="text-2xl font-headline font-bold">Community Leaderboard</h4>
+                  <p className="text-white/70 text-sm">See how you rank against other young entrepreneurs in India.</p>
                 </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-xl font-headline font-bold text-primary">Core Node Status</h4>
-                    <span className="text-lg font-bold text-accent">95%</span>
-                  </div>
-                  <Progress value={95} className="h-4 bg-slate-100" />
+                <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
+              </Card>
+
+              <Card className="p-8 border-none bg-white finance-3d-shadow rounded-[2.5rem] relative overflow-hidden group cursor-pointer border-2 border-dashed border-slate-100 hover:border-accent transition-colors">
+                <div className="relative z-10 space-y-4">
+                  <Star className="w-10 h-10 text-accent" />
+                  <h4 className="text-2xl font-headline font-bold text-primary">Unlock Premium</h4>
+                  <p className="text-muted-foreground text-sm">Access 'Little CEO' and join exclusive mentorship calls.</p>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           </div>
         </div>
       </main>
