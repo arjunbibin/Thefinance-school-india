@@ -25,7 +25,7 @@ export default function Home() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center pt-32 px-6 overflow-hidden">
+      <section className="relative min-h-[80vh] flex items-center justify-center pt-16 px-6 overflow-hidden">
         <ThreeHero />
         
         <div className="relative z-10 text-center max-w-5xl animate-in fade-in zoom-in duration-1000">

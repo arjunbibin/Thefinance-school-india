@@ -21,7 +21,7 @@ export default function Navbar() {
   const tagline = branding?.tagline || "Let's Deal with The Wealth";
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 glass-morphism border-b border-white/20 shadow-lg">
+    <nav className="relative z-50 flex items-center justify-between px-8 py-6 bg-white/40 backdrop-blur-md border-b border-white/20 shadow-sm">
       <Link href="/" className="flex items-center gap-3 group">
         <div className="relative w-12 h-12 rounded-2xl overflow-hidden finance-3d-shadow group-hover:scale-110 transition-transform duration-300 bg-white p-1">
           <Image 
@@ -51,7 +51,13 @@ export default function Navbar() {
               <User className="w-4 h-4" /> My Dashboard
             </Button>
           </Link>
-        ) : null}
+        ) : (
+          <Link href="/login">
+            <Button variant="outline" className="text-primary border-primary/20 bg-white hover:bg-slate-50 rounded-xl finance-3d-shadow font-bold px-6">
+              Log In
+            </Button>
+          </Link>
+        )}
       </div>
     </nav>
   );

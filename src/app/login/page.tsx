@@ -84,7 +84,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="pt-32 pb-24 px-6 flex items-center justify-center">
+      <main className="pb-24 px-6 flex items-center justify-center pt-16">
         <Card className="w-full max-w-md finance-3d-shadow border-none rounded-[2.5rem] overflow-hidden bg-white/80 backdrop-blur-md">
           <CardHeader className="bg-primary text-white p-10 text-center relative">
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />

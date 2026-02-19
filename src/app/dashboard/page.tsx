@@ -77,7 +77,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
       
-      <main className="flex-grow pt-32 pb-24 px-6 max-w-4xl mx-auto w-full">
+      <main className="flex-grow pb-24 px-6 max-w-4xl mx-auto w-full pt-16">
         {/* Personalized Greeting */}
         <div className="mb-12 space-y-4 text-center md:text-left">
           <h1 className="text-4xl md:text-6xl font-headline font-bold text-primary tracking-tight">
