@@ -119,7 +119,7 @@ export default function Home() {
           <CourseCatalog />
         </div>
 
-        <div className="space-y-12">
+        <div className="space-y-4">
           <ShowcaseSlideshow />
           <div className="flex justify-center animate-in fade-in slide-in-from-bottom-5 duration-700">
             <Link href="/gallery">

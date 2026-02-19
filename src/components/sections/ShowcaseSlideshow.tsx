@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -39,7 +40,7 @@ export default function ShowcaseSlideshow() {
   );
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-24">
+    <section className="max-w-7xl mx-auto px-4 md:px-6 pt-12 md:pt-24 pb-4 md:pb-8">
       <div className="mb-10 text-center px-4">
         <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-4 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest text-[10px] md:text-xs font-bold">Campus Life</Badge>
         <h2 className="text-3xl md:text-5xl font-headline font-bold text-primary tracking-tight">Experience <span className="text-accent">The School</span></h2>
