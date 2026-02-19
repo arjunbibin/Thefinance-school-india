@@ -4,7 +4,7 @@
     "UserProfile": {
       "title": "UserProfile",
       "type": "object",
-      "description": "Represents a user's profile.",
+      "description": "Represents a staff member or admin profile.",
       "properties": {
         "id": { "type": "string" },
         "firstName": { "type": "string" },
@@ -12,7 +12,17 @@
         "email": { "type": "string", "format": "email" },
         "role": { 
           "type": "string", 
-          "enum": ["admin", "user"],
+          "enum": [
+            "admin", 
+            "content_head", 
+            "student_specialist", 
+            "accounts_head", 
+            "general_manager", 
+            "tech_head", 
+            "operations_head", 
+            "strategy_manager",
+            "user"
+          ],
           "default": "user"
         },
         "registrationDate": { "type": "string", "format": "date-time" }
