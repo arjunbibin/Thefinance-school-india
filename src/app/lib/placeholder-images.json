@@ -54,6 +54,42 @@
       "description": "Practical money management workshops",
       "imageUrl": "https://picsum.photos/seed/school3/1200/600",
       "imageHint": "business workshop"
+    },
+    {
+      "id": "gallery-1",
+      "description": "Group project collaboration",
+      "imageUrl": "https://picsum.photos/seed/gal1/800/600",
+      "imageHint": "teamwork students"
+    },
+    {
+      "id": "gallery-2",
+      "description": "Digital learning classroom",
+      "imageUrl": "https://picsum.photos/seed/gal2/800/600",
+      "imageHint": "modern classroom"
+    },
+    {
+      "id": "gallery-3",
+      "description": "Award ceremony for top students",
+      "imageUrl": "https://picsum.photos/seed/gal3/800/600",
+      "imageHint": "student achievement"
+    },
+    {
+      "id": "gallery-4",
+      "description": "One-on-one mentor support session",
+      "imageUrl": "https://picsum.photos/seed/gal4/800/600",
+      "imageHint": "mentorship session"
+    },
+    {
+      "id": "gallery-5",
+      "description": "Stock market simulation workshop",
+      "imageUrl": "https://picsum.photos/seed/gal5/800/600",
+      "imageHint": "trading floor"
+    },
+    {
+      "id": "gallery-6",
+      "description": "Outdoor group learning",
+      "imageUrl": "https://picsum.photos/seed/gal6/800/600",
+      "imageHint": "campus life"
     }
   ]
 }

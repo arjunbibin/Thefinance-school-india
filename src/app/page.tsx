@@ -8,6 +8,7 @@ import ShowcaseSlideshow from '@/components/sections/ShowcaseSlideshow';
 import Footer from '@/components/Footer';
 import FinanceIcon3D from '@/components/FinanceIcon3D';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { 
   Globe, 
   Layers, 
@@ -17,10 +18,9 @@ import {
   Calendar, 
   Video, 
   MessageCircle, 
-  CheckCircle,
   Target,
-  ShieldCheck,
-  CircleCheckBig
+  CircleCheckBig,
+  ArrowRight
 } from 'lucide-react';
 
 export default function Home() {
@@ -119,7 +119,16 @@ export default function Home() {
           <CourseCatalog />
         </div>
 
-        <ShowcaseSlideshow />
+        <div className="space-y-12">
+          <ShowcaseSlideshow />
+          <div className="flex justify-center animate-in fade-in slide-in-from-bottom-5 duration-700">
+            <Link href="/gallery">
+              <Button className="h-16 px-10 rounded-2xl bg-primary text-white font-bold text-lg finance-3d-shadow hover:scale-105 transition-transform flex items-center gap-3">
+                See More Memories <ArrowRight className="w-6 h-6" />
+              </Button>
+            </Link>
+          </div>
+        </div>
 
         {/* Course Structure Section */}
         <section className="max-w-7xl mx-auto px-6 py-24">
