@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useFirestore } from '@/firebase';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,8 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { useToast } from '@/hooks/use-toast';
 import { ShieldCheck, Lock } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+
+const PRIMARY_ADMIN_UID = 'bfCiMYT33fNetne0TXaLYCIu7T03';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -27,16 +29,29 @@ export default function LoginPage() {
     const docRef = doc(db, 'userProfiles', user.uid);
     const docSnap = await getDoc(docRef);
     
+    // Auto-promote the primary admin UID if it's their first login or if they are currently a regular user
+    if (user.uid === PRIMARY_ADMIN_UID) {
+      const adminData = {
+        id: user.uid,
+        email: user.email,
+        firstName: user.displayName?.split(' ')[0] || 'Primary',
+        lastName: user.displayName?.split(' ').slice(1).join(' ') || 'Admin',
+        role: 'admin',
+        registrationDate: new Date().toISOString()
+      };
+      await setDoc(docRef, adminData, { merge: true });
+      return true;
+    }
+
     if (docSnap.exists()) {
       const data = docSnap.data();
-      // If the role is just 'user' (the default for new accounts), they are not authorized
       if (data.role === 'user') {
         await auth.signOut();
-        throw new Error('Access Denied: Your account is pending authorization by an Admin.');
+        throw new Error('Access Denied: Your account is pending authorization by the Primary Admin.');
       }
       return true;
     } else {
-      // First-time login: create a base profile and kick them out until an admin promotes them
+      // Create a base profile for new staff and sign them out until promoted
       await setDoc(docRef, {
         id: user.uid,
         email: user.email,
@@ -46,7 +61,7 @@ export default function LoginPage() {
         registrationDate: new Date().toISOString()
       });
       await auth.signOut();
-      throw new Error('Profile Created: Access is restricted to Admin & Staff. Please contact the Primary Admin to authorize your role.');
+      throw new Error('Staff Profile Created: Please contact the Primary Admin to authorize your specific position.');
     }
   };
 
@@ -56,7 +71,7 @@ export default function LoginPage() {
     try {
       const result = await signInWithPopup(auth, provider);
       await validateAndSyncProfile(result.user);
-      toast({ title: "Authorized", description: "Welcome to the Admin Dashboard." });
+      toast({ title: "Authorized", description: "Welcome to the Staff Portal." });
       router.push('/dashboard');
     } catch (error: any) {
       toast({ variant: "destructive", title: "Access Error", description: error.message });
@@ -72,7 +87,7 @@ export default function LoginPage() {
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       await validateAndSyncProfile(userCredential.user);
-      toast({ title: "Authorized", description: "Welcome to the Admin Dashboard." });
+      toast({ title: "Authorized", description: "Welcome to the Staff Portal." });
       router.push('/dashboard');
     } catch (error: any) {
       toast({
@@ -96,10 +111,10 @@ export default function LoginPage() {
               <ShieldCheck className="w-10 h-10 text-primary" />
             </div>
             <CardTitle className="text-3xl font-headline font-bold mb-2">
-              Admin & Staff Login
+              Staff Portal Login
             </CardTitle>
             <CardDescription className="text-white/70 font-medium">
-              Restricted to Authorized Personnel Only
+              Authorized School Personnel Only
             </CardDescription>
           </CardHeader>
           
@@ -130,7 +145,7 @@ export default function LoginPage() {
                 <Input 
                   id="email" 
                   type="email" 
-                  placeholder="admin@financeschool.in" 
+                  placeholder="name@financeschool.in" 
                   required 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -150,14 +165,14 @@ export default function LoginPage() {
                 />
               </div>
               <Button type="submit" disabled={loading} className="w-full h-14 bg-primary text-white font-bold rounded-xl shadow-xl mt-6 hover:scale-[1.02] transition-transform">
-                {loading ? 'Verifying Authorization...' : 'Enter Admin Panel'}
+                {loading ? 'Verifying Authorization...' : 'Enter Staff Dashboard'}
               </Button>
             </form>
           </CardContent>
           
           <div className="p-10 pt-0 text-center">
-             <p className="text-xs text-muted-foreground font-medium">
-               This is a private school management system. Unauthorized access is strictly prohibited.
+             <p className="text-xs text-muted-foreground font-medium italic">
+               Unauthorized access to internal school data is strictly monitored.
              </p>
           </div>
         </Card>
