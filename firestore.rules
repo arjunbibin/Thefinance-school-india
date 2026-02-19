@@ -19,17 +19,11 @@ service cloud.firestore {
       allow get: if isSignedIn();
       allow create: if isOwner(userId);
       allow update: if isOwner(userId) || isAdmin();
-      allow list: if isAdmin();
     }
 
-    match /config/branding {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    match /{allPaths=**} {
-      allow read: if isSignedIn();
-      allow write: if isAdmin();
+    match /reviews/{reviewId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isAdmin();
     }
   }
 }

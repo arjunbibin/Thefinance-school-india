@@ -4,7 +4,7 @@
     "UserProfile": {
       "title": "UserProfile",
       "type": "object",
-      "description": "Represents a user's profile with role-based access control.",
+      "description": "Represents a user's profile.",
       "properties": {
         "id": { "type": "string" },
         "firstName": { "type": "string" },
@@ -12,35 +12,39 @@
         "email": { "type": "string", "format": "email" },
         "role": { 
           "type": "string", 
-          "enum": ["admin", "content_head", "student_specialist", "accounts_head", "manager", "tech_head", "ops_head", "strategy_manager", "user"],
+          "enum": ["admin", "user"],
           "default": "user"
         },
         "registrationDate": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "email", "role"]
     },
-    "AppConfig": {
-      "title": "AppConfig",
+    "Review": {
+      "title": "Review",
       "type": "object",
-      "description": "Global application configuration including branding assets.",
+      "description": "A review or feedback message submitted by a user.",
       "properties": {
-        "logoUrl": { "type": "string", "format": "uri" },
-        "appName": { "type": "string" },
-        "tagline": { "type": "string" }
-      }
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "content": { "type": "string" },
+        "rating": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "content", "createdAt"]
     }
   },
   "auth": {
     "providers": ["password", "google.com"]
   },
   "firestore": {
-    "/config/branding": {
-      "schema": "AppConfig",
-      "description": "Stores global branding configuration like logo and tagline."
-    },
     "/userProfiles/{userId}": {
       "schema": "UserProfile",
       "description": "User profile data."
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Feedback and reviews submitted by users."
     }
   }
 }
