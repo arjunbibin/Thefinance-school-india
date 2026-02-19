@@ -2,8 +2,8 @@
 'use client';
 
 import Image from 'next/image';
-import { Twitter, Linkedin, Github, Mail, MessageSquare } from 'lucide-react';
-import { PlaceHolderImages } from '@/app/lib/placeholder-images';
+import Link from 'next/link';
+import { Twitter, Linkedin, Mail, MessageSquare, ShieldCheck } from 'lucide-react';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 
@@ -12,7 +12,7 @@ export default function Footer() {
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
 
-  const logoUrl = branding?.logoUrl || "https://firebasestorage.googleapis.com/v0/b/studio-6721629864-6b462.firebasestorage.app/o/logo%2Flogo.png?alt=media&token=1c70983d-c10f-440b-a75b-99d4013b1c9c";
+  const logoUrl = "https://firebasestorage.googleapis.com/v0/b/studio-6721629864-6b462.firebasestorage.app/o/logo%2Flogo.png?alt=media&token=1c70983d-c10f-440b-a75b-99d4013b1c9c";
   const appName = branding?.appName || 'The Finance School India';
 
   return (
@@ -26,7 +26,7 @@ export default function Footer() {
                 alt="Logo" 
                 fill 
                 className="object-contain"
-                data-ai-hint="finance logo"
+                priority
               />
             </div>
             <span className="text-2xl md:text-4xl font-headline font-bold text-white tracking-tight">
@@ -59,7 +59,11 @@ export default function Footer() {
             <li className="hover:text-accent cursor-pointer">Mentor WhatsApp</li>
             <li className="hover:text-accent cursor-pointer">Doubt Clearing</li>
             <li className="hover:text-accent cursor-pointer">Recorded Sessions</li>
-            <li className="hover:text-accent cursor-pointer">Privacy Policy</li>
+            <li>
+              <Link href="/dashboard" className="flex items-center gap-2 hover:text-accent cursor-pointer text-white/50 text-xs font-bold uppercase tracking-widest mt-4">
+                <ShieldCheck className="w-4 h-4" /> Admin Portal
+              </Link>
+            </li>
           </ul>
         </div>
       </div>
