@@ -6,22 +6,21 @@ import { Twitter, Linkedin, Github, Mail, MessageSquare } from 'lucide-react';
 import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import localLogo from '@/images/logo.png';
 
 export default function Footer() {
   const db = useFirestore();
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
 
-  const logoUrl = branding?.logoUrl || localLogo || PlaceHolderImages.find(img => img.id === 'app-logo')?.imageUrl || '';
+  const logoUrl = branding?.logoUrl || "https://firebasestorage.googleapis.com/v0/b/studio-6721629864-6b462.firebasestorage.app/o/logo%2Flogo.png?alt=media&token=1c70983d-c10f-440b-a75b-99d4013b1c9c";
   const appName = branding?.appName || 'The Finance School India';
 
   return (
     <footer className="bg-primary text-white pt-24 pb-12 px-6">
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-16">
         <div className="col-span-2">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="relative w-12 h-12 bg-white rounded-xl overflow-hidden p-1">
+          <div className="flex items-center gap-4 md:gap-6 mb-6">
+            <div className="relative w-12 h-12 md:w-16 md:h-16 bg-white rounded-xl md:rounded-2xl overflow-hidden p-1 md:p-2">
               <Image 
                 src={logoUrl} 
                 alt="Logo" 
@@ -30,7 +29,7 @@ export default function Footer() {
                 data-ai-hint="finance logo"
               />
             </div>
-            <span className="text-2xl font-headline font-bold text-white tracking-tight">
+            <span className="text-2xl md:text-4xl font-headline font-bold text-white tracking-tight">
               {appName}
             </span>
           </div>
