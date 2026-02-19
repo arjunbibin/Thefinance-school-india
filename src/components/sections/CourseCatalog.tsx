@@ -49,10 +49,10 @@ const courses = [
 
 export default function CourseCatalog() {
   return (
-    <section id="courses" className="py-24 px-6 max-w-7xl mx-auto relative overflow-hidden">
+    <section id="courses" className="py-12 md:py-16 px-6 max-w-7xl mx-auto relative overflow-hidden">
       <div className="absolute top-1/4 -right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
       
-      <div className="mb-16 text-center animate-in fade-in slide-in-from-top-10 duration-1000">
+      <div className="mb-12 text-center animate-in fade-in slide-in-from-top-10 duration-1000">
         <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50">Our Programs</Badge>
         <h2 className="text-4xl md:text-6xl font-headline font-bold mb-4 tracking-tight">Courses Designed for <span className="text-primary underline decoration-accent underline-offset-8">Future Leaders</span></h2>
         <p className="text-muted-foreground max-w-2xl mx-auto text-lg italic">"Building financial awareness and real-life readiness among children."</p>

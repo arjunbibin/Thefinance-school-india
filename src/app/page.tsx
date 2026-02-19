@@ -114,8 +114,8 @@ export default function Home() {
       </section>
 
       {/* Main Content Area */}
-      <div className="relative z-10 space-y-20 pb-20">
-        <div className="bg-white/40 backdrop-blur-sm rounded-[4rem] mx-4 py-8 finance-3d-shadow-inner border border-white/20">
+      <div className="relative z-10 space-y-8 pb-12">
+        <div className="bg-white/40 backdrop-blur-sm rounded-[4rem] mx-4 py-4 finance-3d-shadow-inner border border-white/20">
           <CourseCatalog />
         </div>
 
@@ -131,7 +131,7 @@ export default function Home() {
         </div>
 
         {/* Course Structure Section */}
-        <section className="max-w-7xl mx-auto px-6 py-12 md:py-16">
+        <section className="max-w-7xl mx-auto px-6 py-8 md:py-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
