@@ -25,5 +25,9 @@ service cloud.firestore {
       allow create: if isSignedIn();
       allow read, update, delete: if isAdmin();
     }
+
+    match /config/branding {
+      allow read: if true;
+    }
   }
 }
