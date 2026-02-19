@@ -4,15 +4,20 @@
     "UserProfile": {
       "title": "UserProfile",
       "type": "object",
-      "description": "Represents a user's profile within the FinanceVerse 3D application.",
+      "description": "Represents a user's profile with role-based access control.",
       "properties": {
         "id": { "type": "string" },
         "firstName": { "type": "string" },
         "lastName": { "type": "string" },
         "email": { "type": "string", "format": "email" },
+        "role": { 
+          "type": "string", 
+          "enum": ["admin", "content_head", "student_specialist", "accounts_head", "manager", "tech_head", "ops_head", "strategy_manager", "user"],
+          "default": "user"
+        },
         "registrationDate": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "firstName", "lastName", "email", "registrationDate"]
+      "required": ["id", "email", "role"]
     },
     "AppConfig": {
       "title": "AppConfig",
@@ -23,24 +28,10 @@
         "appName": { "type": "string" },
         "tagline": { "type": "string" }
       }
-    },
-    "Course": {
-      "title": "Course",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "title": { "type": "string" },
-        "description": { "type": "string" },
-        "category": { "type": "string" },
-        "durationHours": { "type": "number" },
-        "difficultyLevel": { "type": "string" },
-        "imageUrl": { "type": "string", "format": "uri" }
-      },
-      "required": ["id", "title", "description", "category", "durationHours", "difficultyLevel"]
     }
   },
   "auth": {
-    "providers": ["password", "anonymous"]
+    "providers": ["password", "google.com"]
   },
   "firestore": {
     "/config/branding": {
