@@ -114,7 +114,7 @@ export default function Home() {
       </section>
 
       {/* Main Content Area */}
-      <div className="relative z-10 space-y-32 pb-32">
+      <div className="relative z-10 space-y-20 pb-20">
         <div className="bg-white/40 backdrop-blur-sm rounded-[4rem] mx-4 py-8 finance-3d-shadow-inner border border-white/20">
           <CourseCatalog />
         </div>
@@ -123,7 +123,7 @@ export default function Home() {
           <ShowcaseSlideshow />
           <div className="flex justify-center animate-in fade-in slide-in-from-bottom-5 duration-700">
             <Link href="/gallery">
-              <Button className="h-16 px-10 rounded-2xl bg-primary text-white font-bold text-lg finance-3d-shadow hover:scale-105 transition-transform flex items-center gap-3">
+              <Button className="h-14 md:h-16 px-8 md:px-10 rounded-2xl bg-primary text-white font-bold text-base md:text-lg finance-3d-shadow hover:scale-105 transition-transform flex items-center gap-3">
                 See More Memories <ArrowRight className="w-6 h-6" />
               </Button>
             </Link>
@@ -131,7 +131,7 @@ export default function Home() {
         </div>
 
         {/* Course Structure Section */}
-        <section className="max-w-7xl mx-auto px-6 py-24">
+        <section className="max-w-7xl mx-auto px-6 py-12 md:py-16">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
