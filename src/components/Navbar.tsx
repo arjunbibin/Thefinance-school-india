@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { User, LogIn, GraduationCap } from 'lucide-react';
+import { User } from 'lucide-react';
 import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 import { useFirestore, useDoc, useMemoFirebase, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -51,20 +51,7 @@ export default function Navbar() {
               <User className="w-4 h-4" /> My Dashboard
             </Button>
           </Link>
-        ) : (
-          <div className="flex items-center gap-3">
-            <Link href="/login" onClick={() => (window as any).isSignUpRequested = false}>
-              <Button variant="ghost" className="text-primary font-bold hover:bg-slate-50">
-                Log In
-              </Button>
-            </Link>
-            <Link href="/login" onClick={() => (window as any).isSignUpRequested = true}>
-              <Button className="bg-primary text-white font-bold px-8 h-12 rounded-xl shadow-xl hover:scale-105 transition-all">
-                Sign Up
-              </Button>
-            </Link>
-          </div>
-        )}
+        ) : null}
       </div>
     </nav>
   );
