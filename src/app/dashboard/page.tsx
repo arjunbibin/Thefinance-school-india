@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -55,6 +54,26 @@ export default function Dashboard() {
   const handleLogout = async () => {
     await auth.signOut();
     router.push('/');
+  };
+
+  const handleUpdateRole = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!targetUserId) {
+      toast({ variant: "destructive", title: "Missing UID", description: "Please enter the user's Unique ID." });
+      return;
+    }
+
+    setIsAdminProcessing(true);
+    try {
+      const userRef = doc(db, 'userProfiles', targetUserId);
+      await updateDoc(userRef, { role: selectedRole });
+      toast({ title: "Authorization Updated", description: `User role changed to ${selectedRole}.` });
+      setTargetUserId('');
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Update Failed", description: error.message });
+    } finally {
+      setIsAdminProcessing(false);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
