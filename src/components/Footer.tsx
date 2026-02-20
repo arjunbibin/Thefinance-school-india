@@ -121,7 +121,7 @@ export default function Footer() {
       </div>
       
       <div className="max-w-7xl mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
-        <p>© 2024 {appName}. Building tomorrow's entrepreneurs.</p>
+        <p>© 2026 {appName}. Building tomorrow's entrepreneurs.</p>
         <div className="flex gap-8">
           <span className="flex items-center gap-2">
             <Mail className="w-4 h-4" /> {branding?.emailAddress || "support@financeschool.in"}
