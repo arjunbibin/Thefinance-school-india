@@ -73,7 +73,7 @@ export default function Dashboard() {
   // Slideshow State
   const [newSlide, setNewSlide] = useState({ title: '', description: '', imageUrl: '', order: 0 });
   const [slidePreview, setSlidePreview] = useState<string | null>(null);
-  const [isSlideProcessing, setIsSlideProcessing] = useState(false);
+  const [isSlideProcessing, setIsProcessing] = useState(false);
 
   // Gallery State
   const [newGalleryImg, setNewGalleryImg] = useState({ description: '', imageUrl: '' });
@@ -211,7 +211,17 @@ export default function Dashboard() {
                     </div>
                     <div className="space-y-2">
                       <Label>Rating (1-5)</Label>
-                      <Input type="number" min="1" max="5" value={newReview.rating} onChange={(e) => setNewReview({...newReview, rating: parseInt(e.target.value)})} className="rounded-xl" />
+                      <Input 
+                        type="number" 
+                        min="1" 
+                        max="5" 
+                        value={newReview.rating} 
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value);
+                          setNewReview({...newReview, rating: isNaN(val) ? 0 : val});
+                        }} 
+                        className="rounded-xl" 
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -239,7 +249,10 @@ export default function Dashboard() {
                        <div>
                          <p className="font-bold text-primary">{newReview.userName || 'Student Name'}</p>
                          <div className="flex gap-1">
-                           {[...Array(newReview.rating)].map((_, i) => <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
+                           {/* Added safety check for valid rating length */}
+                           {[...Array(Math.max(0, Math.min(5, newReview.rating || 0)))].map((_, i) => (
+                             <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                           ))}
                          </div>
                        </div>
                      </div>
@@ -276,7 +289,6 @@ export default function Dashboard() {
                   <div className="flex items-center gap-4"><BookOpen className="w-6 h-6" /> <CardTitle>Courses</CardTitle></div>
                 </CardHeader>
                 <CardContent className="p-10">
-                  {/* Reuse existing course logic - simplified for brevity */}
                   <div className="text-center py-4 text-muted-foreground italic">Course catalog is active. See below to edit.</div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {courses?.map(c => (
