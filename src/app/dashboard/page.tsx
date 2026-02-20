@@ -13,6 +13,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { 
   useUser, 
   useFirestore, 
@@ -119,6 +129,9 @@ export default function Dashboard() {
   
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+
+  // Deletion Confirmation State
+  const [itemToDelete, setItemToDelete] = useState<{ path: string; id: string } | null>(null);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -277,11 +290,12 @@ export default function Dashboard() {
     );
   };
 
-  const handleDeleteDoc = (path: string, id: string) => {
-    if (!confirm(`Are you sure you want to delete this ${path.slice(0, -1)}? This action cannot be undone.`)) return;
-    const docRef = doc(db, path, id);
+  const confirmDelete = () => {
+    if (!itemToDelete) return;
+    const docRef = doc(db, itemToDelete.path, itemToDelete.id);
     deleteDocumentNonBlocking(docRef);
     toast({ title: "Item Removed Successfully" });
+    setItemToDelete(null);
   };
 
   if (isUserLoading || isProfileLoading) {
@@ -358,10 +372,7 @@ export default function Dashboard() {
                             variant="destructive" 
                             size="sm" 
                             className="w-full rounded-lg relative z-50 font-bold" 
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handleDeleteDoc('videos', v.id);
-                            }}
+                            onClick={() => setItemToDelete({ path: 'videos', id: v.id })}
                           >
                             <Trash2 className="w-3 h-3 mr-2" /> Remove
                           </Button>
@@ -415,7 +426,7 @@ export default function Dashboard() {
                           <p className="font-bold text-xs truncate">{c.title}</p>
                           <div className="flex gap-2 relative z-50">
                             <Button type="button" variant="outline" size="sm" className="h-10 rounded-lg flex-1 font-bold" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')})}}><Edit2 className="w-4 h-4 mr-2" /> Edit</Button>
-                            <Button type="button" variant="destructive" size="sm" className="h-10 w-10 p-0 rounded-lg" onClick={() => handleDeleteDoc('courses', c.id)}><Trash2 className="w-4 h-4" /></Button>
+                            <Button type="button" variant="destructive" size="sm" className="h-10 w-10 p-0 rounded-lg" onClick={() => setItemToDelete({ path: 'courses', id: c.id })}><Trash2 className="w-4 h-4" /></Button>
                           </div>
                         </div>
                       ))}
@@ -459,7 +470,7 @@ export default function Dashboard() {
                           <p className="text-xs font-bold truncate w-full">{m.name}</p>
                           <div className="flex gap-2 w-full relative z-50">
                             <Button type="button" variant="outline" size="sm" className="h-9 flex-1 rounded-lg" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-3 h-3" /></Button>
-                            <Button type="button" variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg" onClick={() => handleDeleteDoc('team', m.id)}><Trash2 className="w-3 h-3" /></Button>
+                            <Button type="button" variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg" onClick={() => setItemToDelete({ path: 'team', id: m.id })}><Trash2 className="w-3 h-3" /></Button>
                           </div>
                         </div>
                       ))}
@@ -509,7 +520,7 @@ export default function Dashboard() {
                             variant="destructive" 
                             size="sm" 
                             className="w-full rounded-xl relative z-50 font-bold" 
-                            onClick={() => handleDeleteDoc('reviews', r.id)}
+                            onClick={() => setItemToDelete({ path: 'reviews', id: r.id })}
                           >
                             <Trash2 className="w-3 h-3 mr-2" /> Delete
                           </Button>
@@ -541,7 +552,7 @@ export default function Dashboard() {
                               variant="destructive" 
                               size="icon" 
                               className="absolute top-1 right-1 h-7 w-7 z-50 opacity-90 shadow-lg" 
-                              onClick={() => handleDeleteDoc('slides', s.id)}
+                              onClick={() => setItemToDelete({ path: 'slides', id: s.id })}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -568,7 +579,7 @@ export default function Dashboard() {
                               variant="destructive" 
                               size="icon" 
                               className="absolute top-1 right-1 h-7 w-7 z-50 opacity-90 shadow-lg" 
-                              onClick={() => handleDeleteDoc('gallery', g.id)}
+                              onClick={() => setItemToDelete({ path: 'gallery', id: g.id })}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -596,6 +607,24 @@ export default function Dashboard() {
             </Tabs>
           </TabsContent>
         </Tabs>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
+          <AlertDialogContent className="rounded-3xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-2xl font-headline font-bold">Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription className="text-lg">
+                This action cannot be undone. This will permanently delete the selected item from our database.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="gap-4">
+              <AlertDialogCancel className="rounded-xl h-12 font-bold">Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="rounded-xl h-12 font-bold bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Confirm Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
       <Footer />
     </div>
