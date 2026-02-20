@@ -48,17 +48,13 @@ import {
   BookOpen, 
   XCircle, 
   UserSquare, 
-  Star, 
   Video, 
   Play, 
   Edit2,
   Settings,
   Image as ImageIcon,
-  MessageSquare,
   Globe,
   Layout,
-  PlusCircle,
-  Link as LinkIcon,
   Clapperboard
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -76,7 +72,6 @@ export default function Dashboard() {
   const galleryFileInputRef = useRef<HTMLInputElement>(null);
   const courseFileInputRef = useRef<HTMLInputElement>(null);
   const teamFileInputRef = useRef<HTMLInputElement>(null);
-  const reviewFileInputRef = useRef<HTMLInputElement>(null);
   const videoFileInputRef = useRef<HTMLInputElement>(null);
   const testimonialVideoFileInputRef = useRef<HTMLInputElement>(null);
   
@@ -108,11 +103,8 @@ export default function Dashboard() {
   const teamQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'team'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
   const { data: teamMembers } = useCollection(teamQuery);
 
-  const reviewsQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'reviews'), orderBy('createdAt', 'desc')) : null, [db, isAuthorized]);
-  const { data: reviews } = useCollection(reviewsQuery);
-
-  const videosQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'videos'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
-  const { data: videoGallery } = useCollection(videosQuery);
+  const videoQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'videos'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
+  const { data: videoGallery } = useCollection(videoQuery);
 
   const testimonialVideosQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'testimonialVideos'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
   const { data: testimonialVideoGallery } = useCollection(testimonialVideosQuery);
@@ -132,7 +124,6 @@ export default function Dashboard() {
 
   const [newSlide, setNewSlide] = useState({ title: '', description: '', imageUrl: '', order: 0 });
   const [newGalleryImg, setNewGalleryImg] = useState({ description: '', imageUrl: '' });
-  const [newReview, setNewReview] = useState({ userName: '', userPhoto: '', content: '', rating: 5 });
   const [newVideo, setNewVideo] = useState({ title: '', videoUrl: '', order: 0, isYoutube: false });
   const [newTestimonialVideo, setNewTestimonialVideo] = useState({ title: '', videoUrl: '', order: 0, isYoutube: false });
   
@@ -166,7 +157,6 @@ export default function Dashboard() {
       else if (type === 'gallery') setNewGalleryImg(prev => ({ ...prev, imageUrl: previewUrl }));
       else if (type === 'course') setCourseForm(prev => ({ ...prev, imageUrl: previewUrl }));
       else if (type === 'team') setTeamForm(prev => ({ ...prev, imageUrl: previewUrl }));
-      else if (type === 'review') setNewReview(prev => ({ ...prev, userPhoto: previewUrl }));
       else if (type === 'video') setNewVideo(prev => ({ ...prev, videoUrl: previewUrl, isYoutube: false }));
       else if (type === 'testimonialVideo') setNewTestimonialVideo(prev => ({ ...prev, videoUrl: previewUrl, isYoutube: false }));
     }
@@ -268,19 +258,6 @@ export default function Dashboard() {
     } catch (err: any) { toast({ variant: "destructive", title: "Upload Failed", description: err.message }); }
   };
 
-  const handleSaveReview = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      let finalImageUrl = newReview.userPhoto;
-      if (selectedFiles['review']) finalImageUrl = await uploadFile(selectedFiles['review'], 'reviews');
-      addDocumentNonBlocking(collection(db, 'reviews'), { ...newReview, userPhoto: finalImageUrl, createdAt: serverTimestamp() });
-      toast({ title: "Testimonial Added" });
-      setNewReview({ userName: '', userPhoto: '', content: '', rating: 5 });
-      setSelectedFiles(prev => ({ ...prev, review: null }));
-      setUploadProgress(null);
-    } catch (err: any) { toast({ variant: "destructive", title: "Upload Failed", description: err.message }); }
-  };
-
   const handleSaveVideo = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newVideo.isYoutube && !selectedFiles['video']) return toast({ variant: "destructive", title: "Required", description: "Video file is required." });
@@ -317,9 +294,10 @@ export default function Dashboard() {
   };
 
   const getYoutubeId = (url: string) => {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    if (!url) return null;
+    const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
     const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    return (match && match[1].length === 11) ? match[1] : null;
   };
 
   if (isUserLoading || isProfileLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;

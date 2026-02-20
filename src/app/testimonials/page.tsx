@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { Play, X, Clapperboard } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
 
 export default function TestimonialVideosPage() {
   const db = useFirestore();
@@ -21,9 +20,10 @@ export default function TestimonialVideosPage() {
 
   const getYoutubeId = (url: string) => {
     if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    // Robust regex to handle standard, shorts, embed, and share links
+    const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
     const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    return (match && match[1].length === 11) ? match[1] : null;
   };
 
   if (isLoading) {
@@ -66,7 +66,7 @@ export default function TestimonialVideosPage() {
                     {/* Thumbnail Preview */}
                     {ytId ? (
                       <img 
-                        src={`https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`} 
+                        src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} 
                         alt={video.title}
                         className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
                       />
