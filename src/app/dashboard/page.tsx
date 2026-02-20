@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,8 +13,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth } from '@/firebase';
-import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp, setDoc, where } from 'firebase/firestore';
-import { LogOut, ShieldAlert, Users, Trash2, Upload, BookOpen, Star, Plus, Edit2, XCircle, Image as ImageIcon, Camera, UserSquare } from 'lucide-react';
+import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { LogOut, ShieldAlert, Users, Trash2, Upload, BookOpen, Plus, Edit2, XCircle, UserSquare, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -76,6 +76,9 @@ export default function Dashboard() {
   const [newGalleryImg, setNewGalleryImg] = useState({ description: '', imageUrl: '' });
   const [isGalleryProcessing, setIsGalleryProcessing] = useState(false);
 
+  const [newReview, setNewReview] = useState({ userName: '', userPhoto: '', content: '', rating: 5 });
+  const [isReviewProcessing, setIsReviewProcessing] = useState(false);
+
   const handleLogout = async () => {
     await auth.signOut();
     router.push('/');
@@ -91,6 +94,7 @@ export default function Dashboard() {
         else if (type === 'gallery') setNewGalleryImg({ ...newGalleryImg, imageUrl: base64 });
         else if (type === 'course') setCourseForm({ ...courseForm, imageUrl: base64 });
         else if (type === 'team') setTeamForm({ ...teamForm, imageUrl: base64 });
+        else if (type === 'review') setNewReview({ ...newReview, userPhoto: base64 });
       };
       reader.readAsDataURL(file);
     }
@@ -179,6 +183,18 @@ export default function Dashboard() {
     } catch (error: any) {
       toast({ variant: "destructive", title: "Error", description: error.message });
     } finally { setIsGalleryProcessing(false); }
+  };
+
+  const handleSaveReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsReviewProcessing(true);
+    try {
+      await addDoc(collection(db, 'reviews'), { ...newReview, createdAt: serverTimestamp() });
+      toast({ title: "Review Added" });
+      setNewReview({ userName: '', userPhoto: '', content: '', rating: 5 });
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Failed", description: error.message });
+    } finally { setIsReviewProcessing(false); }
   };
 
   const handleDeleteDoc = async (path: string, id: string) => {
@@ -316,7 +332,41 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* OTHER ASSETS */}
+          {/* REVIEW ADDER */}
+          <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+            <CardHeader className="bg-primary text-white p-10"><CardTitle>Review & Success Story Curation</CardTitle></CardHeader>
+            <CardContent className="p-10">
+               <form onSubmit={handleSaveReview} className="grid md:grid-cols-2 gap-10">
+                  <div className="space-y-4">
+                    <Input placeholder="Name" value={newReview.userName} onChange={e => setNewReview({...newReview, userName: e.target.value})} className="rounded-xl" required />
+                    <Textarea placeholder="Testimonial Content" value={newReview.content} onChange={e => setNewReview({...newReview, content: e.target.value})} className="rounded-xl min-h-[100px]" required />
+                    <div className="space-y-2"><Label>Rating (1-5)</Label><Input type="number" min="1" max="5" value={newReview.rating} onChange={e => setNewReview({...newReview, rating: parseInt(e.target.value)})} className="rounded-xl" /></div>
+                    <Button type="button" variant="outline" className="w-full" onClick={() => reviewFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload User Photo</Button>
+                    <input type="file" ref={reviewFileInputRef} onChange={e => handleFileChange(e, 'review')} accept="image/*" className="hidden" />
+                    <Button type="submit" disabled={isReviewProcessing} className="w-full h-12">{isReviewProcessing ? 'Saving...' : 'Publish Review'}</Button>
+                  </div>
+                  <div className="p-6 border rounded-[2rem] bg-slate-50 finance-3d-shadow-inner flex flex-col items-center justify-center text-center">
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden mb-4 finance-3d-shadow bg-white relative">
+                      {newReview.userPhoto && <Image src={newReview.userPhoto} alt="u" fill className="object-cover" />}
+                    </div>
+                    <p className="font-bold text-primary">{newReview.userName || 'Student Name'}</p>
+                    <div className="flex gap-1">
+                      {[...Array(isNaN(newReview.rating) ? 0 : Math.max(0, Math.min(5, newReview.rating)))].map((_, i) => <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
+                    </div>
+                  </div>
+               </form>
+               <div className="grid md:grid-cols-4 gap-4 mt-10">
+                 {reviews?.map(r => (
+                   <div key={r.id} className="p-3 bg-slate-50 rounded-2xl flex justify-between items-center">
+                     <p className="text-xs font-bold truncate">{r.userName}</p>
+                     <Button variant="destructive" size="sm" className="h-6 w-6 p-0" onClick={() => handleDeleteDoc('reviews', r.id)}><Trash2 className="w-2 h-2" /></Button>
+                   </div>
+                 ))}
+               </div>
+            </CardContent>
+          </Card>
+
+          {/* ASSETS */}
           <div className="grid md:grid-cols-2 gap-12">
              <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
                 <CardHeader className="bg-primary text-white p-8"><CardTitle>Homepage Slides</CardTitle></CardHeader>

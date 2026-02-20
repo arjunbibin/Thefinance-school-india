@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
-import { Users, ShieldCheck, Briefcase, Star, UserSquare } from 'lucide-react';
+import { UserSquare, Star, ShieldCheck } from 'lucide-react';
 
 const FALLBACK_TEAM = [
   { id: "ceo", name: "Arjun Bibin", role: "CEO & Founder", bio: "Passionate about empowering the next generation with financial wisdom.", isFounder: true },
@@ -79,7 +79,7 @@ export default function TeamPage() {
                     {member.role}
                   </Badge>
                   {member.bio && (
-                    <p className="text-sm text-muted-foreground mt-4 italic max-w-[250px]">
+                    <p className="text-sm text-muted-foreground mt-4 italic max-w-[250px] line-clamp-3">
                       "{member.bio}"
                     </p>
                   )}

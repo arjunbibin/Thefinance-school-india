@@ -32,19 +32,16 @@
     "Review": {
       "title": "Review",
       "type": "object",
-      "description": "A review or feedback message submitted by a user.",
+      "description": "A review or feedback message curated by admin.",
       "properties": {
         "id": { "type": "string" },
-        "userId": { "type": "string" },
         "userName": { "type": "string" },
-        "userEmail": { "type": "string" },
         "userPhoto": { "type": "string" },
         "content": { "type": "string" },
         "rating": { "type": "number" },
-        "approved": { "type": "boolean", "default": false },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["userId", "content", "createdAt"]
+      "required": ["userName", "content", "createdAt"]
     },
     "AppConfig": {
       "title": "AppConfig",
@@ -131,7 +128,7 @@
     },
     "/reviews/{reviewId}": {
       "schema": "Review",
-      "description": "Feedback and reviews submitted by users."
+      "description": "Feedback and reviews curated by users."
     },
     "/config/branding": {
       "schema": "AppConfig",
