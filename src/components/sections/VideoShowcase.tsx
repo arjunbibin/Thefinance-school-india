@@ -83,7 +83,12 @@ export default function VideoShowcase() {
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
                   onClick={togglePlay}
+                  // Security Attributes
                   controlsList="nodownload"
+                  onContextMenu={(e) => e.preventDefault()}
+                  disablePictureInPicture
+                  disableRemotePlayback
+                  playsInline
                 />
                 
                 {/* Control Overlay */}
