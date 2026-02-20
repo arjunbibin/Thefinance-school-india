@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -26,10 +27,20 @@ export default function VideoShowcase() {
     if (videoRef.current) {
       if (isPlaying) {
         videoRef.current.pause();
+        setIsPlaying(false);
       } else {
-        videoRef.current.play();
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsPlaying(true);
+            })
+            .catch(() => {
+              // Playback was interrupted or blocked
+              setIsPlaying(false);
+            });
+        }
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
@@ -41,7 +52,10 @@ export default function VideoShowcase() {
       // Replay if only one video
       if (videoRef.current) {
         videoRef.current.currentTime = 0;
-        videoRef.current.play();
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => setIsPlaying(false));
+        }
       }
     } else {
       setIsPlaying(false);
@@ -51,9 +65,12 @@ export default function VideoShowcase() {
   // Effect to automatically play the next video when currentIndex changes
   useEffect(() => {
     if (isPlaying && videoRef.current) {
-      videoRef.current.play().catch(() => {
-        setIsPlaying(false);
-      });
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          setIsPlaying(false);
+        });
+      }
     }
   }, [currentIndex, isPlaying]);
 
