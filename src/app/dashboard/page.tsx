@@ -130,7 +130,6 @@ export default function Dashboard() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
-  // Deletion Confirmation State
   const [itemToDelete, setItemToDelete] = useState<{ path: string; id: string } | null>(null);
 
   const handleLogout = async () => {
@@ -311,10 +310,10 @@ export default function Dashboard() {
         <div className="mb-12 flex items-center justify-between flex-wrap gap-6">
           <div>
             <h1 className="text-4xl md:text-6xl font-headline font-bold text-primary tracking-tight">Staff <span className="text-accent">Portal</span></h1>
-            <p className="text-muted-foreground mt-2 flex items-center gap-2 font-medium"><ShieldAlert className="w-4 h-4 text-accent" /> Authenticated Manager: {profile?.firstName} ({profile?.role})</p>
+            <p className="text-muted-foreground mt-2 flex items-center gap-2 font-medium"><ShieldAlert className="w-4 h-4 text-accent" /> Authorized: {profile?.firstName} ({profile?.role})</p>
           </div>
           <Button onClick={handleLogout} variant="outline" className="border-destructive/20 text-destructive font-bold h-12 rounded-xl bg-white finance-3d-shadow hover:bg-destructive hover:text-white transition-all">
-            <LogOut className="w-4 h-4 mr-2" /> Logout Session
+            <LogOut className="w-4 h-4 mr-2" /> End Session
           </Button>
         </div>
 
@@ -371,7 +370,7 @@ export default function Dashboard() {
                             type="button" 
                             variant="destructive" 
                             size="sm" 
-                            className="w-full rounded-lg relative z-50 font-bold" 
+                            className="w-full rounded-lg relative z-30 font-bold" 
                             onClick={() => setItemToDelete({ path: 'videos', id: v.id })}
                           >
                             <Trash2 className="w-3 h-3 mr-2" /> Remove
@@ -424,7 +423,7 @@ export default function Dashboard() {
                       {courses?.map(c => (
                         <div key={c.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-3 group border relative">
                           <p className="font-bold text-xs truncate">{c.title}</p>
-                          <div className="flex gap-2 relative z-50">
+                          <div className="flex gap-2 relative z-30">
                             <Button type="button" variant="outline" size="sm" className="h-10 rounded-lg flex-1 font-bold" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')})}}><Edit2 className="w-4 h-4 mr-2" /> Edit</Button>
                             <Button type="button" variant="destructive" size="sm" className="h-10 w-10 p-0 rounded-lg" onClick={() => setItemToDelete({ path: 'courses', id: c.id })}><Trash2 className="w-4 h-4" /></Button>
                           </div>
@@ -468,7 +467,7 @@ export default function Dashboard() {
                         <div key={m.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col items-center text-center gap-2 group border relative">
                           <div className="w-16 h-16 rounded-full overflow-hidden relative border-2 border-white shadow-md mb-2"><Image src={m.imageUrl || `https://picsum.photos/seed/${m.id}/100/100`} alt="m" fill className="object-cover" /></div>
                           <p className="text-xs font-bold truncate w-full">{m.name}</p>
-                          <div className="flex gap-2 w-full relative z-50">
+                          <div className="flex gap-2 w-full relative z-30">
                             <Button type="button" variant="outline" size="sm" className="h-9 flex-1 rounded-lg" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-3 h-3" /></Button>
                             <Button type="button" variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg" onClick={() => setItemToDelete({ path: 'team', id: m.id })}><Trash2 className="w-3 h-3" /></Button>
                           </div>
@@ -519,7 +518,7 @@ export default function Dashboard() {
                             type="button" 
                             variant="destructive" 
                             size="sm" 
-                            className="w-full rounded-xl relative z-50 font-bold" 
+                            className="w-full rounded-xl relative z-30 font-bold" 
                             onClick={() => setItemToDelete({ path: 'reviews', id: r.id })}
                           >
                             <Trash2 className="w-3 h-3 mr-2" /> Delete
@@ -551,7 +550,7 @@ export default function Dashboard() {
                               type="button" 
                               variant="destructive" 
                               size="icon" 
-                              className="absolute top-1 right-1 h-7 w-7 z-50 opacity-90 shadow-lg" 
+                              className="absolute top-1 right-1 h-7 w-7 z-30 opacity-90 shadow-lg" 
                               onClick={() => setItemToDelete({ path: 'slides', id: s.id })}
                             >
                               <Trash2 className="w-4 h-4" />
@@ -578,7 +577,7 @@ export default function Dashboard() {
                               type="button" 
                               variant="destructive" 
                               size="icon" 
-                              className="absolute top-1 right-1 h-7 w-7 z-50 opacity-90 shadow-lg" 
+                              className="absolute top-1 right-1 h-7 w-7 z-30 opacity-90 shadow-lg" 
                               onClick={() => setItemToDelete({ path: 'gallery', id: g.id })}
                             >
                               <Trash2 className="w-4 h-4" />

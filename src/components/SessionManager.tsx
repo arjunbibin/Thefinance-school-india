@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 
 /**
  * SessionManager monitors user activity and enforces a session timeout.
- * It also signs out the user immediately if they navigate away from the admin dashboard.
+ * It no longer signs out users when they navigate away from the dashboard.
  */
 export default function SessionManager() {
   const { user } = useUser();
@@ -34,14 +34,6 @@ export default function SessionManager() {
       });
     }
   }, [auth, router, toast]);
-
-  // STRICT ROUTE PROTECTION: 
-  // If a user is logged in and leaves the dashboard, sign them out immediately.
-  useEffect(() => {
-    if (user && pathname !== '/dashboard' && pathname !== '/login') {
-      auth.signOut();
-    }
-  }, [user, pathname, auth]);
 
   const resetTimeout = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);

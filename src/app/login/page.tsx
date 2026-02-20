@@ -1,10 +1,9 @@
-
 'use client';
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useFirestore } from '@/firebase';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -43,20 +42,22 @@ export default function LoginPage() {
       return true;
     }
 
-    if (!docSnap.exists()) {
-      // Create a base profile for new users (students/parents)
-      // We allow them to stay logged in so they can submit reviews
-      await setDoc(docRef, {
-        id: user.uid,
-        email: user.email,
-        firstName: user.displayName?.split(' ')[0] || '',
-        lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
-        role: 'user',
-        registrationDate: new Date().toISOString()
-      });
+    // Strictly check for existing staff/admin role
+    if (docSnap.exists()) {
+      const role = docSnap.data().role;
+      if (role && role !== 'user') {
+        return true;
+      }
     }
     
-    return true;
+    // If not primary admin and no existing staff profile, deny access
+    await signOut(auth);
+    toast({ 
+      variant: "destructive", 
+      title: "Access Denied", 
+      description: "You do not have administrative permissions to log in." 
+    });
+    return false;
   };
 
   const handleGoogleSignIn = async () => {
@@ -64,16 +65,11 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const result = await signInWithPopup(auth, provider);
-      await validateAndSyncProfile(result.user);
-      toast({ title: "Welcome", description: "You are now signed in." });
+      const isAuthorized = await validateAndSyncProfile(result.user);
       
-      // Redirect staff/admin to dashboard, others to home
-      const profileSnap = await getDoc(doc(db, 'userProfiles', result.user.uid));
-      const role = profileSnap.data()?.role;
-      if (role && role !== 'user') {
+      if (isAuthorized) {
+        toast({ title: "Welcome", description: "You are now signed in." });
         router.push('/dashboard');
-      } else {
-        router.push('/');
       }
     } catch (error: any) {
       toast({ variant: "destructive", title: "Sign In Error", description: error.message });
@@ -88,15 +84,11 @@ export default function LoginPage() {
 
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      await validateAndSyncProfile(userCredential.user);
-      toast({ title: "Welcome", description: "You are now signed in." });
+      const isAuthorized = await validateAndSyncProfile(userCredential.user);
       
-      const profileSnap = await getDoc(doc(db, 'userProfiles', userCredential.user.uid));
-      const role = profileSnap.data()?.role;
-      if (role && role !== 'user') {
+      if (isAuthorized) {
+        toast({ title: "Welcome", description: "You are now signed in." });
         router.push('/dashboard');
-      } else {
-        router.push('/');
       }
     } catch (error: any) {
       toast({
@@ -120,10 +112,10 @@ export default function LoginPage() {
               <ShieldCheck className="w-10 h-10 text-primary" />
             </div>
             <CardTitle className="text-3xl font-headline font-bold mb-2">
-              Sign In
+              Staff Sign In
             </CardTitle>
             <CardDescription className="text-white/70 font-medium">
-              Join The Finance School India Community
+              Access The Finance School India Admin Portal
             </CardDescription>
           </CardHeader>
           
@@ -154,7 +146,7 @@ export default function LoginPage() {
                 <Input 
                   id="email" 
                   type="email" 
-                  placeholder="name@example.com" 
+                  placeholder="admin@financeschool.in" 
                   required 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -181,7 +173,7 @@ export default function LoginPage() {
           
           <div className="p-10 pt-0 text-center">
              <p className="text-xs text-muted-foreground font-medium italic">
-               Welcome to The Finance School India portal.
+               Welcome to The Finance School India Staff Portal.
              </p>
           </div>
         </Card>
