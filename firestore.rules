@@ -7,6 +7,8 @@ service cloud.firestore {
     }
     
     function isStaff() {
+      // Primary admin UID always has full access
+      // Other users must have a role that isn't 'user'
       return isSignedIn() && (
         request.auth.uid == 'bfCiMYT33fNetne0TXaLYCIu7T03' || 
         (exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) && 

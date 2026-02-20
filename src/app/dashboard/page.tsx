@@ -41,13 +41,12 @@ import {
   Star, 
   Video, 
   Play, 
-  AlertCircle, 
   Edit2,
   Settings,
-  LayoutDashboard,
   Image as ImageIcon,
   MessageSquare,
-  Globe
+  Globe,
+  Plus
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -319,7 +318,6 @@ export default function Dashboard() {
           </TabsList>
 
           <TabsContent value="web-edit" className="space-y-12">
-            {/* SUB-TABS FOR WEB EDIT */}
             <Tabs defaultValue="videos" className="w-full">
               <TabsList className="flex flex-wrap h-auto gap-2 bg-slate-100 p-2 rounded-[2rem] mb-10 overflow-x-auto">
                 <TabsTrigger value="videos" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Videos</TabsTrigger>
@@ -359,7 +357,7 @@ export default function Dashboard() {
                         <div key={v.id} className="p-4 bg-slate-50 rounded-2xl relative group">
                           <p className="font-bold text-xs truncate mb-2">{v.title || 'Untitled'}</p>
                           <div className="aspect-video rounded-lg overflow-hidden bg-black mb-3"><video src={v.videoUrl} className="w-full h-full object-cover" /></div>
-                          <Button variant="destructive" size="sm" className="w-full rounded-lg z-20" onClick={() => handleDeleteDoc('videos', v.id)}><Trash2 className="w-3 h-3 mr-2" /> Remove</Button>
+                          <Button type="button" variant="destructive" size="sm" className="w-full rounded-lg z-20" onClick={() => handleDeleteDoc('videos', v.id)}><Trash2 className="w-3 h-3 mr-2" /> Remove</Button>
                         </div>
                       ))}
                     </div>
@@ -409,8 +407,8 @@ export default function Dashboard() {
                         <div key={c.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-3 group">
                           <p className="font-bold text-sm truncate">{c.title}</p>
                           <div className="flex gap-2">
-                            <Button variant="outline" size="sm" className="h-10 rounded-lg flex-1 font-bold" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')})}}><Edit2 className="w-4 h-4 mr-2" /> Edit</Button>
-                            <Button variant="destructive" size="sm" className="h-10 w-10 p-0 rounded-lg" onClick={() => handleDeleteDoc('courses', c.id)}><Trash2 className="w-4 h-4" /></Button>
+                            <Button type="button" variant="outline" size="sm" className="h-10 rounded-lg flex-1 font-bold" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')})}}><Edit2 className="w-4 h-4 mr-2" /> Edit</Button>
+                            <Button type="button" variant="destructive" size="sm" className="h-10 w-10 p-0 rounded-lg" onClick={() => handleDeleteDoc('courses', c.id)}><Trash2 className="w-4 h-4" /></Button>
                           </div>
                         </div>
                       ))}
@@ -453,8 +451,8 @@ export default function Dashboard() {
                           <div className="w-16 h-16 rounded-full overflow-hidden relative border-2 border-white shadow-md mb-2"><Image src={m.imageUrl || `https://picsum.photos/seed/${m.id}/100/100`} alt="m" fill className="object-cover" /></div>
                           <p className="text-sm font-bold truncate w-full">{m.name}</p>
                           <div className="flex gap-2 w-full">
-                            <Button variant="outline" size="sm" className="h-9 flex-1 rounded-lg" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-3 h-3" /></Button>
-                            <Button variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg" onClick={() => handleDeleteDoc('team', m.id)}><Trash2 className="w-3 h-3" /></Button>
+                            <Button type="button" variant="outline" size="sm" className="h-9 flex-1 rounded-lg" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-3 h-3" /></Button>
+                            <Button type="button" variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg" onClick={() => handleDeleteDoc('team', m.id)}><Trash2 className="w-3 h-3" /></Button>
                           </div>
                         </div>
                       ))}
@@ -476,7 +474,7 @@ export default function Dashboard() {
                         <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={!newSlide.imageUrl}>Add To Slideshow</Button>
                       </form>
                       <div className="grid grid-cols-3 gap-3 pt-6 border-t">
-                        {slides?.map(s => <div key={s.id} className="relative aspect-video rounded-xl overflow-hidden group border shadow-sm"><Image src={s.imageUrl} alt="s" fill className="object-cover" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 z-20 transition-opacity" onClick={() => handleDeleteDoc('slides', s.id)}><Trash2 className="w-4 h-4" /></Button></div>)}
+                        {slides?.map(s => <div key={s.id} className="relative aspect-video rounded-xl overflow-hidden group border shadow-sm"><Image src={s.imageUrl} alt="s" fill className="object-cover" /><Button type="button" variant="destructive" size="icon" className="absolute top-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 z-20 transition-opacity" onClick={() => handleDeleteDoc('slides', s.id)}><Trash2 className="w-4 h-4" /></Button></div>)}
                       </div>
                     </CardContent>
                   </Card>
@@ -490,7 +488,7 @@ export default function Dashboard() {
                         <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={!newGalleryImg.imageUrl}>Add To Gallery</Button>
                       </form>
                       <div className="grid grid-cols-3 gap-3 pt-6 border-t">
-                        {galleryItems?.map(g => <div key={g.id} className="relative aspect-square rounded-xl overflow-hidden group border shadow-sm"><Image src={g.imageUrl} alt="g" fill className="object-cover" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 z-20 transition-opacity" onClick={() => handleDeleteDoc('gallery', g.id)}><Trash2 className="w-4 h-4" /></Button></div>)}
+                        {galleryItems?.map(g => <div key={g.id} className="relative aspect-square rounded-xl overflow-hidden group border shadow-sm"><Image src={g.imageUrl} alt="g" fill className="object-cover" /><Button type="button" variant="destructive" size="icon" className="absolute top-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 z-20 transition-opacity" onClick={() => handleDeleteDoc('gallery', g.id)}><Trash2 className="w-4 h-4" /></Button></div>)}
                       </div>
                     </CardContent>
                   </Card>
@@ -535,7 +533,7 @@ export default function Dashboard() {
                         <p className="text-sm font-bold truncate flex-1">{r.userName}</p>
                       </div>
                       <p className="text-xs text-muted-foreground line-clamp-3 italic">"{r.content}"</p>
-                      <Button variant="destructive" size="sm" className="w-full rounded-xl" onClick={() => handleDeleteDoc('reviews', r.id)}><Trash2 className="w-3 h-3 mr-2" /> Delete</Button>
+                      <Button type="button" variant="destructive" size="sm" className="w-full rounded-xl" onClick={() => handleDeleteDoc('reviews', r.id)}><Trash2 className="w-3 h-3 mr-2" /> Delete</Button>
                     </div>
                   ))}
                 </div>
