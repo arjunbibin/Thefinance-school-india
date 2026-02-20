@@ -6,6 +6,7 @@ import Navbar from '@/components/Navbar';
 import CourseCatalog from '@/components/sections/CourseCatalog';
 import ShowcaseSlideshow from '@/components/sections/ShowcaseSlideshow';
 import ReviewsSection from '@/components/sections/ReviewsSection';
+import VideoShowcase from '@/components/sections/VideoShowcase';
 import Footer from '@/components/Footer';
 import FinanceIcon3D from '@/components/FinanceIcon3D';
 import { Card } from '@/components/ui/card';
@@ -136,6 +137,9 @@ export default function Home() {
             </Link>
           </div>
         </div>
+
+        {/* Video Showcase Section */}
+        <VideoShowcase />
 
         {/* Reviews Section */}
         <ReviewsSection />

@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth } from '@/firebase';
 import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
-import { LogOut, ShieldAlert, Users, Trash2, Upload, BookOpen, Plus, Edit2, XCircle, UserSquare, Star } from 'lucide-react';
+import { LogOut, ShieldAlert, Users, Trash2, Upload, BookOpen, Plus, Edit2, XCircle, UserSquare, Star, Video, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -30,6 +30,7 @@ export default function Dashboard() {
   const courseFileInputRef = useRef<HTMLInputElement>(null);
   const teamFileInputRef = useRef<HTMLInputElement>(null);
   const reviewFileInputRef = useRef<HTMLInputElement>(null);
+  const videoFileInputRef = useRef<HTMLInputElement>(null);
   
   const profileRef = useMemoFirebase(() => user ? doc(db, 'userProfiles', user.uid) : null, [db, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
@@ -61,6 +62,9 @@ export default function Dashboard() {
   const reviewsQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'reviews'), orderBy('createdAt', 'desc')) : null, [db, isAuthorized]);
   const { data: reviews } = useCollection(reviewsQuery);
 
+  const videosQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'videos'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
+  const { data: videoGallery } = useCollection(videosQuery);
+
   // --- STATES ---
   const [courseForm, setCourseForm] = useState({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
@@ -79,12 +83,15 @@ export default function Dashboard() {
   const [newReview, setNewReview] = useState({ userName: '', userPhoto: '', content: '', rating: 5 });
   const [isReviewProcessing, setIsReviewProcessing] = useState(false);
 
+  const [newVideo, setNewVideo] = useState({ title: '', videoUrl: '', order: 0 });
+  const [isVideoProcessing, setIsVideoProcessing] = useState(false);
+
   const handleLogout = async () => {
     await auth.signOut();
     router.push('/');
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'slide' | 'gallery' | 'course' | 'team' | 'review') => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'slide' | 'gallery' | 'course' | 'team' | 'review' | 'video') => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -95,6 +102,7 @@ export default function Dashboard() {
         else if (type === 'course') setCourseForm({ ...courseForm, imageUrl: base64 });
         else if (type === 'team') setTeamForm({ ...teamForm, imageUrl: base64 });
         else if (type === 'review') setNewReview({ ...newReview, userPhoto: base64 });
+        else if (type === 'video') setNewVideo({ ...newVideo, videoUrl: base64 });
       };
       reader.readAsDataURL(file);
     }
@@ -197,6 +205,19 @@ export default function Dashboard() {
     } finally { setIsReviewProcessing(false); }
   };
 
+  const handleSaveVideo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newVideo.videoUrl) return toast({ variant: "destructive", title: "Required", description: "Video file is required." });
+    setIsVideoProcessing(true);
+    try {
+      await addDoc(collection(db, 'videos'), { ...newVideo, order: Number(newVideo.order), createdAt: serverTimestamp() });
+      toast({ title: "Video Added" });
+      setNewVideo({ title: '', videoUrl: '', order: 0 });
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Error", description: error.message });
+    } finally { setIsVideoProcessing(false); }
+  };
+
   const handleDeleteDoc = async (path: string, id: string) => {
     if (!confirm("Are you sure?")) return;
     try {
@@ -226,6 +247,48 @@ export default function Dashboard() {
         </div>
 
         <div className="grid gap-12">
+          {/* VIDEO MANAGEMENT */}
+          <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+            <CardHeader className="bg-primary text-white p-10">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-2xl"><Video className="w-6 h-6" /></div>
+                <CardTitle className="text-2xl font-headline font-bold">Video Gallery Management</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="p-10">
+              <form onSubmit={handleSaveVideo} className="grid md:grid-cols-2 gap-10">
+                <div className="space-y-4">
+                  <div className="space-y-2"><Label>Video Title</Label><Input value={newVideo.title} onChange={e => setNewVideo({...newVideo, title: e.target.value})} className="rounded-xl" placeholder="e.g. Student Success Story" /></div>
+                  <div className="space-y-2"><Label>Display Order</Label><Input type="number" value={newVideo.order} onChange={e => setNewVideo({...newVideo, order: parseInt(e.target.value)})} className="rounded-xl" /></div>
+                  <Button type="button" variant="outline" className="w-full rounded-xl border-dashed" onClick={() => videoFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {newVideo.videoUrl ? 'Change Video' : 'Upload Video clip'}</Button>
+                  <input type="file" ref={videoFileInputRef} onChange={e => handleFileChange(e, 'video')} accept="video/*" className="hidden" />
+                  <Button type="submit" disabled={isVideoProcessing} className="w-full h-12 rounded-xl">{isVideoProcessing ? 'Processing...' : 'Publish Video'}</Button>
+                </div>
+                <div className="border rounded-[2rem] overflow-hidden bg-slate-900 finance-3d-shadow-inner flex items-center justify-center relative aspect-video">
+                  {newVideo.videoUrl ? (
+                    <video src={newVideo.videoUrl} className="w-full h-full object-cover" controls />
+                  ) : (
+                    <div className="text-white/20 flex flex-col items-center gap-2">
+                      <Play className="w-12 h-12 opacity-20" />
+                      <p className="text-sm font-bold">Video Preview</p>
+                    </div>
+                  )}
+                </div>
+              </form>
+              <div className="grid md:grid-cols-4 gap-4 mt-10">
+                {videoGallery?.map(v => (
+                  <div key={v.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-2">
+                    <p className="font-bold text-xs truncate">{v.title || 'Untitled'}</p>
+                    <div className="relative aspect-video rounded-lg overflow-hidden bg-black mb-2">
+                       <video src={v.videoUrl} className="w-full h-full object-cover" />
+                    </div>
+                    <Button variant="destructive" size="sm" className="h-8 w-full rounded-lg" onClick={() => handleDeleteDoc('videos', v.id)}><Trash2 className="w-3 h-3 mr-2" /> Remove</Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* COURSE EDITOR */}
           <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
             <CardHeader className="bg-primary text-white p-10">

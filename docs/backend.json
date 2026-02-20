@@ -116,6 +116,19 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["name", "role", "order"]
+    },
+    "Video": {
+      "title": "Video",
+      "type": "object",
+      "description": "A video clip for the school showcase.",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["videoUrl", "order"]
     }
   },
   "auth": {
@@ -149,6 +162,10 @@
     "/team/{memberId}": {
       "schema": "TeamMember",
       "description": "School staff and leadership team data."
+    },
+    "/videos/{videoId}": {
+      "schema": "Video",
+      "description": "Videos for the school showcase."
     }
   }
 }
