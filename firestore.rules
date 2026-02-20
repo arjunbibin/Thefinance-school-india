@@ -29,5 +29,10 @@ service cloud.firestore {
     match /config/branding {
       allow read: if true;
     }
+
+    match /slides/{slideId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
   }
 }

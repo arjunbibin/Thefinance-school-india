@@ -52,6 +52,20 @@
         "logoUrl": { "type": "string" },
         "tagline": { "type": "string" }
       }
+    },
+    "Slide": {
+      "title": "Slide",
+      "type": "object",
+      "description": "A slide for the homepage slideshow.",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "imageHint": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["title", "imageUrl", "order"]
     }
   },
   "auth": {
@@ -69,6 +83,10 @@
     "/config/branding": {
       "schema": "AppConfig",
       "description": "Global branding configuration."
+    },
+    "/slides/{slideId}": {
+      "schema": "Slide",
+      "description": "Homepage slideshow configuration."
     }
   }
 }
