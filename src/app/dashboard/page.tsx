@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth } from '@/firebase';
+import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { LogOut, ShieldAlert, Users, Trash2, Upload, BookOpen, Plus, Edit2, XCircle, UserSquare, Star, Video, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -68,23 +68,14 @@ export default function Dashboard() {
   // --- STATES ---
   const [courseForm, setCourseForm] = useState({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
-  const [isCourseProcessing, setIsCourseProcessing] = useState(false);
 
   const [teamForm, setTeamForm] = useState({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
-  const [isTeamProcessing, setIsTeamProcessing] = useState(false);
 
   const [newSlide, setNewSlide] = useState({ title: '', description: '', imageUrl: '', order: 0 });
-  const [isSlideProcessing, setIsSlideProcessing] = useState(false);
-
   const [newGalleryImg, setNewGalleryImg] = useState({ description: '', imageUrl: '' });
-  const [isGalleryProcessing, setIsGalleryProcessing] = useState(false);
-
   const [newReview, setNewReview] = useState({ userName: '', userPhoto: '', content: '', rating: 5 });
-  const [isReviewProcessing, setIsReviewProcessing] = useState(false);
-
   const [newVideo, setNewVideo] = useState({ title: '', videoUrl: '', order: 0 });
-  const [isVideoProcessing, setIsVideoProcessing] = useState(false);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -108,124 +99,125 @@ export default function Dashboard() {
     }
   };
 
-  const handleSaveCourse = async (e: React.FormEvent) => {
+  const handleSaveCourse = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsCourseProcessing(true);
-    try {
-      const highlightsArray = courseForm.highlights ? courseForm.highlights.split(',').map(h => h.trim()).filter(h => h !== '') : [];
-      const data = { 
-        title: courseForm.title,
-        subtitle: courseForm.subtitle,
-        description: courseForm.description,
-        imageUrl: courseForm.imageUrl,
-        category: courseForm.category,
-        rating: Number(courseForm.rating),
-        lessons: courseForm.lessons,
-        highlights: highlightsArray,
-        buyLink: courseForm.buyLink,
-        order: Number(courseForm.order)
-      };
+    const highlightsArray = courseForm.highlights ? courseForm.highlights.split(',').map(h => h.trim()).filter(h => h !== '') : [];
+    const data = { 
+      title: courseForm.title,
+      subtitle: courseForm.subtitle,
+      description: courseForm.description,
+      imageUrl: courseForm.imageUrl,
+      category: courseForm.category,
+      rating: Number(courseForm.rating),
+      lessons: courseForm.lessons,
+      highlights: highlightsArray,
+      buyLink: courseForm.buyLink,
+      order: Number(courseForm.order)
+    };
 
-      if (editingCourseId) {
-        await updateDoc(doc(db, 'courses', editingCourseId), data);
-        toast({ title: "Course Updated" });
-      } else {
-        await addDoc(collection(db, 'courses'), { ...data, createdAt: serverTimestamp() });
-        toast({ title: "Course Added" });
-      }
-      setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
-      setEditingCourseId(null);
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Failed", description: error.message });
-    } finally { setIsCourseProcessing(false); }
+    if (editingCourseId) {
+      const docRef = doc(db, 'courses', editingCourseId);
+      updateDoc(docRef, data).catch((err) => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: docRef.path, operation: 'update', requestResourceData: data }));
+      });
+      toast({ title: "Course Updated" });
+    } else {
+      const colRef = collection(db, 'courses');
+      addDoc(colRef, { ...data, createdAt: serverTimestamp() }).catch((err) => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
+      });
+      toast({ title: "Course Added" });
+    }
+    setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
+    setEditingCourseId(null);
   };
 
-  const handleSaveTeam = async (e: React.FormEvent) => {
+  const handleSaveTeam = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsTeamProcessing(true);
-    try {
-      const data = {
-        name: teamForm.name,
-        role: teamForm.role,
-        bio: teamForm.bio,
-        imageUrl: teamForm.imageUrl,
-        isFounder: teamForm.isFounder,
-        order: Number(teamForm.order)
-      };
+    const data = {
+      name: teamForm.name,
+      role: teamForm.role,
+      bio: teamForm.bio,
+      imageUrl: teamForm.imageUrl,
+      isFounder: teamForm.isFounder,
+      order: Number(teamForm.order)
+    };
 
-      if (editingMemberId) {
-        await updateDoc(doc(db, 'team', editingMemberId), data);
-        toast({ title: "Member Updated" });
-      } else {
-        await addDoc(collection(db, 'team'), { ...data, createdAt: serverTimestamp() });
-        toast({ title: "Member Added" });
-      }
-      setTeamForm({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
-      setEditingMemberId(null);
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Failed", description: error.message });
-    } finally { setIsTeamProcessing(false); }
+    if (editingMemberId) {
+      const docRef = doc(db, 'team', editingMemberId);
+      updateDoc(docRef, data).catch((err) => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: docRef.path, operation: 'update', requestResourceData: data }));
+      });
+      toast({ title: "Member Updated" });
+    } else {
+      const colRef = collection(db, 'team');
+      addDoc(colRef, { ...data, createdAt: serverTimestamp() }).catch((err) => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
+      });
+      toast({ title: "Member Added" });
+    }
+    setTeamForm({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
+    setEditingMemberId(null);
   };
 
-  const handleSaveSlide = async (e: React.FormEvent) => {
+  const handleSaveSlide = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSlide.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
-    setIsSlideProcessing(true);
-    try {
-      await addDoc(collection(db, 'slides'), { ...newSlide, order: Number(newSlide.order), createdAt: serverTimestamp() });
-      toast({ title: "Slide Added" });
-      setNewSlide({ title: '', description: '', imageUrl: '', order: 0 });
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Error", description: error.message });
-    } finally { setIsSlideProcessing(false); }
+    
+    const colRef = collection(db, 'slides');
+    addDoc(colRef, { ...newSlide, order: Number(newSlide.order), createdAt: serverTimestamp() }).catch((err) => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: newSlide }));
+    });
+    toast({ title: "Slide Added" });
+    setNewSlide({ title: '', description: '', imageUrl: '', order: 0 });
   };
 
-  const handleSaveGallery = async (e: React.FormEvent) => {
+  const handleSaveGallery = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newGalleryImg.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
-    setIsGalleryProcessing(true);
-    try {
-      await addDoc(collection(db, 'gallery'), { ...newGalleryImg, createdAt: serverTimestamp() });
-      toast({ title: "Memory Added" });
-      setNewGalleryImg({ description: '', imageUrl: '' });
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Error", description: error.message });
-    } finally { setIsGalleryProcessing(false); }
+    
+    const colRef = collection(db, 'gallery');
+    addDoc(colRef, { ...newGalleryImg, createdAt: serverTimestamp() }).catch((err) => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: newGalleryImg }));
+    });
+    toast({ title: "Memory Added" });
+    setNewGalleryImg({ description: '', imageUrl: '' });
   };
 
-  const handleSaveReview = async (e: React.FormEvent) => {
+  const handleSaveReview = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsReviewProcessing(true);
-    try {
-      await addDoc(collection(db, 'reviews'), { ...newReview, createdAt: serverTimestamp() });
-      toast({ title: "Review Added" });
-      setNewReview({ userName: '', userPhoto: '', content: '', rating: 5 });
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Failed", description: error.message });
-    } finally { setIsReviewProcessing(false); }
+    const colRef = collection(db, 'reviews');
+    addDoc(colRef, { ...newReview, createdAt: serverTimestamp() }).catch((err) => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: newReview }));
+    });
+    toast({ title: "Review Added" });
+    setNewReview({ userName: '', userPhoto: '', content: '', rating: 5 });
   };
 
-  const handleSaveVideo = async (e: React.FormEvent) => {
+  const handleSaveVideo = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newVideo.videoUrl) return toast({ variant: "destructive", title: "Required", description: "Video file is required." });
-    setIsVideoProcessing(true);
-    try {
-      await addDoc(collection(db, 'videos'), { ...newVideo, order: Number(newVideo.order), createdAt: serverTimestamp() });
-      toast({ title: "Video Added" });
-      setNewVideo({ title: '', videoUrl: '', order: 0 });
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Error", description: error.message });
-    } finally { setIsVideoProcessing(false); }
+    
+    const colRef = collection(db, 'videos');
+    const data = { ...newVideo, order: Number(newVideo.order), createdAt: serverTimestamp() };
+    
+    // We initiate the write without awaiting, which prevents the UI from sticking.
+    // If the video is > 1MB, Firestore will throw a background error handled by the error emitter.
+    addDoc(colRef, data).catch((err) => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
+    });
+
+    toast({ title: "Video Upload Initiated", description: "The video is being synced in the background." });
+    setNewVideo({ title: '', videoUrl: '', order: 0 });
   };
 
-  const handleDeleteDoc = async (path: string, id: string) => {
+  const handleDeleteDoc = (path: string, id: string) => {
     if (!confirm("Are you sure?")) return;
-    try {
-      await deleteDoc(doc(db, path, id));
-      toast({ title: "Deleted" });
-    } catch (error: any) {
-      toast({ variant: "destructive", title: "Failed", description: error.message });
-    }
+    const docRef = doc(db, path, id);
+    deleteDoc(docRef).catch((err) => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: docRef.path, operation: 'delete' }));
+    });
+    toast({ title: "Delete Requested" });
   };
 
   if (isUserLoading || isProfileLoading) {
@@ -262,7 +254,7 @@ export default function Dashboard() {
                   <div className="space-y-2"><Label>Display Order</Label><Input type="number" value={newVideo.order} onChange={e => setNewVideo({...newVideo, order: parseInt(e.target.value)})} className="rounded-xl" /></div>
                   <Button type="button" variant="outline" className="w-full rounded-xl border-dashed" onClick={() => videoFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {newVideo.videoUrl ? 'Change Video' : 'Upload Video clip'}</Button>
                   <input type="file" ref={videoFileInputRef} onChange={e => handleFileChange(e, 'video')} accept="video/*" className="hidden" />
-                  <Button type="submit" disabled={isVideoProcessing} className="w-full h-12 rounded-xl">{isVideoProcessing ? 'Processing...' : 'Publish Video'}</Button>
+                  <Button type="submit" className="w-full h-12 rounded-xl">Publish Video</Button>
                 </div>
                 <div className="border rounded-[2rem] overflow-hidden bg-slate-900 finance-3d-shadow-inner flex items-center justify-center relative aspect-video">
                   {newVideo.videoUrl ? (
@@ -323,7 +315,7 @@ export default function Dashboard() {
                   <Button type="button" variant="outline" className="w-full rounded-xl border-dashed" onClick={() => courseFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {courseForm.imageUrl ? 'Change Image' : 'Upload Image'}</Button>
                   <input type="file" ref={courseFileInputRef} onChange={e => handleFileChange(e, 'course')} accept="image/*" className="hidden" />
                   <div className="flex gap-4">
-                    <Button type="submit" disabled={isCourseProcessing} className="flex-1 h-12 rounded-xl">{isCourseProcessing ? 'Processing...' : (editingCourseId ? 'Update' : 'Publish')}</Button>
+                    <Button type="submit" className="flex-1 h-12 rounded-xl">{(editingCourseId ? 'Update' : 'Publish')}</Button>
                     {editingCourseId && <Button type="button" variant="ghost" onClick={() => {setEditingCourseId(null); setCourseForm({id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0})}}><XCircle className="w-4 h-4" /></Button>}
                   </div>
                 </div>
@@ -366,7 +358,7 @@ export default function Dashboard() {
                   <Button type="button" variant="outline" className="w-full rounded-xl" onClick={() => teamFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload Portrait</Button>
                   <input type="file" ref={teamFileInputRef} onChange={e => handleFileChange(e, 'team')} accept="image/*" className="hidden" />
                   <div className="flex gap-4">
-                    <Button type="submit" disabled={isTeamProcessing} className="flex-1 h-12 rounded-xl">{isTeamProcessing ? 'Saving...' : (editingMemberId ? 'Update' : 'Add Member')}</Button>
+                    <Button type="submit" className="flex-1 h-12 rounded-xl">{(editingMemberId ? 'Update' : 'Add Member')}</Button>
                     {editingMemberId && <Button type="button" variant="ghost" onClick={() => {setEditingMemberId(null); setTeamForm({id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0})}}><XCircle className="w-4 h-4" /></Button>}
                   </div>
                 </div>
@@ -406,7 +398,7 @@ export default function Dashboard() {
                     <div className="space-y-2"><Label>Rating (1-5)</Label><Input type="number" min="1" max="5" value={newReview.rating} onChange={e => setNewReview({...newReview, rating: parseInt(e.target.value)})} className="rounded-xl" /></div>
                     <Button type="button" variant="outline" className="w-full" onClick={() => reviewFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload User Photo</Button>
                     <input type="file" ref={reviewFileInputRef} onChange={e => handleFileChange(e, 'review')} accept="image/*" className="hidden" />
-                    <Button type="submit" disabled={isReviewProcessing} className="w-full h-12">{isReviewProcessing ? 'Saving...' : 'Publish Review'}</Button>
+                    <Button type="submit" className="w-full h-12">Publish Review</Button>
                   </div>
                   <div className="p-6 border rounded-[2rem] bg-slate-50 finance-3d-shadow-inner flex flex-col items-center justify-center text-center">
                     <div className="w-20 h-20 rounded-2xl overflow-hidden mb-4 finance-3d-shadow bg-white relative">
@@ -439,7 +431,7 @@ export default function Dashboard() {
                     <Input type="number" placeholder="Order" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value)})} className="rounded-xl" />
                     <Button type="button" variant="outline" className="w-full" onClick={() => slideFileInputRef.current?.click()}>Select Slide</Button>
                     <input type="file" ref={slideFileInputRef} onChange={e => handleFileChange(e, 'slide')} accept="image/*" className="hidden" />
-                    <Button type="submit" disabled={isSlideProcessing} className="w-full h-12">{isSlideProcessing ? 'Saving...' : 'Add Slide'}</Button>
+                    <Button type="submit" className="w-full h-12">Add Slide</Button>
                   </form>
                   <div className="grid grid-cols-3 gap-2">
                     {slides?.map(s => <div key={s.id} className="relative aspect-video rounded-lg overflow-hidden group"><Image src={s.imageUrl} alt="s" fill className="object-cover" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteDoc('slides', s.id)}><Trash2 className="w-3 h-3" /></Button></div>)}
@@ -453,7 +445,7 @@ export default function Dashboard() {
                     <Input placeholder="Description" value={newGalleryImg.description} onChange={e => setNewGalleryImg({...newGalleryImg, description: e.target.value})} className="rounded-xl" />
                     <Button type="button" variant="outline" className="w-full" onClick={() => galleryFileInputRef.current?.click()}>Select Memory</Button>
                     <input type="file" ref={galleryFileInputRef} onChange={e => handleFileChange(e, 'gallery')} accept="image/*" className="hidden" />
-                    <Button type="submit" disabled={isGalleryProcessing} className="w-full h-12">{isGalleryProcessing ? 'Adding...' : 'Add Memory'}</Button>
+                    <Button type="submit" className="w-full h-12">Add Memory</Button>
                   </form>
                   <div className="grid grid-cols-3 gap-2">
                     {galleryItems?.map(g => <div key={g.id} className="relative aspect-square rounded-lg overflow-hidden group"><Image src={g.imageUrl} alt="g" fill className="object-cover" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteDoc('gallery', g.id)}><Trash2 className="w-3 h-3" /></Button></div>)}
