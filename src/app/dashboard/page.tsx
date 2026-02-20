@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -12,10 +13,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
-import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth, useStorage, errorEmitter, FirestorePermissionError } from '@/firebase';
-import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { 
+  useUser, 
+  useFirestore, 
+  useDoc, 
+  useCollection, 
+  useMemoFirebase, 
+  useAuth, 
+  useStorage, 
+  updateDocumentNonBlocking, 
+  addDocumentNonBlocking, 
+  deleteDocumentNonBlocking 
+} from '@/firebase';
+import { doc, collection, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { LogOut, ShieldAlert, Users, Trash2, Upload, BookOpen, Plus, Edit2, XCircle, UserSquare, Star, Video, Play, AlertCircle, CheckCircle } from 'lucide-react';
+import { LogOut, ShieldAlert, Users, Trash2, Upload, BookOpen, XCircle, UserSquare, Star, Video, Play, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -100,7 +112,6 @@ export default function Dashboard() {
         return;
       }
 
-      // For images, keep Base64 for simplicity since they are small
       if (file.size > 700 * 1024) {
         toast({ variant: "destructive", title: "File Too Large", description: "Images must be smaller than 700KB." });
         return;
@@ -137,16 +148,12 @@ export default function Dashboard() {
 
     if (editingCourseId) {
       const docRef = doc(db, 'courses', editingCourseId);
-      updateDoc(docRef, data).catch((err) => {
-        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: docRef.path, operation: 'update', requestResourceData: data }));
-      });
-      toast({ title: "Course Updated" });
+      updateDocumentNonBlocking(docRef, data);
+      toast({ title: "Course Update Initiated" });
     } else {
       const colRef = collection(db, 'courses');
-      addDoc(colRef, { ...data, createdAt: serverTimestamp() }).catch((err) => {
-        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
-      });
-      toast({ title: "Course Added" });
+      addDocumentNonBlocking(colRef, { ...data, createdAt: serverTimestamp() });
+      toast({ title: "Course Creation Initiated" });
     }
     setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
     setEditingCourseId(null);
@@ -165,16 +172,12 @@ export default function Dashboard() {
 
     if (editingMemberId) {
       const docRef = doc(db, 'team', editingMemberId);
-      updateDoc(docRef, data).catch((err) => {
-        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: docRef.path, operation: 'update', requestResourceData: data }));
-      });
-      toast({ title: "Member Updated" });
+      updateDocumentNonBlocking(docRef, data);
+      toast({ title: "Member Update Initiated" });
     } else {
       const colRef = collection(db, 'team');
-      addDoc(colRef, { ...data, createdAt: serverTimestamp() }).catch((err) => {
-        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
-      });
-      toast({ title: "Member Added" });
+      addDocumentNonBlocking(colRef, { ...data, createdAt: serverTimestamp() });
+      toast({ title: "Member Creation Initiated" });
     }
     setTeamForm({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
     setEditingMemberId(null);
@@ -186,10 +189,8 @@ export default function Dashboard() {
     
     const colRef = collection(db, 'slides');
     const data = { ...newSlide, order: Number(newSlide.order), createdAt: serverTimestamp() };
-    addDoc(colRef, data).catch((err) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
-    });
-    toast({ title: "Slide Added" });
+    addDocumentNonBlocking(colRef, data);
+    toast({ title: "Slide Addition Initiated" });
     setNewSlide({ title: '', description: '', imageUrl: '', order: 0 });
   };
 
@@ -199,10 +200,8 @@ export default function Dashboard() {
     
     const colRef = collection(db, 'gallery');
     const data = { ...newGalleryImg, createdAt: serverTimestamp() };
-    addDoc(colRef, data).catch((err) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
-    });
-    toast({ title: "Memory Added" });
+    addDocumentNonBlocking(colRef, data);
+    toast({ title: "Memory Addition Initiated" });
     setNewGalleryImg({ description: '', imageUrl: '' });
   };
 
@@ -210,10 +209,8 @@ export default function Dashboard() {
     e.preventDefault();
     const colRef = collection(db, 'reviews');
     const data = { ...newReview, createdAt: serverTimestamp() };
-    addDoc(colRef, data).catch((err) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
-    });
-    toast({ title: "Review Added" });
+    addDocumentNonBlocking(colRef, data);
+    toast({ title: "Review Addition Initiated" });
     setNewReview({ userName: '', userPhoto: '', content: '', rating: 5 });
   };
 
@@ -243,25 +240,21 @@ export default function Dashboard() {
             createdAt: serverTimestamp() 
           };
           const colRef = collection(db, 'videos');
-          addDoc(colRef, data).catch((err) => {
-            errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
-          });
+          addDocumentNonBlocking(colRef, data);
           
           setUploadProgress(null);
           setVideoFile(null);
           setNewVideo({ title: '', videoUrl: '', order: 0 });
-          toast({ title: "Video Published Successfully" });
+          toast({ title: "Video Publication Initiated" });
         });
       }
     );
   };
 
   const handleDeleteDoc = (path: string, id: string) => {
-    if (!confirm("Are you sure?")) return;
+    if (!confirm("Are you sure you want to delete this item? This action cannot be undone.")) return;
     const docRef = doc(db, path, id);
-    deleteDoc(docRef).catch((err) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: docRef.path, operation: 'delete' }));
-    });
+    deleteDocumentNonBlocking(docRef);
     toast({ title: "Delete Requested" });
   };
 
@@ -301,7 +294,7 @@ export default function Dashboard() {
               <form onSubmit={handleSaveVideo} className="grid md:grid-cols-2 gap-10">
                 <div className="space-y-4">
                   <div className="space-y-2"><Label>Video Title</Label><Input value={newVideo.title} onChange={e => setNewVideo({...newVideo, title: e.target.value})} className="rounded-xl" placeholder="e.g. Student Success Story" /></div>
-                  <div className="space-y-2"><Label>Display Order</Label><Input type="number" value={newVideo.order} onChange={e => setNewVideo({...newVideo, order: parseInt(e.target.value)})} className="rounded-xl" /></div>
+                  <div className="space-y-2"><Label>Display Order</Label><Input type="number" value={newVideo.order} onChange={e => setNewVideo({...newVideo, order: parseInt(e.target.value) || 0})} className="rounded-xl" /></div>
                   
                   <div className="space-y-4 pt-2">
                     <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-14" onClick={() => videoFileInputRef.current?.click()}>
@@ -386,8 +379,8 @@ export default function Dashboard() {
                   </div>
                   <div className="space-y-2"><Label>Highlights (Comma separated)</Label><Input value={courseForm.highlights} onChange={e => setCourseForm({...courseForm, highlights: e.target.value})} className="rounded-xl" /></div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label>Rating</Label><Input type="number" step="0.1" value={courseForm.rating} onChange={e => setCourseForm({...courseForm, rating: parseFloat(e.target.value)})} className="rounded-xl" /></div>
-                    <div className="space-y-2"><Label>Order</Label><Input type="number" value={courseForm.order} onChange={e => setCourseForm({...courseForm, order: parseInt(e.target.value)})} className="rounded-xl" /></div>
+                    <div className="space-y-2"><Label>Rating</Label><Input type="number" step="0.1" value={courseForm.rating} onChange={e => setCourseForm({...courseForm, rating: parseFloat(e.target.value) || 0})} className="rounded-xl" /></div>
+                    <div className="space-y-2"><Label>Order</Label><Input type="number" value={courseForm.order} onChange={e => setCourseForm({...courseForm, order: parseInt(e.target.value) || 0})} className="rounded-xl" /></div>
                   </div>
                   <Button type="button" variant="outline" className="w-full rounded-xl border-dashed" onClick={() => courseFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {courseForm.imageUrl ? 'Change Image' : 'Upload Image'}</Button>
                   <input type="file" id="courseImg" ref={courseFileInputRef} onChange={e => handleFileChange(e, 'course')} accept="image/*" className="hidden" />
@@ -430,7 +423,7 @@ export default function Dashboard() {
                   <div className="space-y-2"><Label>Short Bio</Label><Textarea value={teamForm.bio} onChange={e => setTeamForm({...teamForm, bio: e.target.value})} className="rounded-xl" /></div>
                   <div className="grid grid-cols-2 gap-6 items-center">
                     <div className="flex items-center space-x-2"><Switch checked={teamForm.isFounder} onCheckedChange={v => setTeamForm({...teamForm, isFounder: v})} /><Label>Founder Role</Label></div>
-                    <div className="space-y-2"><Label>Order</Label><Input type="number" value={teamForm.order} onChange={e => setTeamForm({...teamForm, order: parseInt(e.target.value)})} className="rounded-xl" /></div>
+                    <div className="space-y-2"><Label>Order</Label><Input type="number" value={teamForm.order} onChange={e => setTeamForm({...teamForm, order: parseInt(e.target.value) || 0})} className="rounded-xl" /></div>
                   </div>
                   <Button type="button" variant="outline" className="w-full rounded-xl" onClick={() => teamFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload Portrait</Button>
                   <input type="file" id="teamImg" ref={teamFileInputRef} onChange={e => handleFileChange(e, 'team')} accept="image/*" className="hidden" />
@@ -471,7 +464,7 @@ export default function Dashboard() {
                 <CardContent className="p-8 space-y-4">
                   <form onSubmit={handleSaveSlide} className="space-y-4">
                     <Input placeholder="Title" value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl" />
-                    <Input type="number" placeholder="Order" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value)})} className="rounded-xl" />
+                    <Input type="number" placeholder="Order" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value) || 0})} className="rounded-xl" />
                     <Button type="button" variant="outline" className="w-full" onClick={() => slideFileInputRef.current?.click()}>Select Slide</Button>
                     <input type="file" id="slideImg" ref={slideFileInputRef} onChange={e => handleFileChange(e, 'slide')} accept="image/*" className="hidden" />
                     <Button type="submit" className="w-full h-12">Add Slide</Button>
