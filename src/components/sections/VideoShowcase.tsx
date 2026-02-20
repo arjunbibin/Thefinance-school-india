@@ -5,7 +5,7 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Play, Pause, SkipForward, Video as VideoIcon } from 'lucide-react';
+import { Play, Pause } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function VideoShowcase() {
@@ -37,6 +37,12 @@ export default function VideoShowcase() {
     if (videos && videos.length > 1) {
       const nextIndex = (currentIndex + 1) % videos.length;
       setCurrentIndex(nextIndex);
+    } else if (videos && videos.length === 1) {
+      // Replay if only one video
+      if (videoRef.current) {
+        videoRef.current.currentTime = 0;
+        videoRef.current.play();
+      }
     } else {
       setIsPlaying(false);
     }
@@ -45,7 +51,6 @@ export default function VideoShowcase() {
   useEffect(() => {
     if (isPlaying && videoRef.current) {
       videoRef.current.play().catch(() => {
-        // Handle potential play() interruption
         setIsPlaying(false);
       });
     }
@@ -69,118 +74,60 @@ export default function VideoShowcase() {
         <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">Watch our interactive workshops and the transformation of our students.</p>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-12 items-start">
+      <div className="max-w-5xl mx-auto">
         {/* Main Video Player */}
-        <div className="lg:col-span-2">
-          <Card className="relative aspect-video w-full overflow-hidden border-none bg-black finance-3d-shadow rounded-[2.5rem] group cursor-pointer">
-            {activeVideo && (
-              <>
-                <video
-                  ref={videoRef}
-                  src={activeVideo.videoUrl}
-                  className="w-full h-full object-cover"
-                  onEnded={handleVideoEnded}
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
-                  onClick={togglePlay}
-                  // Security Attributes
-                  controlsList="nodownload"
-                  onContextMenu={(e) => e.preventDefault()}
-                  disablePictureInPicture
-                  disableRemotePlayback
-                  playsInline
-                />
-                
-                {/* Control Overlay */}
-                <div className={cn(
-                  "absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all duration-300 pointer-events-none",
-                  isPlaying ? "opacity-0 group-hover:opacity-100 bg-black/20" : "opacity-100"
-                )}>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      togglePlay();
-                    }}
-                    className="w-24 h-24 bg-accent text-primary rounded-full flex items-center justify-center finance-3d-shadow hover:scale-110 transition-transform pointer-events-auto shadow-2xl"
-                  >
-                    {isPlaying ? (
-                      <Pause className="w-10 h-10 fill-primary" />
-                    ) : (
-                      <Play className="w-10 h-10 fill-primary ml-1" />
-                    )}
-                  </button>
-                </div>
-
-                {/* Info Overlay */}
-                <div className={cn(
-                  "absolute bottom-8 left-8 right-8 flex items-end justify-between pointer-events-none transition-opacity duration-500",
-                  isPlaying ? "opacity-0 group-hover:opacity-100" : "opacity-100"
-                )}>
-                  <div className="bg-black/60 backdrop-blur-md p-6 rounded-3xl border border-white/10 max-w-[70%]">
-                    <h3 className="text-white font-headline font-bold text-2xl mb-1">{activeVideo.title || 'Workshop Highlights'}</h3>
-                    <p className="text-white/60 text-sm">Now Playing: Video {currentIndex + 1} of {videos.length}</p>
-                  </div>
-                </div>
-              </>
-            )}
-          </Card>
-        </div>
-
-        {/* Playlist / Next Up */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between mb-4">
-             <div className="flex items-center gap-2">
-               <VideoIcon className="w-5 h-5 text-accent" />
-               <h4 className="font-headline font-bold text-primary text-xl">Playlist</h4>
-             </div>
-             <Badge variant="secondary" className="bg-primary/5 text-primary text-[10px] uppercase font-bold">{videos.length} clips</Badge>
-          </div>
-          
-          <div className="grid gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
-            {videos.map((video, index) => (
-              <div
-                key={video.id}
-                className={cn(
-                  "group/item flex items-center gap-4 p-4 rounded-[1.5rem] transition-all border-none finance-3d-shadow relative",
-                  currentIndex === index 
-                    ? "bg-primary text-white scale-[1.02]" 
-                    : "bg-white text-muted-foreground hover:bg-slate-50"
-                )}
-              >
-                <button
-                  onClick={() => {
-                    setCurrentIndex(index);
-                    setIsPlaying(true);
+        <Card className="relative aspect-video w-full overflow-hidden border-none bg-black finance-3d-shadow rounded-[2.5rem] group cursor-pointer">
+          {activeVideo && (
+            <>
+              <video
+                ref={videoRef}
+                src={activeVideo.videoUrl}
+                className="w-full h-full object-cover"
+                onEnded={handleVideoEnded}
+                onPlay={() => setIsPlaying(true)}
+                onPause={() => setIsPlaying(false)}
+                onClick={togglePlay}
+                // Security Attributes
+                controlsList="nodownload"
+                onContextMenu={(e) => e.preventDefault()}
+                disablePictureInPicture
+                disableRemotePlayback
+                playsInline
+              />
+              
+              {/* Control Overlay */}
+              <div className={cn(
+                "absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all duration-300 pointer-events-none",
+                isPlaying ? "opacity-0 group-hover:opacity-100 bg-black/20" : "opacity-100"
+              )}>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    togglePlay();
                   }}
-                  className="flex-1 flex items-center gap-4 text-left overflow-hidden"
+                  className="w-24 h-24 bg-accent text-primary rounded-full flex items-center justify-center finance-3d-shadow hover:scale-110 transition-transform pointer-events-auto shadow-2xl"
                 >
-                  <div className={cn(
-                    "w-12 h-12 rounded-xl flex items-center justify-center shrink-0",
-                    currentIndex === index ? "bg-white/20" : "bg-primary/10 text-primary"
-                  )}>
-                    {currentIndex === index && isPlaying ? (
-                      <div className="flex gap-1 items-end h-4">
-                        <div className="w-1 bg-white animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <div className="w-1 bg-white animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <div className="w-1 bg-white animate-bounce" style={{ animationDelay: '300ms' }} />
-                      </div>
-                    ) : (
-                      <Play className={cn("w-5 h-5", currentIndex === index ? "fill-white" : "fill-primary")} />
-                    )}
-                  </div>
-                  <div className="flex-1 overflow-hidden">
-                    <p className="font-bold text-sm truncate">{video.title || `Video ${index + 1}`}</p>
-                    <p className={cn("text-xs", currentIndex === index ? "text-white/60" : "text-muted-foreground")}>
-                      {currentIndex === index ? 'Playing' : 'Up next'}
-                    </p>
-                  </div>
+                  {isPlaying ? (
+                    <Pause className="w-10 h-10 fill-primary" />
+                  ) : (
+                    <Play className="w-10 h-10 fill-primary ml-1" />
+                  )}
                 </button>
-                
-                {currentIndex === index && <SkipForward className="w-4 h-4 opacity-50" />}
               </div>
-            ))}
-          </div>
-        </div>
+
+              {/* Info Overlay */}
+              <div className={cn(
+                "absolute bottom-8 left-8 right-8 flex items-end justify-between pointer-events-none transition-opacity duration-500",
+                isPlaying ? "opacity-0 group-hover:opacity-100" : "opacity-100"
+              )}>
+                <div className="bg-black/60 backdrop-blur-md p-6 rounded-3xl border border-white/10 max-w-[80%]">
+                  <h3 className="text-white font-headline font-bold text-2xl mb-1">{activeVideo.title || 'Workshop Highlights'}</h3>
+                  <p className="text-white/60 text-sm">Playing Case Study {currentIndex + 1} of {videos.length}</p>
+                </div>
+              </div>
+            </>
+          )}
+        </Card>
       </div>
     </section>
   );
