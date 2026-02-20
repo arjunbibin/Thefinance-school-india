@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -54,6 +55,11 @@ service cloud.firestore {
     }
 
     match /videos/{videoId} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+
+    match /testimonialVideos/{videoId} {
       allow read: if true;
       allow write: if isStaff();
     }

@@ -25,7 +25,8 @@
           ],
           "default": "user"
         },
-        "registrationDate": { "type": "string", "format": "date-time" }
+        "registrationDate": { "type": "string", "format": "date-time" },
+        "activeSessionId": { "type": "string" }
       },
       "required": ["id", "email", "role"]
     },
@@ -120,7 +121,20 @@
     "Video": {
       "title": "Video",
       "type": "object",
-      "description": "A video clip for the school showcase.",
+      "description": "A video clip for the school showcase (Success Stories).",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "videoUrl": { "type": "string" },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["videoUrl", "order"]
+    },
+    "TestimonialVideo": {
+      "title": "TestimonialVideo",
+      "type": "object",
+      "description": "A vertical video for the testimonials gallery.",
       "properties": {
         "id": { "type": "string" },
         "title": { "type": "string" },
@@ -165,7 +179,11 @@
     },
     "/videos/{videoId}": {
       "schema": "Video",
-      "description": "Videos for the school showcase."
+      "description": "Videos for the school showcase (Success Stories)."
+    },
+    "/testimonialVideos/{videoId}": {
+      "schema": "TestimonialVideo",
+      "description": "Videos for the testimonials page."
     }
   }
 }
