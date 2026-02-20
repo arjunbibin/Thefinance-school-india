@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -123,8 +122,7 @@ export default function VideoShowcase() {
                 isPlaying ? "opacity-0 group-hover:opacity-100" : "opacity-100"
               )}>
                 <div className="bg-black/60 backdrop-blur-md p-6 rounded-3xl border border-white/10 max-w-[80%]">
-                  <h3 className="text-white font-headline font-bold text-2xl mb-1">{activeVideo.title || 'Workshop Highlights'}</h3>
-                  <p className="text-white/60 text-sm">Playing Case Study {currentIndex + 1} of {videos.length}</p>
+                  <h3 className="text-white font-headline font-bold text-2xl">{activeVideo.title || 'Workshop Highlights'}</h3>
                 </div>
               </div>
             </>
