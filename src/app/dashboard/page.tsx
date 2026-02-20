@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   useUser, 
   useFirestore, 
@@ -23,7 +24,8 @@ import {
   useStorage, 
   updateDocumentNonBlocking, 
   addDocumentNonBlocking, 
-  deleteDocumentNonBlocking 
+  deleteDocumentNonBlocking,
+  setDocumentNonBlocking
 } from '@/firebase';
 import { doc, collection, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
@@ -40,7 +42,12 @@ import {
   Video, 
   Play, 
   AlertCircle, 
-  Edit2 
+  Edit2,
+  Settings,
+  LayoutDashboard,
+  Image as ImageIcon,
+  MessageSquare,
+  Globe
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -93,7 +100,13 @@ export default function Dashboard() {
   const videosQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'videos'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
   const { data: videoGallery } = useCollection(videosQuery);
 
+  const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
+  const { data: branding } = useDoc(brandingRef);
+
   // --- STATES ---
+  const [brandingForm, setBrandingForm] = useState({ appName: '', logoUrl: '', tagline: '' });
+  useEffect(() => { if (branding) setBrandingForm({ appName: branding.appName || '', logoUrl: branding.logoUrl || '', tagline: branding.tagline || '' }); }, [branding]);
+
   const [courseForm, setCourseForm] = useState({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
 
@@ -144,9 +157,15 @@ export default function Dashboard() {
     }
   };
 
+  const handleSaveBranding = (e: React.FormEvent) => {
+    e.preventDefault();
+    setDocumentNonBlocking(brandingRef!, brandingForm, { merge: true });
+    toast({ title: "Branding Updated" });
+  };
+
   const handleSaveCourse = (e: React.FormEvent) => {
     e.preventDefault();
-    const highlightsArray = courseForm.highlights ? courseForm.highlights.split(',').map(h => h.trim()).filter(h => h !== '') : [];
+    const highlightsArray = typeof courseForm.highlights === 'string' ? courseForm.highlights.split(',').map(h => h.trim()).filter(h => h !== '') : (courseForm.highlights || []);
     const data = { 
       title: courseForm.title,
       subtitle: courseForm.subtitle,
@@ -163,11 +182,11 @@ export default function Dashboard() {
     if (editingCourseId) {
       const docRef = doc(db, 'courses', editingCourseId);
       updateDocumentNonBlocking(docRef, data);
-      toast({ title: "Course Update Initiated" });
+      toast({ title: "Course Updated" });
     } else {
       const colRef = collection(db, 'courses');
       addDocumentNonBlocking(colRef, { ...data, createdAt: serverTimestamp() });
-      toast({ title: "Course Creation Initiated" });
+      toast({ title: "Course Added" });
     }
     setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
     setEditingCourseId(null);
@@ -187,11 +206,11 @@ export default function Dashboard() {
     if (editingMemberId) {
       const docRef = doc(db, 'team', editingMemberId);
       updateDocumentNonBlocking(docRef, data);
-      toast({ title: "Member Update Initiated" });
+      toast({ title: "Member Updated" });
     } else {
       const colRef = collection(db, 'team');
       addDocumentNonBlocking(colRef, { ...data, createdAt: serverTimestamp() });
-      toast({ title: "Member Creation Initiated" });
+      toast({ title: "Member Added" });
     }
     setTeamForm({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
     setEditingMemberId(null);
@@ -200,31 +219,26 @@ export default function Dashboard() {
   const handleSaveSlide = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSlide.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
-    
     const colRef = collection(db, 'slides');
-    const data = { ...newSlide, order: Number(newSlide.order), createdAt: serverTimestamp() };
-    addDocumentNonBlocking(colRef, data);
-    toast({ title: "Slide Addition Initiated" });
+    addDocumentNonBlocking(colRef, { ...newSlide, order: Number(newSlide.order), createdAt: serverTimestamp() });
+    toast({ title: "Slide Added" });
     setNewSlide({ title: '', description: '', imageUrl: '', order: 0 });
   };
 
   const handleSaveGallery = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newGalleryImg.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
-    
     const colRef = collection(db, 'gallery');
-    const data = { ...newGalleryImg, createdAt: serverTimestamp() };
-    addDocumentNonBlocking(colRef, data);
-    toast({ title: "Memory Addition Initiated" });
+    addDocumentNonBlocking(colRef, { ...newGalleryImg, createdAt: serverTimestamp() });
+    toast({ title: "Memory Added" });
     setNewGalleryImg({ description: '', imageUrl: '' });
   };
 
   const handleSaveReview = (e: React.FormEvent) => {
     e.preventDefault();
     const colRef = collection(db, 'reviews');
-    const data = { ...newReview, createdAt: serverTimestamp() };
-    addDocumentNonBlocking(colRef, data);
-    toast({ title: "Review Addition Initiated" });
+    addDocumentNonBlocking(colRef, { ...newReview, createdAt: serverTimestamp() });
+    toast({ title: "Review Added" });
     setNewReview({ userName: '', userPhoto: '', content: '', rating: 5 });
   };
 
@@ -255,11 +269,10 @@ export default function Dashboard() {
           };
           const colRef = collection(db, 'videos');
           addDocumentNonBlocking(colRef, data);
-          
           setUploadProgress(null);
           setVideoFile(null);
           setNewVideo({ title: '', videoUrl: '', order: 0 });
-          toast({ title: "Video Publication Initiated" });
+          toast({ title: "Video Published" });
         });
       }
     );
@@ -281,273 +294,269 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      <main className="flex-grow pb-24 px-6 max-w-6xl mx-auto w-full pt-16">
-        <div className="mb-12 flex items-center justify-between">
+      <main className="flex-grow pb-24 px-6 max-w-7xl mx-auto w-full pt-16">
+        <div className="mb-12 flex items-center justify-between flex-wrap gap-6">
           <div>
             <h1 className="text-4xl md:text-6xl font-headline font-bold text-primary tracking-tight">Staff <span className="text-accent">Portal</span></h1>
-            <p className="text-muted-foreground mt-2 flex items-center gap-2"><ShieldAlert className="w-4 h-4 text-accent" /> Authenticated as {profile?.role}</p>
+            <p className="text-muted-foreground mt-2 flex items-center gap-2 font-medium"><ShieldAlert className="w-4 h-4 text-accent" /> Authenticated Management: {profile?.role}</p>
           </div>
-          <Button onClick={handleLogout} variant="outline" className="border-destructive/20 text-destructive font-bold h-12 rounded-xl"><LogOut className="w-4 h-4 mr-2" /> Logout</Button>
+          <Button onClick={handleLogout} variant="outline" className="border-destructive/20 text-destructive font-bold h-12 rounded-xl bg-white finance-3d-shadow hover:bg-destructive hover:text-white transition-all">
+            <LogOut className="w-4 h-4 mr-2" /> Logout Session
+          </Button>
         </div>
 
-        <div className="grid gap-12">
-          {/* VIDEO MANAGEMENT */}
-          <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
-            <CardHeader className="bg-primary text-white p-10">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-white/10 rounded-2xl"><Video className="w-6 h-6" /></div>
-                <CardTitle className="text-2xl font-headline font-bold">Video Gallery Management</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-10">
-              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl mb-6 flex items-start gap-3 text-sm text-slate-600">
-                <AlertCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <p><strong>Capacity:</strong> Videos up to 30MB are supported via Firebase Storage. For optimal playback, use compressed MP4 files.</p>
-              </div>
-              
-              <form onSubmit={handleSaveVideo} className="grid md:grid-cols-2 gap-10">
-                <div className="space-y-4">
-                  <div className="space-y-2"><Label>Video Title</Label><Input value={newVideo.title} onChange={e => setNewVideo({...newVideo, title: e.target.value})} className="rounded-xl" placeholder="e.g. Student Success Story" /></div>
-                  <div className="space-y-2"><Label>Display Order</Label><Input type="number" value={newVideo.order} onChange={e => setNewVideo({...newVideo, order: parseInt(e.target.value) || 0})} className="rounded-xl" /></div>
-                  
-                  <div className="space-y-4 pt-2">
-                    <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-14" onClick={() => videoFileInputRef.current?.click()}>
-                      <Upload className="w-4 h-4 mr-2" /> {videoFile ? 'Change Video' : 'Select Video (max 30MB)'}
-                    </Button>
-                    <input type="file" ref={videoFileInputRef} onChange={e => handleFileChange(e, 'video')} accept="video/*" className="hidden" />
-                    
-                    {uploadProgress !== null && (
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs font-bold text-primary">
-                          <span>Uploading...</span>
-                          <span>{Math.round(uploadProgress)}%</span>
+        <Tabs defaultValue="web-edit" className="w-full">
+          <TabsList className="grid grid-cols-2 md:grid-cols-4 h-auto gap-4 bg-transparent p-0 mb-12">
+            <TabsTrigger value="web-edit" className="data-[state=active]:bg-primary data-[state=active]:text-white h-14 rounded-2xl finance-3d-shadow border-none font-bold flex gap-2">
+              <Globe className="w-4 h-4" /> Web Edit
+            </TabsTrigger>
+            <TabsTrigger value="reviews" className="data-[state=active]:bg-primary data-[state=active]:text-white h-14 rounded-2xl finance-3d-shadow border-none font-bold flex gap-2">
+              <MessageSquare className="w-4 h-4" /> Testimonials
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-primary data-[state=active]:text-white h-14 rounded-2xl finance-3d-shadow border-none font-bold flex gap-2">
+              <Settings className="w-4 h-4" /> Settings
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="web-edit" className="space-y-12">
+            {/* SUB-TABS FOR WEB EDIT */}
+            <Tabs defaultValue="videos" className="w-full">
+              <TabsList className="flex flex-wrap h-auto gap-2 bg-slate-100 p-2 rounded-[2rem] mb-10 overflow-x-auto">
+                <TabsTrigger value="videos" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Videos</TabsTrigger>
+                <TabsTrigger value="courses" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Courses</TabsTrigger>
+                <TabsTrigger value="team" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Team</TabsTrigger>
+                <TabsTrigger value="assets" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Slides & Gallery</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="videos">
+                <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+                  <CardHeader className="bg-primary text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Video className="w-6 h-6" /> Showcase Video Manager</CardTitle></CardHeader>
+                  <CardContent className="p-10 space-y-8">
+                    <form onSubmit={handleSaveVideo} className="grid md:grid-cols-2 gap-10">
+                      <div className="space-y-4">
+                        <div className="space-y-2"><Label>Video Title</Label><Input value={newVideo.title} onChange={e => setNewVideo({...newVideo, title: e.target.value})} className="rounded-xl h-12" placeholder="e.g. Student Success Story" /></div>
+                        <div className="space-y-2"><Label>Display Order</Label><Input type="number" value={newVideo.order} onChange={e => setNewVideo({...newVideo, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div>
+                        <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-14 bg-slate-50" onClick={() => videoFileInputRef.current?.click()}>
+                          <Upload className="w-4 h-4 mr-2" /> {videoFile ? 'Change Selected Video' : 'Select Video File (max 30MB)'}
+                        </Button>
+                        <input type="file" ref={videoFileInputRef} onChange={e => handleFileChange(e, 'video')} accept="video/*" className="hidden" />
+                        {uploadProgress !== null && (
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-xs font-bold text-primary"><span>Uploading to Storage...</span><span>{Math.round(uploadProgress)}%</span></div>
+                            <Progress value={uploadProgress} className="h-2" />
+                          </div>
+                        )}
+                        <Button type="submit" className="w-full h-14 rounded-xl shadow-lg font-bold text-lg" disabled={uploadProgress !== null || !videoFile}>
+                          {uploadProgress !== null ? 'Syncing...' : 'Upload & Publish'}
+                        </Button>
+                      </div>
+                      <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 finance-3d-shadow-inner flex items-center justify-center relative aspect-video">
+                        {newVideo.videoUrl ? <video key={newVideo.videoUrl} src={newVideo.videoUrl} className="w-full h-full object-cover" controls /> : <div className="text-white/20 flex flex-col items-center gap-2"><Play className="w-12 h-12 opacity-20" /><p className="text-sm font-bold">Preview Area</p></div>}
+                      </div>
+                    </form>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t">
+                      {videoGallery?.map(v => (
+                        <div key={v.id} className="p-4 bg-slate-50 rounded-2xl relative group">
+                          <p className="font-bold text-xs truncate mb-2">{v.title || 'Untitled'}</p>
+                          <div className="aspect-video rounded-lg overflow-hidden bg-black mb-3"><video src={v.videoUrl} className="w-full h-full object-cover" /></div>
+                          <Button variant="destructive" size="sm" className="w-full rounded-lg z-20" onClick={() => handleDeleteDoc('videos', v.id)}><Trash2 className="w-3 h-3 mr-2" /> Remove</Button>
                         </div>
-                        <Progress value={uploadProgress} className="h-2" />
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="courses">
+                <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+                  <CardHeader className="bg-primary text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><BookOpen className="w-6 h-6" /> {editingCourseId ? 'Edit' : 'Add New'} Program</CardTitle></CardHeader>
+                  <CardContent className="p-10 space-y-8">
+                    <form onSubmit={handleSaveCourse} className="grid md:grid-cols-2 gap-10">
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2"><Label>Title</Label><Input value={courseForm.title} onChange={e => setCourseForm({...courseForm, title: e.target.value})} className="rounded-xl h-12" required /></div>
+                          <div className="space-y-2"><Label>Subtitle</Label><Input value={courseForm.subtitle} onChange={e => setCourseForm({...courseForm, subtitle: e.target.value})} className="rounded-xl h-12" /></div>
+                        </div>
+                        <div className="space-y-2"><Label>Description</Label><Textarea value={courseForm.description} onChange={e => setCourseForm({...courseForm, description: e.target.value})} className="rounded-xl min-h-[100px]" required /></div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label>Category</Label>
+                            <Select value={courseForm.category} onValueChange={v => setCourseForm({...courseForm, category: v})}>
+                              <SelectTrigger className="rounded-xl h-12"><SelectValue /></SelectTrigger>
+                              <SelectContent><SelectItem value="Foundational">Foundational</SelectItem><SelectItem value="Leadership">Leadership</SelectItem><SelectItem value="Premium">Premium</SelectItem></SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2"><Label>Lessons Count</Label><Input value={courseForm.lessons} onChange={e => setCourseForm({...courseForm, lessons: e.target.value})} className="rounded-xl h-12" /></div>
+                        </div>
+                        <div className="space-y-2"><Label>Highlights (Comma separated)</Label><Input value={courseForm.highlights} onChange={e => setCourseForm({...courseForm, highlights: e.target.value})} className="rounded-xl h-12" /></div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2"><Label>Rating</Label><Input type="number" step="0.1" value={courseForm.rating} onChange={e => setCourseForm({...courseForm, rating: parseFloat(e.target.value) || 0})} className="rounded-xl h-12" /></div>
+                          <div className="space-y-2"><Label>Display Order</Label><Input type="number" value={courseForm.order} onChange={e => setCourseForm({...courseForm, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div>
+                        </div>
+                        <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-12" onClick={() => courseFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {courseForm.imageUrl ? 'Change Banner' : 'Upload Cover Image'}</Button>
+                        <input type="file" ref={courseFileInputRef} onChange={e => handleFileChange(e, 'course')} accept="image/*" className="hidden" />
+                        <div className="flex gap-4">
+                          <Button type="submit" className="flex-1 h-14 rounded-xl font-bold text-lg">{(editingCourseId ? 'Update Program' : 'Publish Program')}</Button>
+                          {editingCourseId && <Button type="button" variant="ghost" className="h-14 w-14 p-0 rounded-xl bg-slate-100" onClick={() => {setEditingCourseId(null); setCourseForm({id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0})}}><XCircle className="w-6 h-6 text-slate-400" /></Button>}
+                        </div>
                       </div>
-                    )}
-
-                    <Button type="submit" className="w-full h-14 rounded-xl shadow-lg" disabled={uploadProgress !== null}>
-                      {uploadProgress !== null ? 'Uploading to Cloud...' : 'Publish Video'}
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="border rounded-[2rem] overflow-hidden bg-slate-900 finance-3d-shadow-inner flex items-center justify-center relative aspect-video">
-                  {newVideo.videoUrl ? (
-                    <video key={newVideo.videoUrl} src={newVideo.videoUrl} className="w-full h-full object-cover" controls />
-                  ) : (
-                    <div className="text-white/20 flex flex-col items-center gap-2">
-                      <Play className="w-12 h-12 opacity-20" />
-                      <p className="text-sm font-bold">Video Preview</p>
-                    </div>
-                  )}
-                  {uploadProgress !== null && (
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-white p-6 text-center">
-                       <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mb-4" />
-                       <p className="font-bold">Syncing High-Quality Video</p>
-                       <p className="text-xs opacity-60">This may take a minute for larger files</p>
-                    </div>
-                  )}
-                </div>
-              </form>
-
-              <div className="grid md:grid-cols-4 gap-4 mt-10">
-                {videoGallery?.map(v => (
-                  <div key={v.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-2 group relative">
-                    <p className="font-bold text-xs truncate pr-6">{v.title || 'Untitled'}</p>
-                    <div className="relative aspect-video rounded-lg overflow-hidden bg-black mb-2">
-                       <video src={v.videoUrl} className="w-full h-full object-cover" />
-                    </div>
-                    <Button variant="destructive" size="sm" className="h-8 w-full rounded-lg z-20" onClick={() => handleDeleteDoc('videos', v.id)}><Trash2 className="w-3 h-3 mr-2" /> Remove</Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* COURSE EDITOR */}
-          <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
-            <CardHeader className="bg-primary text-white p-10">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-white/10 rounded-2xl"><BookOpen className="w-6 h-6" /></div>
-                <CardTitle className="text-2xl font-headline font-bold">{editingCourseId ? 'Edit' : 'Add New'} Course</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-10">
-              <form onSubmit={handleSaveCourse} className="grid md:grid-cols-2 gap-10">
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label>Title</Label><Input value={courseForm.title} onChange={e => setCourseForm({...courseForm, title: e.target.value})} className="rounded-xl" required /></div>
-                    <div className="space-y-2"><Label>Subtitle</Label><Input value={courseForm.subtitle} onChange={e => setCourseForm({...courseForm, subtitle: e.target.value})} className="rounded-xl" /></div>
-                  </div>
-                  <div className="space-y-2"><Label>Description</Label><Textarea value={courseForm.description} onChange={e => setCourseForm({...courseForm, description: e.target.value})} className="rounded-xl min-h-[100px]" required /></div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Category</Label>
-                      <Select value={courseForm.category} onValueChange={v => setCourseForm({...courseForm, category: v})}>
-                        <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                        <SelectContent><SelectItem value="Foundational">Foundational</SelectItem><SelectItem value="Leadership">Leadership</SelectItem><SelectItem value="Premium">Premium</SelectItem></SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2"><Label>Lessons Count</Label><Input value={courseForm.lessons} onChange={e => setCourseForm({...courseForm, lessons: e.target.value})} className="rounded-xl" /></div>
-                  </div>
-                  <div className="space-y-2"><Label>Highlights (Comma separated)</Label><Input value={courseForm.highlights} onChange={e => setCourseForm({...courseForm, highlights: e.target.value})} className="rounded-xl" /></div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label>Rating</Label><Input type="number" step="0.1" value={courseForm.rating} onChange={e => setCourseForm({...courseForm, rating: parseFloat(e.target.value) || 0})} className="rounded-xl" /></div>
-                    <div className="space-y-2"><Label>Order</Label><Input type="number" value={courseForm.order} onChange={e => setCourseForm({...courseForm, order: parseInt(e.target.value) || 0})} className="rounded-xl" /></div>
-                  </div>
-                  <Button type="button" variant="outline" className="w-full rounded-xl border-dashed" onClick={() => courseFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {courseForm.imageUrl ? 'Change Image' : 'Upload Image'}</Button>
-                  <input type="file" id="courseImg" ref={courseFileInputRef} onChange={e => handleFileChange(e, 'course')} accept="image/*" className="hidden" />
-                  <div className="flex gap-4">
-                    <Button type="submit" className="flex-1 h-12 rounded-xl">{(editingCourseId ? 'Update' : 'Publish')}</Button>
-                    {editingCourseId && <Button type="button" variant="ghost" onClick={() => {setEditingCourseId(null); setCourseForm({id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0})}}><XCircle className="w-4 h-4" /></Button>}
-                  </div>
-                </div>
-                <div className="border rounded-[2rem] overflow-hidden bg-slate-50 finance-3d-shadow-inner relative aspect-video">
-                  {courseForm.imageUrl && <Image src={courseForm.imageUrl} alt="p" fill className="object-cover" />}
-                </div>
-              </form>
-              <div className="grid md:grid-cols-4 gap-4 mt-10">
-                {courses?.map(c => (
-                  <div key={c.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-2">
-                    <p className="font-bold text-xs truncate">{c.title}</p>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="h-8 rounded-lg flex-1 z-20" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')})}}><Edit2 className="w-3 h-3" /></Button>
-                      <Button variant="destructive" size="sm" className="h-8 w-8 p-0 z-20" onClick={() => handleDeleteDoc('courses', c.id)}><Trash2 className="w-3 h-3" /></Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* TEAM MANAGEMENT */}
-          <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
-            <CardHeader className="bg-accent text-primary p-10">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-primary/10 rounded-2xl"><Users className="w-6 h-6" /></div>
-                <CardTitle className="text-2xl font-headline font-bold">{editingMemberId ? 'Edit' : 'Add New'} Team Member</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-10">
-              <form onSubmit={handleSaveTeam} className="grid md:grid-cols-2 gap-10">
-                <div className="space-y-4">
-                  <div className="space-y-2"><Label>Name</Label><Input value={teamForm.name} onChange={e => setTeamForm({...teamForm, name: e.target.value})} className="rounded-xl" required /></div>
-                  <div className="space-y-2"><Label>Role</Label><Input value={teamForm.role} onChange={e => setTeamForm({...teamForm, role: e.target.value})} className="rounded-xl" required /></div>
-                  <div className="space-y-2"><Label>Short Bio</Label><Textarea value={teamForm.bio} onChange={e => setTeamForm({...teamForm, bio: e.target.value})} className="rounded-xl" /></div>
-                  <div className="grid grid-cols-2 gap-6 items-center">
-                    <div className="flex items-center space-x-2"><Switch checked={teamForm.isFounder} onCheckedChange={v => setTeamForm({...teamForm, isFounder: v})} /><Label>Founder Role</Label></div>
-                    <div className="space-y-2"><Label>Order</Label><Input type="number" value={teamForm.order} onChange={e => setTeamForm({...teamForm, order: parseInt(e.target.value) || 0})} className="rounded-xl" /></div>
-                  </div>
-                  <Button type="button" variant="outline" className="w-full rounded-xl" onClick={() => teamFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload Portrait</Button>
-                  <input type="file" id="teamImg" ref={teamFileInputRef} onChange={e => handleFileChange(e, 'team')} accept="image/*" className="hidden" />
-                  <div className="flex gap-4">
-                    <Button type="submit" className="flex-1 h-12 rounded-xl">{(editingMemberId ? 'Update' : 'Add Member')}</Button>
-                    {editingMemberId && <Button type="button" variant="ghost" onClick={() => {setEditingMemberId(null); setTeamForm({id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0})}}><XCircle className="w-4 h-4" /></Button>}
-                  </div>
-                </div>
-                <div className="flex flex-col items-center justify-center p-6 border rounded-[2rem] bg-slate-50 finance-3d-shadow-inner">
-                  <div className="relative w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-xl">
-                    {teamForm.imageUrl ? <Image src={teamForm.imageUrl} alt="m" fill className="object-cover" /> : <UserSquare className="w-full h-full text-slate-200" />}
-                  </div>
-                  <p className="mt-4 font-bold text-primary">{teamForm.name || 'Member Name'}</p>
-                  <p className="text-sm text-muted-foreground">{teamForm.role || 'Position'}</p>
-                </div>
-              </form>
-              <div className="grid md:grid-cols-4 gap-4 mt-10">
-                {teamMembers?.map(m => (
-                  <div key={m.id} className="p-4 bg-slate-50 rounded-2xl flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full overflow-hidden relative border shadow-sm"><Image src={m.imageUrl || `https://picsum.photos/seed/${m.id}/100/100`} alt="m" fill className="object-cover" /></div>
-                    <div className="flex-1 overflow-hidden">
-                      <p className="text-xs font-bold truncate">{m.name}</p>
-                      <div className="flex gap-1 mt-1">
-                        <Button variant="outline" size="sm" className="h-6 w-6 p-0 z-20" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-2 h-2" /></Button>
-                        <Button variant="destructive" size="sm" className="h-6 w-6 p-0 z-20" onClick={() => handleDeleteDoc('team', m.id)}><Trash2 className="w-2 h-2" /></Button>
+                      <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-50 finance-3d-shadow-inner relative aspect-video">
+                        {courseForm.imageUrl && <Image src={courseForm.imageUrl} alt="p" fill className="object-cover" />}
                       </div>
+                    </form>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t">
+                      {courses?.map(c => (
+                        <div key={c.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-3 group">
+                          <p className="font-bold text-sm truncate">{c.title}</p>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm" className="h-10 rounded-lg flex-1 font-bold" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')})}}><Edit2 className="w-4 h-4 mr-2" /> Edit</Button>
+                            <Button variant="destructive" size="sm" className="h-10 w-10 p-0 rounded-lg" onClick={() => handleDeleteDoc('courses', c.id)}><Trash2 className="w-4 h-4" /></Button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-          {/* ASSETS */}
-          <div className="grid md:grid-cols-2 gap-12">
-             <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
-                <CardHeader className="bg-primary text-white p-8"><CardTitle>Homepage Slides</CardTitle></CardHeader>
-                <CardContent className="p-8 space-y-4">
-                  <form onSubmit={handleSaveSlide} className="space-y-4">
-                    <Input placeholder="Title" value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl" />
-                    <Input type="number" placeholder="Order" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value) || 0})} className="rounded-xl" />
-                    <Button type="button" variant="outline" className="w-full" onClick={() => slideFileInputRef.current?.click()}>Select Slide</Button>
-                    <input type="file" id="slideImg" ref={slideFileInputRef} onChange={e => handleFileChange(e, 'slide')} accept="image/*" className="hidden" />
-                    <Button type="submit" className="w-full h-12">Add Slide</Button>
-                  </form>
-                  <div className="grid grid-cols-3 gap-2">
-                    {slides?.map(s => <div key={s.id} className="relative aspect-video rounded-lg overflow-hidden group"><Image src={s.imageUrl} alt="s" fill className="object-cover" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 z-20" onClick={() => handleDeleteDoc('slides', s.id)}><Trash2 className="w-3 h-3" /></Button></div>)}
-                  </div>
-                </CardContent>
-             </Card>
-             <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
-                <CardHeader className="bg-accent text-primary p-8"><CardTitle>Memory Gallery</CardTitle></CardHeader>
-                <CardContent className="p-8 space-y-4">
-                  <form onSubmit={handleSaveGallery} className="space-y-4">
-                    <Input placeholder="Description" value={newGalleryImg.description} onChange={e => setNewGalleryImg({...newGalleryImg, description: e.target.value})} className="rounded-xl" />
-                    <Button type="button" variant="outline" className="w-full" onClick={() => galleryFileInputRef.current?.click()}>Select Memory</Button>
-                    <input type="file" id="galImg" ref={galleryFileInputRef} onChange={e => handleFileChange(e, 'gallery')} accept="image/*" className="hidden" />
-                    <Button type="submit" className="w-full h-12">Add Memory</Button>
-                  </form>
-                  <div className="grid grid-cols-3 gap-2">
-                    {galleryItems?.map(g => <div key={g.id} className="relative aspect-square rounded-lg overflow-hidden group"><Image src={g.imageUrl} alt="g" fill className="object-cover" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 z-20" onClick={() => handleDeleteDoc('gallery', g.id)}><Trash2 className="w-3 h-3" /></Button></div>)}
-                  </div>
-                </CardContent>
-             </Card>
-          </div>
+              <TabsContent value="team">
+                <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+                  <CardHeader className="bg-accent text-primary p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Users className="w-6 h-6" /> {editingMemberId ? 'Edit' : 'Add'} Team Member</CardTitle></CardHeader>
+                  <CardContent className="p-10 space-y-8">
+                    <form onSubmit={handleSaveTeam} className="grid md:grid-cols-2 gap-10">
+                      <div className="space-y-4">
+                        <div className="space-y-2"><Label>Full Name</Label><Input value={teamForm.name} onChange={e => setTeamForm({...teamForm, name: e.target.value})} className="rounded-xl h-12" required /></div>
+                        <div className="space-y-2"><Label>Professional Role</Label><Input value={teamForm.role} onChange={e => setTeamForm({...teamForm, role: e.target.value})} className="rounded-xl h-12" required /></div>
+                        <div className="space-y-2"><Label>Short Professional Bio</Label><Textarea value={teamForm.bio} onChange={e => setTeamForm({...teamForm, bio: e.target.value})} className="rounded-xl h-24" /></div>
+                        <div className="grid grid-cols-2 gap-6 items-center">
+                          <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-xl border"><Switch checked={teamForm.isFounder} onCheckedChange={v => setTeamForm({...teamForm, isFounder: v})} /><Label className="font-bold">Founder</Label></div>
+                          <div className="space-y-2"><Label>Sort Order</Label><Input type="number" value={teamForm.order} onChange={e => setTeamForm({...teamForm, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div>
+                        </div>
+                        <Button type="button" variant="outline" className="w-full rounded-xl h-12 border-dashed" onClick={() => teamFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload Portrait</Button>
+                        <input type="file" ref={teamFileInputRef} onChange={e => handleFileChange(e, 'team')} accept="image/*" className="hidden" />
+                        <div className="flex gap-4">
+                          <Button type="submit" className="flex-1 h-14 rounded-xl font-bold text-lg">{(editingMemberId ? 'Update Member' : 'Add to Team')}</Button>
+                          {editingMemberId && <Button type="button" variant="ghost" className="h-14 w-14 p-0 rounded-xl bg-slate-100" onClick={() => {setEditingMemberId(null); setTeamForm({id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0})}}><XCircle className="w-6 h-6 text-slate-400" /></Button>}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-center justify-center p-10 border-4 border-slate-50 rounded-[2.5rem] bg-slate-50 finance-3d-shadow-inner">
+                        <div className="relative w-48 h-48 rounded-full overflow-hidden border-8 border-white shadow-2xl bg-white">
+                          {teamForm.imageUrl ? <Image src={teamForm.imageUrl} alt="m" fill className="object-cover" /> : <UserSquare className="w-full h-full text-slate-100 p-8" />}
+                        </div>
+                        <p className="mt-6 font-headline font-bold text-2xl text-primary">{teamForm.name || 'Member Name'}</p>
+                        <p className="text-muted-foreground font-bold uppercase tracking-widest text-sm">{teamForm.role || 'Position'}</p>
+                      </div>
+                    </form>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t">
+                      {teamMembers?.map(m => (
+                        <div key={m.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col items-center text-center gap-2 group">
+                          <div className="w-16 h-16 rounded-full overflow-hidden relative border-2 border-white shadow-md mb-2"><Image src={m.imageUrl || `https://picsum.photos/seed/${m.id}/100/100`} alt="m" fill className="object-cover" /></div>
+                          <p className="text-sm font-bold truncate w-full">{m.name}</p>
+                          <div className="flex gap-2 w-full">
+                            <Button variant="outline" size="sm" className="h-9 flex-1 rounded-lg" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-3 h-3" /></Button>
+                            <Button variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg" onClick={() => handleDeleteDoc('team', m.id)}><Trash2 className="w-3 h-3" /></Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-          {/* ADD REVIEW FORM */}
-          <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
-            <CardHeader className="bg-primary text-white p-10">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-white/10 rounded-2xl"><Star className="w-6 h-6" /></div>
-                <CardTitle className="text-2xl font-headline font-bold">Add Student Review</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="p-10">
-              <form onSubmit={handleSaveReview} className="grid md:grid-cols-2 gap-10">
-                <div className="space-y-4">
-                  <div className="space-y-2"><Label>Student Name</Label><Input value={newReview.userName} onChange={e => setNewReview({...newReview, userName: e.target.value})} className="rounded-xl" required /></div>
-                  <div className="space-y-2"><Label>Feedback Content</Label><Textarea value={newReview.content} onChange={e => setNewReview({...newReview, content: e.target.value})} className="rounded-xl min-h-[100px]" required /></div>
-                  <div className="space-y-2"><Label>Rating (1-5)</Label><Input type="number" min="1" max="5" value={newReview.rating} onChange={e => setNewReview({...newReview, rating: parseInt(e.target.value) || 0})} className="rounded-xl" /></div>
-                  <Button type="button" variant="outline" className="w-full rounded-xl" onClick={() => reviewFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload Photo</Button>
-                  <input type="file" id="revImg" ref={reviewFileInputRef} onChange={e => handleFileChange(e, 'review')} accept="image/*" className="hidden" />
-                  <Button type="submit" className="w-full h-12 rounded-xl">Save Review</Button>
+              <TabsContent value="assets">
+                <div className="grid md:grid-cols-2 gap-12">
+                  <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+                    <CardHeader className="bg-primary text-white p-8"><CardTitle className="flex items-center gap-3"><ImageIcon className="w-5 h-5" /> Homepage Slides</CardTitle></CardHeader>
+                    <CardContent className="p-8 space-y-6">
+                      <form onSubmit={handleSaveSlide} className="space-y-4">
+                        <Input placeholder="Slide Title" value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl h-12" />
+                        <Input type="number" placeholder="Display Order" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" />
+                        <Button type="button" variant="outline" className="w-full h-12 border-dashed" onClick={() => slideFileInputRef.current?.click()}>Select Slide Image</Button>
+                        <input type="file" ref={slideFileInputRef} onChange={e => handleFileChange(e, 'slide')} accept="image/*" className="hidden" />
+                        <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={!newSlide.imageUrl}>Add To Slideshow</Button>
+                      </form>
+                      <div className="grid grid-cols-3 gap-3 pt-6 border-t">
+                        {slides?.map(s => <div key={s.id} className="relative aspect-video rounded-xl overflow-hidden group border shadow-sm"><Image src={s.imageUrl} alt="s" fill className="object-cover" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 z-20 transition-opacity" onClick={() => handleDeleteDoc('slides', s.id)}><Trash2 className="w-4 h-4" /></Button></div>)}
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+                    <CardHeader className="bg-accent text-primary p-8"><CardTitle className="flex items-center gap-3"><ImageIcon className="w-5 h-5" /> Memory Gallery</CardTitle></CardHeader>
+                    <CardContent className="p-8 space-y-6">
+                      <form onSubmit={handleSaveGallery} className="space-y-4">
+                        <Input placeholder="Short Description" value={newGalleryImg.description} onChange={e => setNewGalleryImg({...newGalleryImg, description: e.target.value})} className="rounded-xl h-12" />
+                        <Button type="button" variant="outline" className="w-full h-12 border-dashed" onClick={() => galleryFileInputRef.current?.click()}>Select Memory Image</Button>
+                        <input type="file" ref={galleryFileInputRef} onChange={e => handleFileChange(e, 'gallery')} accept="image/*" className="hidden" />
+                        <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={!newGalleryImg.imageUrl}>Add To Gallery</Button>
+                      </form>
+                      <div className="grid grid-cols-3 gap-3 pt-6 border-t">
+                        {galleryItems?.map(g => <div key={g.id} className="relative aspect-square rounded-xl overflow-hidden group border shadow-sm"><Image src={g.imageUrl} alt="g" fill className="object-cover" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 h-7 w-7 opacity-0 group-hover:opacity-100 z-20 transition-opacity" onClick={() => handleDeleteDoc('gallery', g.id)}><Trash2 className="w-4 h-4" /></Button></div>)}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
-                <div className="flex flex-col items-center justify-center p-6 border rounded-[2rem] bg-slate-50 finance-3d-shadow-inner">
-                   <div className="flex items-center gap-4 mb-4">
-                      <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-white shadow-lg bg-white">
-                        {newReview.userPhoto ? <Image src={newReview.userPhoto} alt="r" fill className="object-cover" /> : <UserSquare className="w-full h-full text-slate-200" />}
+              </TabsContent>
+            </Tabs>
+          </TabsContent>
+
+          <TabsContent value="reviews">
+            <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+              <CardHeader className="bg-primary text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Star className="w-6 h-6" /> Student Testimonials</CardTitle></CardHeader>
+              <CardContent className="p-10 space-y-10">
+                <form onSubmit={handleSaveReview} className="grid md:grid-cols-2 gap-10">
+                  <div className="space-y-4">
+                    <div className="space-y-2"><Label>Student/Parent Name</Label><Input value={newReview.userName} onChange={e => setNewReview({...newReview, userName: e.target.value})} className="rounded-xl h-12" required /></div>
+                    <div className="space-y-2"><Label>Feedback Content</Label><Textarea value={newReview.content} onChange={e => setNewReview({...newReview, content: e.target.value})} className="rounded-xl min-h-[120px]" required /></div>
+                    <div className="space-y-2"><Label>Rating (1-5 Stars)</Label><Input type="number" min="1" max="5" value={newReview.rating} onChange={e => setNewReview({...newReview, rating: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div>
+                    <Button type="button" variant="outline" className="w-full h-12 rounded-xl border-dashed" onClick={() => reviewFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload Portrait</Button>
+                    <input type="file" ref={reviewFileInputRef} onChange={e => handleFileChange(e, 'review')} accept="image/*" className="hidden" />
+                    <Button type="submit" className="w-full h-14 font-bold text-lg rounded-xl shadow-lg">Save Testimonial</Button>
+                  </div>
+                  <div className="flex flex-col items-center justify-center p-10 border-4 border-slate-50 rounded-[2.5rem] bg-slate-50 finance-3d-shadow-inner">
+                    <div className="flex items-center gap-6 mb-6">
+                      <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-4 border-white shadow-xl bg-white">
+                        {newReview.userPhoto ? <Image src={newReview.userPhoto} alt="r" fill className="object-cover" /> : <UserSquare className="w-full h-full text-slate-100 p-4" />}
                       </div>
                       <div>
-                         <p className="font-bold text-primary">{newReview.userName || 'Student Name'}</p>
-                         <div className="flex gap-1">
-                           {[...Array(isNaN(newReview.rating) ? 0 : Math.max(0, Math.min(5, newReview.rating)))].map((_, i) => <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
-                         </div>
+                        <p className="font-headline font-bold text-2xl text-primary">{newReview.userName || 'Visitor Name'}</p>
+                        <div className="flex gap-1 mt-1">
+                          {[...Array(isNaN(newReview.rating) ? 0 : Math.max(0, Math.min(5, newReview.rating)))].map((_, i) => <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
+                        </div>
                       </div>
-                   </div>
-                   <p className="text-xs text-muted-foreground italic text-center max-w-[200px]">"{newReview.content || 'Great workshop, learned a lot about money management!'}"</p>
-                </div>
-              </form>
-              <div className="grid md:grid-cols-4 gap-4 mt-10">
-                {reviews?.map(r => (
-                  <div key={r.id} className="p-4 bg-slate-50 rounded-2xl flex items-center justify-between gap-2">
-                    <p className="text-xs font-bold truncate flex-1">{r.userName}</p>
-                    <Button variant="destructive" size="sm" className="h-6 w-6 p-0 z-20" onClick={() => handleDeleteDoc('reviews', r.id)}><Trash2 className="w-2 h-2" /></Button>
+                    </div>
+                    <p className="text-lg text-muted-foreground italic text-center max-w-[300px]">"{newReview.content || 'Share the student experience here...'}"</p>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                </form>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-10 border-t">
+                  {reviews?.map(r => (
+                    <div key={r.id} className="p-6 bg-slate-50 rounded-[2rem] flex flex-col gap-4 relative">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden relative border shadow-sm"><Image src={r.userPhoto || `https://picsum.photos/seed/${r.id}/100/100`} alt="r" fill className="object-cover" /></div>
+                        <p className="text-sm font-bold truncate flex-1">{r.userName}</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-3 italic">"{r.content}"</p>
+                      <Button variant="destructive" size="sm" className="w-full rounded-xl" onClick={() => handleDeleteDoc('reviews', r.id)}><Trash2 className="w-3 h-3 mr-2" /> Delete</Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+              <CardHeader className="bg-slate-900 text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Settings className="w-6 h-6" /> Platform Configuration</CardTitle></CardHeader>
+              <CardContent className="p-10">
+                <form onSubmit={handleSaveBranding} className="max-w-2xl space-y-6">
+                  <div className="space-y-2"><Label>Application Name</Label><Input value={brandingForm.appName} onChange={e => setBrandingForm({...brandingForm, appName: e.target.value})} className="rounded-xl h-12" /></div>
+                  <div className="space-y-2"><Label>Tagline / Motto</Label><Input value={brandingForm.tagline} onChange={e => setBrandingForm({...brandingForm, tagline: e.target.value})} className="rounded-xl h-12" /></div>
+                  <div className="space-y-2"><Label>Logo URL</Label><Input value={brandingForm.logoUrl} onChange={e => setBrandingForm({...brandingForm, logoUrl: e.target.value})} className="rounded-xl h-12" /></div>
+                  <Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg bg-slate-900">Update Platform Branding</Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
       <Footer />
     </div>
