@@ -10,12 +10,8 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == 'bfCiMYT33fNetne0TXaLYCIu7T03';
     }
 
-    function getRole() {
-      return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role;
-    }
-
     function isAdmin() {
-      return isPrimaryAdmin() || (isSignedIn() && getRole() == 'admin');
+      return isPrimaryAdmin() || (isSignedIn() && get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'admin');
     }
 
     match /userProfiles/{userId} {
@@ -26,7 +22,7 @@ service cloud.firestore {
     }
 
     match /reviews/{reviewId} {
-      allow read: if true;
+      allow get, list: if true;
       allow create: if isSignedIn();
       allow update, delete: if isAdmin();
     }

@@ -33,7 +33,10 @@ export default function Dashboard() {
   const profileRef = useMemoFirebase(() => user ? doc(db, 'userProfiles', user.uid) : null, [db, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
 
-  // Security Check
+  // Authorization flag for data fetching - only fetch if we are sure user is staff
+  const isAuthorized = !!(user && profile && profile.role !== 'user');
+
+  // Security Check - Redirect unauthorized users
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
@@ -44,10 +47,7 @@ export default function Dashboard() {
     }
   }, [user, isUserLoading, router, profile, isProfileLoading, toast]);
 
-  // Authorization flag for data fetching
-  const isAuthorized = profile && profile.role !== 'user';
-
-  // Lists
+  // Lists - Only start queries if isAuthorized is true
   const slidesQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'slides'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
   const { data: slides } = useCollection(slidesQuery);
 
@@ -266,10 +266,22 @@ export default function Dashboard() {
     }
   };
 
-  if (isUserLoading || isProfileLoading || (user && !isAuthorized && profile?.role !== 'user')) {
+  if (isUserLoading || isProfileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // If user is logged in but not staff, they are being redirected by the useEffect above.
+  // We show a simple message here just in case.
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 text-center">
+        <h2 className="text-2xl font-bold text-primary mb-2">Verifying Staff Credentials...</h2>
+        <p className="text-muted-foreground">If you are not an authorized staff member, you will be redirected shortly.</p>
+        <Button onClick={() => router.push('/')} variant="outline" className="mt-6">Return Home</Button>
       </div>
     );
   }
