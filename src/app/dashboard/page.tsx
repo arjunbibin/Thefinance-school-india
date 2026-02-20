@@ -138,8 +138,8 @@ export default function Dashboard() {
         return;
       }
 
-      if (file.size > 500 * 1024) {
-        toast({ variant: "destructive", title: "File Too Large", description: "Images must be smaller than 500KB to ensure smooth syncing." });
+      if (file.size > 1024 * 1024) {
+        toast({ variant: "destructive", title: "File Too Large", description: "Images must be smaller than 1MB." });
         return;
       }
 
@@ -278,7 +278,7 @@ export default function Dashboard() {
   };
 
   const handleDeleteDoc = (path: string, id: string) => {
-    if (!confirm("Delete this item permanently? This cannot be undone.")) return;
+    if (!confirm("Are you sure you want to delete this item? This action cannot be undone.")) return;
     const docRef = doc(db, path, id);
     deleteDocumentNonBlocking(docRef);
     toast({ title: "Item Removed Successfully" });
@@ -305,7 +305,7 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="web-edit" className="w-full">
-          <TabsList className="grid grid-cols-1 md:grid-cols-1 h-auto gap-4 bg-transparent p-0 mb-12">
+          <TabsList className="grid grid-cols-1 h-auto gap-4 bg-transparent p-0 mb-12">
             <TabsTrigger value="web-edit" className="data-[state=active]:bg-primary data-[state=active]:text-white h-16 rounded-3xl finance-3d-shadow border-none font-bold text-xl flex gap-3">
               <Globe className="w-6 h-6" /> Website Content Manager (Web Edit)
             </TabsTrigger>
@@ -322,7 +322,6 @@ export default function Dashboard() {
                 <TabsTrigger value="branding" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Global Branding</TabsTrigger>
               </TabsList>
 
-              {/* VIDEO MANAGEMENT */}
               <TabsContent value="videos">
                 <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
                   <CardHeader className="bg-primary text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Video className="w-6 h-6" /> Success Stories Video Manager</CardTitle></CardHeader>
@@ -370,7 +369,6 @@ export default function Dashboard() {
                 </Card>
               </TabsContent>
 
-              {/* COURSE MANAGEMENT */}
               <TabsContent value="courses">
                 <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
                   <CardHeader className="bg-primary text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><BookOpen className="w-6 h-6" /> {editingCourseId ? 'Modify' : 'Launch New'} Academic Program</CardTitle></CardHeader>
@@ -423,7 +421,6 @@ export default function Dashboard() {
                 </Card>
               </TabsContent>
 
-              {/* TEAM MANAGEMENT */}
               <TabsContent value="team">
                 <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
                   <CardHeader className="bg-accent text-primary p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Users className="w-6 h-6" /> {editingMemberId ? 'Update' : 'Appoint'} Leadership Member</CardTitle></CardHeader>
@@ -468,7 +465,6 @@ export default function Dashboard() {
                 </Card>
               </TabsContent>
 
-              {/* TESTIMONIAL MANAGEMENT */}
               <TabsContent value="testimonials">
                 <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
                   <CardHeader className="bg-primary text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><MessageSquare className="w-6 h-6" /> Testimonials Manager</CardTitle></CardHeader>
@@ -521,7 +517,6 @@ export default function Dashboard() {
                 </Card>
               </TabsContent>
 
-              {/* SLIDES & GALLERY MANAGEMENT */}
               <TabsContent value="assets">
                 <div className="grid md:grid-cols-2 gap-12">
                   <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
@@ -582,7 +577,6 @@ export default function Dashboard() {
                 </div>
               </TabsContent>
 
-              {/* BRANDING MANAGEMENT */}
               <TabsContent value="branding">
                 <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
                   <CardHeader className="bg-slate-900 text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Settings className="w-6 h-6" /> Platform-Wide Branding</CardTitle></CardHeader>
