@@ -7,20 +7,18 @@ import Footer from '@/components/Footer';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
-import { Play, X } from 'lucide-react';
+import { Play, Pause } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
 export default function TestimonialVideosPage() {
   const db = useFirestore();
   const videosQuery = useMemoFirebase(() => query(collection(db, 'testimonialVideos'), orderBy('order', 'asc')), [db]);
   const { data: videos, isLoading } = useCollection(videosQuery);
 
-  const [selectedVideo, setSelectedVideo] = useState<any>(null);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
 
   const getYoutubeId = (url: string) => {
     if (!url) return null;
-    // Robust regex to handle standard, shorts, embed, and share links
     const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
     const match = url.match(regExp);
     return (match && match[1].length === 11) ? match[1] : null;
@@ -47,7 +45,7 @@ export default function TestimonialVideosPage() {
           <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">The Success Vault</Badge>
           <h1 className="text-4xl md:text-7xl font-headline font-bold text-primary tracking-tight">Student <span className="text-accent">Success</span></h1>
           <p className="text-muted-foreground mt-6 max-w-2xl mx-auto text-lg md:text-xl font-medium">
-            Browse through real transformations from The Finance School India.
+            Watch real transformations directly in our student success gallery.
           </p>
         </div>
 
@@ -55,39 +53,66 @@ export default function TestimonialVideosPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {videos.map((video, index) => {
               const ytId = getYoutubeId(video.videoUrl);
+              const isActive = activeVideoId === video.id;
+
               return (
                 <Card 
                   key={video.id} 
-                  className="group border-none bg-white finance-3d-shadow rounded-[2.5rem] overflow-hidden finance-3d-card cursor-pointer animate-in slide-in-from-bottom-20 duration-1000"
+                  className="group border-none bg-white finance-3d-shadow rounded-[2.5rem] overflow-hidden finance-3d-card animate-in slide-in-from-bottom-20 duration-1000"
                   style={{ animationDelay: `${index * 100}ms` }}
-                  onClick={() => setSelectedVideo(video)}
                 >
                   <div className="relative aspect-[9/16] w-full bg-slate-900">
-                    {/* Thumbnail Preview */}
-                    {ytId ? (
-                      <img 
-                        src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} 
-                        alt={video.title}
-                        className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
-                      />
+                    {isActive ? (
+                      /* Active Player */
+                      <div className="w-full h-full">
+                        {ytId ? (
+                          <iframe
+                            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0`}
+                            className="w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        ) : (
+                          <video
+                            src={video.videoUrl}
+                            className="w-full h-full object-contain"
+                            controls
+                            autoPlay
+                            playsInline
+                          />
+                        )}
+                      </div>
                     ) : (
-                      <video 
-                        src={video.videoUrl} 
-                        className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
-                        muted
-                        playsInline
-                      />
-                    )}
+                      /* Thumbnail / Play Button Overlay */
+                      <div 
+                        className="w-full h-full cursor-pointer relative"
+                        onClick={() => setActiveVideoId(video.id)}
+                      >
+                        {ytId ? (
+                          <img 
+                            src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} 
+                            alt={video.title}
+                            className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                          />
+                        ) : (
+                          <video 
+                            src={video.videoUrl} 
+                            className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                            muted
+                            playsInline
+                          />
+                        )}
 
-                    {/* Play Overlay */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
-                      <div className="w-20 h-20 bg-accent text-primary rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform duration-500">
-                        <Play className="w-10 h-10 fill-primary ml-1" />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+                          <div className="w-16 h-16 bg-accent text-primary rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform duration-500">
+                            <Play className="w-8 h-8 fill-primary ml-1" />
+                          </div>
+                          <div className="mt-6 px-4 py-2 glass-morphism rounded-xl border border-white/30 transform translate-y-2 group-hover:translate-y-0 transition-all">
+                             <p className="text-white font-headline font-bold text-sm">{video.title || 'Watch Story'}</p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="mt-8 px-6 py-2 glass-morphism rounded-2xl border border-white/30 transform translate-y-4 group-hover:translate-y-0 transition-transform">
-                         <p className="text-white font-headline font-bold text-lg">{video.title || 'Watch Story'}</p>
-                      </div>
-                    </div>
+                    )}
                   </div>
                 </Card>
               );
@@ -98,40 +123,6 @@ export default function TestimonialVideosPage() {
              No testimonial videos have been shared yet.
           </div>
         )}
-
-        {/* Video Playback Modal */}
-        <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>
-          <DialogContent className="max-w-md w-[95vw] p-0 bg-transparent border-none rounded-none shadow-none flex items-center justify-center">
-            <DialogTitle className="sr-only">Video Playback</DialogTitle>
-            <div className="relative w-full aspect-[9/16] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white/10">
-              <button 
-                onClick={() => setSelectedVideo(null)}
-                className="absolute top-6 right-6 z-50 w-12 h-12 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white hover:bg-white/30 transition-all border border-white/20"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              {selectedVideo && (
-                getYoutubeId(selectedVideo.videoUrl) ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${getYoutubeId(selectedVideo.videoUrl)}?autoplay=1&modestbranding=1&rel=0`}
-                    className="w-full h-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <video
-                    src={selectedVideo.videoUrl}
-                    className="w-full h-full object-contain"
-                    controls
-                    autoPlay
-                    playsInline
-                  />
-                )
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
       </main>
 
       <Footer />
