@@ -1,9 +1,8 @@
 export const firebaseConfig = {
-  apiKey: "AIzaSyBiyWHaCknw3Vv5ONCAL2cINUDm6o79Y78",
-  authDomain: "studio-6721629864-6b462.firebaseapp.com",
-  databaseURL: "https://studio-6721629864-6b462-default-rtdb.firebaseio.com",
-  projectId: "studio-6721629864-6b462",
-  storageBucket: "studio-6721629864-6b462.firebasestorage.app",
-  messagingSenderId: "758460466831",
-  appId: "1:758460466831:web:7a936ed52d6ec3c44212fa"
+  apiKey: "AIzaSyC-aM8ktP2moJCGJzhuCJq2tPavOBFWqlg",
+  authDomain: "finance-school-india.firebaseapp.com",
+  projectId: "finance-school-india",
+  storageBucket: "finance-school-india.firebasestorage.app",
+  messagingSenderId: "763181191867",
+  appId: "1:763181191867:web:236e85d1a1e9c310318f9e"
 };
