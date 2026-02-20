@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -48,6 +49,7 @@ export default function VideoShowcase() {
     }
   };
 
+  // Effect to automatically play the next video when currentIndex changes
   useEffect(() => {
     if (isPlaying && videoRef.current) {
       videoRef.current.play().catch(() => {
@@ -95,7 +97,7 @@ export default function VideoShowcase() {
                 playsInline
               />
               
-              {/* Control Overlay */}
+              {/* Control Overlay - Always appears on hover or when paused */}
               <div className={cn(
                 "absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all duration-300 pointer-events-none",
                 isPlaying ? "opacity-0 group-hover:opacity-100 bg-black/20" : "opacity-100"

@@ -9,7 +9,8 @@ service cloud.firestore {
     function isStaff() {
       return isSignedIn() && (
         request.auth.uid == 'bfCiMYT33fNetne0TXaLYCIu7T03' || 
-        get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role != 'user'
+        (exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role != 'user')
       );
     }
 

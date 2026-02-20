@@ -269,7 +269,7 @@ export default function Dashboard() {
     if (!confirm("Are you sure you want to delete this item? This action cannot be undone.")) return;
     const docRef = doc(db, path, id);
     deleteDocumentNonBlocking(docRef);
-    toast({ title: "Delete Requested" });
+    toast({ title: "Deletion Processed" });
   };
 
   if (isUserLoading || isProfileLoading) {
@@ -358,7 +358,7 @@ export default function Dashboard() {
                     <div className="relative aspect-video rounded-lg overflow-hidden bg-black mb-2">
                        <video src={v.videoUrl} className="w-full h-full object-cover" />
                     </div>
-                    <Button variant="destructive" size="sm" className="h-8 w-full rounded-lg" onClick={() => handleDeleteDoc('videos', v.id)}><Trash2 className="w-3 h-3 mr-2" /> Remove</Button>
+                    <Button variant="destructive" size="sm" className="h-8 w-full rounded-lg z-20" onClick={() => handleDeleteDoc('videos', v.id)}><Trash2 className="w-3 h-3 mr-2" /> Remove</Button>
                   </div>
                 ))}
               </div>
@@ -412,8 +412,8 @@ export default function Dashboard() {
                   <div key={c.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-2">
                     <p className="font-bold text-xs truncate">{c.title}</p>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="h-8 rounded-lg flex-1" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')})}}><Edit2 className="w-3 h-3" /></Button>
-                      <Button variant="destructive" size="sm" className="h-8 w-8 p-0" onClick={() => handleDeleteDoc('courses', c.id)}><Trash2 className="w-3 h-3" /></Button>
+                      <Button variant="outline" size="sm" className="h-8 rounded-lg flex-1 z-20" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')})}}><Edit2 className="w-3 h-3" /></Button>
+                      <Button variant="destructive" size="sm" className="h-8 w-8 p-0 z-20" onClick={() => handleDeleteDoc('courses', c.id)}><Trash2 className="w-3 h-3" /></Button>
                     </div>
                   </div>
                 ))}
@@ -461,8 +461,8 @@ export default function Dashboard() {
                     <div className="flex-1 overflow-hidden">
                       <p className="text-xs font-bold truncate">{m.name}</p>
                       <div className="flex gap-1 mt-1">
-                        <Button variant="outline" size="sm" className="h-6 w-6 p-0" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-2 h-2" /></Button>
-                        <Button variant="destructive" size="sm" className="h-6 w-6 p-0" onClick={() => handleDeleteDoc('team', m.id)}><Trash2 className="w-2 h-2" /></Button>
+                        <Button variant="outline" size="sm" className="h-6 w-6 p-0 z-20" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-2 h-2" /></Button>
+                        <Button variant="destructive" size="sm" className="h-6 w-6 p-0 z-20" onClick={() => handleDeleteDoc('team', m.id)}><Trash2 className="w-2 h-2" /></Button>
                       </div>
                     </div>
                   </div>
@@ -484,7 +484,7 @@ export default function Dashboard() {
                     <Button type="submit" className="w-full h-12">Add Slide</Button>
                   </form>
                   <div className="grid grid-cols-3 gap-2">
-                    {slides?.map(s => <div key={s.id} className="relative aspect-video rounded-lg overflow-hidden group"><Image src={s.imageUrl} alt="s" fill className="object-cover" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteDoc('slides', s.id)}><Trash2 className="w-3 h-3" /></Button></div>)}
+                    {slides?.map(s => <div key={s.id} className="relative aspect-video rounded-lg overflow-hidden group"><Image src={s.imageUrl} alt="s" fill className="object-cover" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 z-20" onClick={() => handleDeleteDoc('slides', s.id)}><Trash2 className="w-3 h-3" /></Button></div>)}
                   </div>
                 </CardContent>
              </Card>
@@ -498,7 +498,7 @@ export default function Dashboard() {
                     <Button type="submit" className="w-full h-12">Add Memory</Button>
                   </form>
                   <div className="grid grid-cols-3 gap-2">
-                    {galleryItems?.map(g => <div key={g.id} className="relative aspect-square rounded-lg overflow-hidden group"><Image src={g.imageUrl} alt="g" fill className="object-cover" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteDoc('gallery', g.id)}><Trash2 className="w-3 h-3" /></Button></div>)}
+                    {galleryItems?.map(g => <div key={g.id} className="relative aspect-square rounded-lg overflow-hidden group"><Image src={g.imageUrl} alt="g" fill className="object-cover" /><Button variant="destructive" size="icon" className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 z-20" onClick={() => handleDeleteDoc('gallery', g.id)}><Trash2 className="w-3 h-3" /></Button></div>)}
                   </div>
                 </CardContent>
              </Card>
@@ -541,7 +541,7 @@ export default function Dashboard() {
                 {reviews?.map(r => (
                   <div key={r.id} className="p-4 bg-slate-50 rounded-2xl flex items-center justify-between gap-2">
                     <p className="text-xs font-bold truncate flex-1">{r.userName}</p>
-                    <Button variant="destructive" size="sm" className="h-6 w-6 p-0" onClick={() => handleDeleteDoc('reviews', r.id)}><Trash2 className="w-2 h-2" /></Button>
+                    <Button variant="destructive" size="sm" className="h-6 w-6 p-0 z-20" onClick={() => handleDeleteDoc('reviews', r.id)}><Trash2 className="w-2 h-2" /></Button>
                   </div>
                 ))}
               </div>
