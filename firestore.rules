@@ -6,25 +6,23 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    function isPrimaryAdmin() {
-      return isSignedIn() && request.auth.uid == 'bfCiMYT33fNetne0TXaLYCIu7T03';
-    }
-
     function isAdmin() {
-      return isPrimaryAdmin() || (isSignedIn() && get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'admin');
+      return isSignedIn() && (
+        request.auth.uid == 'bfCiMYT33fNetne0TXaLYCIu7T03' || 
+        get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'admin'
+      );
     }
 
     match /userProfiles/{userId} {
-      allow get: if isSignedIn();
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
       allow list: if isAdmin();
       allow create: if isSignedIn() && request.auth.uid == userId;
       allow update: if (isSignedIn() && request.auth.uid == userId) || isAdmin();
     }
 
     match /reviews/{reviewId} {
-      allow get, list: if true;
-      allow create: if isSignedIn();
-      allow update, delete: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     match /config/branding {
