@@ -66,6 +66,19 @@
         "order": { "type": "number" }
       },
       "required": ["title", "imageUrl", "order"]
+    },
+    "GalleryImage": {
+      "title": "GalleryImage",
+      "type": "object",
+      "description": "An image for the school memories gallery.",
+      "properties": {
+        "id": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "description": { "type": "string" },
+        "imageHint": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["imageUrl", "createdAt"]
     }
   },
   "auth": {
@@ -87,6 +100,10 @@
     "/slides/{slideId}": {
       "schema": "Slide",
       "description": "Homepage slideshow configuration."
+    },
+    "/gallery/{imageId}": {
+      "schema": "GalleryImage",
+      "description": "Images for the school memories gallery."
     }
   }
 }

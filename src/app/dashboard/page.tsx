@@ -1,18 +1,19 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth } from '@/firebase';
-import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
-import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon } from 'lucide-react';
+import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
+import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -22,23 +23,33 @@ export default function Dashboard() {
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Admin State
+  const slideFileInputRef = useRef<HTMLInputElement>(null);
+  const galleryFileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Admin Role State
   const [targetUserId, setTargetUserId] = useState('');
   const [selectedRole, setSelectedRole] = useState('user');
   const [isAdminProcessing, setIsAdminProcessing] = useState(false);
 
   // Slideshow State
   const [newSlide, setNewSlide] = useState({ title: '', description: '', imageUrl: '', order: 0 });
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [slidePreview, setSlidePreview] = useState<string | null>(null);
   const [isSlideProcessing, setIsSlideProcessing] = useState(false);
+
+  // Gallery State
+  const [newGalleryImg, setNewGalleryImg] = useState({ description: '', imageUrl: '' });
+  const [galleryPreview, setGalleryPreview] = useState<string | null>(null);
+  const [isGalleryProcessing, setIsGalleryProcessing] = useState(false);
 
   const profileRef = useMemoFirebase(() => user ? doc(db, 'userProfiles', user.uid) : null, [db, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
 
   const slidesQuery = useMemoFirebase(() => query(collection(db, 'slides'), orderBy('order', 'asc')), [db]);
-  const { data: slides, isLoading: isSlidesLoading } = useCollection(slidesQuery);
+  const { data: slides } = useCollection(slidesQuery);
+
+  const galleryQuery = useMemoFirebase(() => query(collection(db, 'gallery'), orderBy('createdAt', 'desc')), [db]);
+  const { data: galleryItems } = useCollection(galleryQuery);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -62,7 +73,6 @@ export default function Dashboard() {
       toast({ variant: "destructive", title: "Missing UID", description: "Please enter the user's Unique ID." });
       return;
     }
-
     setIsAdminProcessing(true);
     try {
       const userRef = doc(db, 'userProfiles', targetUserId);
@@ -76,18 +86,23 @@ export default function Dashboard() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'slide' | 'gallery') => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 1024 * 1024) { // 1MB limit for prototype simplicity
+      if (file.size > 1024 * 1024) {
         toast({ variant: "destructive", title: "File too large", description: "Please upload an image under 1MB." });
         return;
       }
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64String = reader.result as string;
-        setPreviewImage(base64String);
-        setNewSlide(prev => ({ ...prev, imageUrl: base64String }));
+        if (type === 'slide') {
+          setSlidePreview(base64String);
+          setNewSlide(prev => ({ ...prev, imageUrl: base64String }));
+        } else {
+          setGalleryPreview(base64String);
+          setNewGalleryImg(prev => ({ ...prev, imageUrl: base64String }));
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -99,20 +114,18 @@ export default function Dashboard() {
       toast({ variant: "destructive", title: "Missing Information", description: "Please provide a title and select an image." });
       return;
     }
-
     setIsSlideProcessing(true);
     try {
       await addDoc(collection(db, 'slides'), {
-        title: newSlide.title,
-        description: newSlide.description,
-        imageUrl: newSlide.imageUrl,
-        order: Number(newSlide.order) || (slides ? slides.length : 0),
-        imageHint: "school highlights"
+        ...newSlide,
+        order: Number(newSlide.order),
+        imageHint: "school highlights",
+        createdAt: serverTimestamp()
       });
-      toast({ title: "Slide Added", description: "The homepage slideshow has been updated." });
+      toast({ title: "Slide Added", description: "Homepage slideshow updated." });
       setNewSlide({ title: '', description: '', imageUrl: '', order: slides ? slides.length + 1 : 0 });
-      setPreviewImage(null);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      setSlidePreview(null);
+      if (slideFileInputRef.current) slideFileInputRef.current.value = '';
     } catch (error: any) {
       toast({ variant: "destructive", title: "Failed to Add Slide", description: error.message });
     } finally {
@@ -120,10 +133,34 @@ export default function Dashboard() {
     }
   };
 
-  const handleDeleteSlide = async (id: string) => {
+  const handleAddGalleryImage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newGalleryImg.imageUrl) {
+      toast({ variant: "destructive", title: "Missing Image", description: "Please select an image." });
+      return;
+    }
+    setIsGalleryProcessing(true);
     try {
-      await deleteDoc(doc(db, 'slides', id));
-      toast({ title: "Slide Removed", description: "Slide deleted successfully." });
+      await addDoc(collection(db, 'gallery'), {
+        ...newGalleryImg,
+        imageHint: "school memory",
+        createdAt: serverTimestamp()
+      });
+      toast({ title: "Memory Added", description: "New image added to the School Memories gallery." });
+      setNewGalleryImg({ description: '', imageUrl: '' });
+      setGalleryPreview(null);
+      if (galleryFileInputRef.current) galleryFileInputRef.current.value = '';
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Failed to Add Image", description: error.message });
+    } finally {
+      setIsGalleryProcessing(false);
+    }
+  };
+
+  const handleDeleteDoc = async (path: string, id: string) => {
+    try {
+      await deleteDoc(doc(db, path, id));
+      toast({ title: "Deleted", description: "Item removed successfully." });
     } catch (error: any) {
       toast({ variant: "destructive", title: "Delete Failed", description: error.message });
     }
@@ -144,17 +181,16 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
-      
       <main className="flex-grow pb-24 px-6 max-w-6xl mx-auto w-full pt-16">
-        <div className="mb-12 space-y-4 text-center md:text-left flex flex-col md:flex-row md:items-end md:justify-between">
+        <div className="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div>
-            <div className="flex items-center gap-4 justify-center md:justify-start">
+            <div className="flex items-center gap-4">
               <h1 className="text-4xl md:text-6xl font-headline font-bold text-primary tracking-tight">
                 Staff <span className="text-accent">Portal</span>
               </h1>
               {isAdmin && <ShieldAlert className="w-10 h-10 text-destructive animate-pulse" />}
             </div>
-            <p className="text-muted-foreground text-lg font-medium">
+            <p className="text-muted-foreground text-lg font-medium mt-2">
               Managing <span className="font-bold text-primary">{staffName}</span>'s Department.
             </p>
           </div>
@@ -163,148 +199,164 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        <div className="grid gap-10">
-          {/* Slideshow Manager (Admin Only) */}
+        <div className="grid gap-12">
+          {/* Slideshow Manager */}
           {isAdmin && (
             <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
               <CardHeader className="bg-primary text-white p-10">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-white/10 rounded-2xl">
-                    <ImageIcon className="w-6 h-6 text-white" />
-                  </div>
+                  <div className="p-3 bg-white/10 rounded-2xl"><ImageIcon className="w-6 h-6" /></div>
                   <div>
-                    <CardTitle className="text-2xl font-headline font-bold">Live Slideshow Manager</CardTitle>
-                    <CardDescription className="text-white/70">Upload images directly and preview them in the school's layout.</CardDescription>
+                    <CardTitle className="text-2xl font-headline font-bold">Homepage Slideshow</CardTitle>
+                    <CardDescription className="text-white/70">Dynamic headers for the main landing page.</CardDescription>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-10">
-                <div className="grid lg:grid-cols-5 gap-10">
-                  <form onSubmit={handleAddSlide} className="lg:col-span-2 space-y-6">
-                    <div className="space-y-4">
+              <CardContent className="p-10 space-y-10">
+                <form onSubmit={handleAddSlide} className="grid md:grid-cols-2 gap-10">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Title</Label>
+                      <Input value={newSlide.title} onChange={(e) => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl h-12" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Description</Label>
+                      <Textarea value={newSlide.description} onChange={(e) => setNewSlide({...newSlide, description: e.target.value})} className="rounded-xl min-h-[100px]" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="slideTitle">Display Title</Label>
-                        <Input id="slideTitle" placeholder="e.g. Finance Workshop 2024" value={newSlide.title} onChange={(e) => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl h-12" required />
+                        <Label>Order</Label>
+                        <Input type="number" value={newSlide.order} onChange={(e) => setNewSlide({...newSlide, order: parseInt(e.target.value)})} className="rounded-xl h-12" />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="slideImage">Select Image from Device</Label>
-                        <div 
-                          onClick={() => fileInputRef.current?.click()}
-                          className="border-2 border-dashed border-slate-200 rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-slate-50 hover:border-primary/50 transition-all group"
-                        >
-                          <div className="p-3 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform">
-                            <Upload className="w-6 h-6 text-primary" />
-                          </div>
-                          <span className="text-sm font-bold text-slate-500">Click to Browse</span>
-                          <input 
-                            type="file" 
-                            ref={fileInputRef} 
-                            onChange={handleFileChange} 
-                            accept="image/*" 
-                            className="hidden" 
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="slideOrder">Display Sequence (0 is first)</Label>
-                        <Input id="slideOrder" type="number" value={newSlide.order} onChange={(e) => setNewSlide({...newSlide, order: parseInt(e.target.value)})} className="rounded-xl h-12" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="slideDesc">Brief Caption</Label>
-                        <Textarea id="slideDesc" placeholder="Describe the scene..." value={newSlide.description} onChange={(e) => setNewSlide({...newSlide, description: e.target.value})} className="rounded-xl min-h-[100px]" />
+                        <Label>Image</Label>
+                        <Button type="button" variant="outline" className="w-full h-12 rounded-xl border-dashed border-2" onClick={() => slideFileInputRef.current?.click()}>
+                          <Upload className="w-4 h-4 mr-2" /> Upload
+                        </Button>
+                        <input type="file" ref={slideFileInputRef} onChange={(e) => handleFileChange(e, 'slide')} accept="image/*" className="hidden" />
                       </div>
                     </div>
-                    <Button type="submit" disabled={isSlideProcessing || !newSlide.imageUrl} className="w-full h-14 bg-accent text-primary font-bold rounded-xl shadow-lg hover:scale-[1.02] transition-transform">
-                      {isSlideProcessing ? 'Uploading to School Server...' : 'Publish to Homepage'}
+                    <Button type="submit" disabled={isSlideProcessing || !newSlide.imageUrl} className="w-full h-14 bg-primary text-white font-bold rounded-xl mt-4">
+                      {isSlideProcessing ? 'Uploading...' : 'Publish Slide'}
                     </Button>
-                  </form>
-
-                  <div className="lg:col-span-3 space-y-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Eye className="w-5 h-5 text-primary" />
-                      <span className="text-sm font-bold text-primary uppercase tracking-widest">Real-time Preview</span>
+                  </div>
+                  <div className="space-y-4">
+                    <Label className="uppercase tracking-widest text-xs font-bold text-muted-foreground">Original Aspect Ratio Preview</Label>
+                    <div className="relative aspect-[21/9] bg-slate-100 rounded-2xl overflow-hidden finance-3d-shadow-inner flex items-center justify-center">
+                      {slidePreview ? (
+                        <Image src={slidePreview} alt="Preview" fill className="object-cover" />
+                      ) : (
+                        <ImageIcon className="w-12 h-12 text-slate-300" />
+                      )}
+                      <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-6">
+                        <h4 className="text-white font-bold">{newSlide.title || 'Slide Title'}</h4>
+                      </div>
                     </div>
-                    <Card className="border-none bg-slate-50 finance-3d-shadow-inner rounded-[2rem] overflow-hidden">
-                      <div className="relative aspect-video md:aspect-[21/9] bg-slate-200 flex items-center justify-center">
-                        {previewImage ? (
-                          <Image src={previewImage} alt="Preview" fill className="object-cover" />
-                        ) : (
-                          <div className="flex flex-col items-center gap-2 text-slate-400">
-                            <ImageIcon className="w-12 h-12 opacity-20" />
-                            <span className="text-xs font-bold">NO IMAGE SELECTED</span>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-8">
-                          <h3 className="text-lg md:text-3xl font-headline font-bold text-white mb-1">{newSlide.title || 'Slide Title Here'}</h3>
-                          <p className="text-white/80 text-[10px] md:text-sm max-w-md line-clamp-2">{newSlide.description || 'Slide description will appear here...'}</p>
-                        </div>
-                      </div>
-                    </Card>
-                    <p className="text-[10px] text-muted-foreground italic text-center">
-                      * Preview displays the exact aspect ratio used on the main site.
-                    </p>
                   </div>
-                </div>
+                </form>
 
-                <div className="mt-16 pt-10 border-t border-slate-100">
-                   <h3 className="text-xl font-headline font-bold text-primary mb-8 flex items-center gap-3">
-                     <Users className="w-6 h-6" /> Currently Live Slides
-                   </h3>
-                   <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {slides?.map((slide) => (
-                      <Card key={slide.id} className="group border-none bg-white finance-3d-shadow rounded-2xl overflow-hidden relative">
-                        <div className="aspect-video relative">
-                          <Image src={slide.imageUrl} alt={slide.title} fill className="object-cover" />
-                          <div className="absolute top-2 right-2">
-                            <Button size="icon" variant="destructive" className="h-10 w-10 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100" onClick={() => handleDeleteSlide(slide.id)}>
-                              <Trash2 className="w-5 h-5" />
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="p-5">
-                          <div className="flex justify-between items-center mb-2">
-                            <h4 className="font-bold text-primary truncate text-lg">{slide.title}</h4>
-                            <span className="text-[10px] font-black bg-primary/10 text-primary px-3 py-1 rounded-full uppercase">Order: {slide.order}</span>
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{slide.description}</p>
-                        </div>
-                      </Card>
-                    ))}
-                    {(!slides || slides.length === 0) && (
-                      <div className="col-span-full py-12 text-center bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
-                        <p className="text-slate-400 font-medium">No custom slides uploaded. Showing defaults on homepage.</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-10 border-t">
+                  {slides?.map((slide) => (
+                    <div key={slide.id} className="relative group rounded-2xl overflow-hidden finance-3d-shadow aspect-video bg-slate-100">
+                      <Image src={slide.imageUrl} alt={slide.title} fill className="object-cover" />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-between">
+                        <span className="bg-white/20 px-2 py-1 rounded-md text-white text-xs self-start">Order: {slide.order}</span>
+                        <Button size="icon" variant="destructive" className="self-end rounded-xl" onClick={() => handleDeleteDoc('slides', slide.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Role Manager (Admin Only) */}
+          {/* Gallery Manager */}
+          {isAdmin && (
+            <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+              <CardHeader className="bg-accent text-primary p-10">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary/10 rounded-2xl"><Camera className="w-6 h-6" /></div>
+                  <div>
+                    <CardTitle className="text-2xl font-headline font-bold">School Memories Gallery</CardTitle>
+                    <CardDescription className="text-primary/70">Manage images shown on the gallery page. Latest uploads appear first.</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-10 space-y-10">
+                <form onSubmit={handleAddGalleryImage} className="grid md:grid-cols-2 gap-10">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Caption / Description</Label>
+                      <Textarea value={newGalleryImg.description} onChange={(e) => setNewGalleryImg({...newGalleryImg, description: e.target.value})} className="rounded-xl min-h-[100px]" placeholder="e.g. Students celebrating workshop success" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Select Image</Label>
+                      <Button type="button" variant="outline" className="w-full h-12 rounded-xl border-dashed border-2" onClick={() => galleryFileInputRef.current?.click()}>
+                        <Upload className="w-4 h-4 mr-2" /> Select Photo
+                      </Button>
+                      <input type="file" ref={galleryFileInputRef} onChange={(e) => handleFileChange(e, 'gallery')} accept="image/*" className="hidden" />
+                    </div>
+                    <Button type="submit" disabled={isGalleryProcessing || !newGalleryImg.imageUrl} className="w-full h-14 bg-accent text-primary font-bold rounded-xl mt-4">
+                      {isGalleryProcessing ? 'Adding Memory...' : 'Add to Gallery'}
+                    </Button>
+                  </div>
+                  <div className="space-y-4">
+                    <Label className="uppercase tracking-widest text-xs font-bold text-muted-foreground">Gallery Grid Preview</Label>
+                    <div className="relative aspect-[4/3] bg-slate-100 rounded-2xl overflow-hidden finance-3d-shadow-inner flex items-center justify-center">
+                      {galleryPreview ? (
+                        <Image src={galleryPreview} alt="Preview" fill className="object-cover" />
+                      ) : (
+                        <Camera className="w-12 h-12 text-slate-300" />
+                      )}
+                    </div>
+                  </div>
+                </form>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 pt-10 border-t">
+                  {galleryItems?.map((item) => (
+                    <div key={item.id} className="relative group rounded-2xl overflow-hidden finance-3d-shadow aspect-square bg-slate-100">
+                      <Image src={item.imageUrl} alt="Memory" fill className="object-cover" />
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-2 flex items-end justify-end">
+                        <Button size="icon" variant="destructive" className="rounded-xl h-8 w-8" onClick={() => handleDeleteDoc('gallery', item.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {(!galleryItems || galleryItems.length === 0) && (
+                    <div className="col-span-full py-12 text-center text-muted-foreground font-medium bg-slate-50 rounded-3xl border-2 border-dashed">
+                      No images in gallery yet.
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Role Manager */}
           {isAdmin && (
             <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
               <CardHeader className="bg-destructive text-white p-10">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-white/10 rounded-2xl">
-                    <UserPlus className="w-6 h-6 text-white" />
-                  </div>
+                  <div className="p-3 bg-white/10 rounded-2xl"><UserPlus className="w-6 h-6" /></div>
                   <div>
                     <CardTitle className="text-2xl font-headline font-bold">Authorize Staff Position</CardTitle>
-                    <CardDescription className="text-white/70">Promote a user by their UID to unlock department dashboards.</CardDescription>
+                    <CardDescription className="text-white/70">Promote user accounts to management roles.</CardDescription>
                   </div>
                 </div>
               </CardHeader>
               <CardContent className="p-10">
                 <form onSubmit={handleUpdateRole} className="flex flex-col md:flex-row gap-6">
                   <div className="flex-grow space-y-2">
-                    <Label htmlFor="targetUid">User UID</Label>
-                    <Input id="targetUid" placeholder="e.g. gHZ9n7s2b9X8..." value={targetUserId} onChange={(e) => setTargetUserId(e.target.value)} className="rounded-xl h-12" required />
+                    <Label>User Unique ID (UID)</Label>
+                    <Input placeholder="Enter UID" value={targetUserId} onChange={(e) => setTargetUserId(e.target.value)} className="rounded-xl h-12" required />
                   </div>
                   <div className="w-full md:w-64 space-y-2">
-                    <Label htmlFor="role">Select Department</Label>
+                    <Label>Department Role</Label>
                     <Select value={selectedRole} onValueChange={setSelectedRole}>
-                      <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Position" /></SelectTrigger>
+                      <SelectTrigger className="rounded-xl h-12"><SelectValue placeholder="Select" /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="user">Revoke (User)</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
@@ -318,7 +370,7 @@ export default function Dashboard() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <Button type="submit" disabled={isAdminProcessing} className="h-12 md:h-20 px-10 bg-destructive text-white font-bold rounded-xl mt-auto">
+                  <Button type="submit" disabled={isAdminProcessing} className="h-12 md:h-20 px-10 bg-destructive text-white font-bold rounded-xl mt-auto transition-transform hover:scale-105 active:scale-95">
                     {isAdminProcessing ? 'Applying...' : 'Authorize'}
                   </Button>
                 </form>
@@ -327,7 +379,6 @@ export default function Dashboard() {
           )}
         </div>
       </main>
-
       <Footer />
     </div>
   );
