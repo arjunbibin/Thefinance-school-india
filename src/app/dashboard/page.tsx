@@ -12,8 +12,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth } from '@/firebase';
-import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
-import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon, Camera } from 'lucide-react';
+import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp, setDoc } from 'firebase/firestore';
+import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon, Camera, BookOpen, Star, Plus, Edit2, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -26,7 +26,22 @@ export default function Dashboard() {
   
   const slideFileInputRef = useRef<HTMLInputElement>(null);
   const galleryFileInputRef = useRef<HTMLInputElement>(null);
+  const courseFileInputRef = useRef<HTMLInputElement>(null);
   
+  // Auth & Profile
+  const profileRef = useMemoFirebase(() => user ? doc(db, 'userProfiles', user.uid) : null, [db, user]);
+  const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
+
+  // Lists
+  const slidesQuery = useMemoFirebase(() => query(collection(db, 'slides'), orderBy('order', 'asc')), [db]);
+  const { data: slides } = useCollection(slidesQuery);
+
+  const galleryQuery = useMemoFirebase(() => query(collection(db, 'gallery'), orderBy('createdAt', 'desc')), [db]);
+  const { data: galleryItems } = useCollection(galleryQuery);
+
+  const coursesQuery = useMemoFirebase(() => query(collection(db, 'courses'), orderBy('order', 'asc')), [db]);
+  const { data: courses } = useCollection(coursesQuery);
+
   // Admin Role State
   const [targetUserId, setTargetUserId] = useState('');
   const [selectedRole, setSelectedRole] = useState('user');
@@ -42,14 +57,22 @@ export default function Dashboard() {
   const [galleryPreview, setGalleryPreview] = useState<string | null>(null);
   const [isGalleryProcessing, setIsGalleryProcessing] = useState(false);
 
-  const profileRef = useMemoFirebase(() => user ? doc(db, 'userProfiles', user.uid) : null, [db, user]);
-  const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
-
-  const slidesQuery = useMemoFirebase(() => query(collection(db, 'slides'), orderBy('order', 'asc')), [db]);
-  const { data: slides } = useCollection(slidesQuery);
-
-  const galleryQuery = useMemoFirebase(() => query(collection(db, 'gallery'), orderBy('createdAt', 'desc')), [db]);
-  const { data: galleryItems } = useCollection(galleryQuery);
+  // Course State
+  const [courseForm, setCourseForm] = useState({ 
+    id: '', 
+    title: '', 
+    subtitle: '', 
+    description: '', 
+    imageUrl: '', 
+    category: 'Foundational', 
+    rating: 5.0, 
+    lessons: '', 
+    highlights: '', 
+    order: 0 
+  });
+  const [coursePreview, setCoursePreview] = useState<string | null>(null);
+  const [isCourseProcessing, setIsCourseProcessing] = useState(false);
+  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -86,7 +109,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'slide' | 'gallery') => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'slide' | 'gallery' | 'course') => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 1024 * 1024) {
@@ -99,9 +122,12 @@ export default function Dashboard() {
         if (type === 'slide') {
           setSlidePreview(base64String);
           setNewSlide(prev => ({ ...prev, imageUrl: base64String }));
-        } else {
+        } else if (type === 'gallery') {
           setGalleryPreview(base64String);
           setNewGalleryImg(prev => ({ ...prev, imageUrl: base64String }));
+        } else {
+          setCoursePreview(base64String);
+          setCourseForm(prev => ({ ...prev, imageUrl: base64String }));
         }
       };
       reader.readAsDataURL(file);
@@ -157,7 +183,63 @@ export default function Dashboard() {
     }
   };
 
+  const handleSaveCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!courseForm.title || !courseForm.imageUrl) {
+      toast({ variant: "destructive", title: "Missing Info", description: "Title and Image are required." });
+      return;
+    }
+    setIsCourseProcessing(true);
+    try {
+      const highlightsArray = courseForm.highlights.split(',').map(h => h.trim()).filter(h => h !== '');
+      const courseData = {
+        ...courseForm,
+        rating: Number(courseForm.rating),
+        order: Number(courseForm.order),
+        highlights: highlightsArray,
+        imageHint: "course cover",
+        updatedAt: serverTimestamp()
+      };
+
+      if (editingCourseId) {
+        await updateDoc(doc(db, 'courses', editingCourseId), courseData);
+        toast({ title: "Course Updated", description: `${courseForm.title} has been updated.` });
+      } else {
+        await addDoc(collection(db, 'courses'), { ...courseData, createdAt: serverTimestamp() });
+        toast({ title: "Course Added", description: `${courseForm.title} has been added to the catalog.` });
+      }
+      
+      setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', order: courses ? courses.length + 1 : 0 });
+      setCoursePreview(null);
+      setEditingCourseId(null);
+      if (courseFileInputRef.current) courseFileInputRef.current.value = '';
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Save Failed", description: error.message });
+    } finally {
+      setIsCourseProcessing(false);
+    }
+  };
+
+  const handleEditCourse = (course: any) => {
+    setEditingCourseId(course.id);
+    setCourseForm({
+      id: course.id,
+      title: course.title,
+      subtitle: course.subtitle || '',
+      description: course.description || '',
+      imageUrl: course.imageUrl,
+      category: course.category || 'Foundational',
+      rating: course.rating || 5.0,
+      lessons: course.lessons || '',
+      highlights: course.highlights?.join(', ') || '',
+      order: course.order || 0
+    });
+    setCoursePreview(course.imageUrl);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleDeleteDoc = async (path: string, id: string) => {
+    if (!confirm("Are you sure you want to delete this?")) return;
     try {
       await deleteDoc(doc(db, path, id));
       toast({ title: "Deleted", description: "Item removed successfully." });
@@ -200,6 +282,126 @@ export default function Dashboard() {
         </div>
 
         <div className="grid gap-12">
+          {/* Course Manager */}
+          {isAdmin && (
+            <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+              <CardHeader className="bg-primary text-white p-10">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-white/10 rounded-2xl"><BookOpen className="w-6 h-6" /></div>
+                  <div>
+                    <CardTitle className="text-2xl font-headline font-bold">Course Catalog Manager</CardTitle>
+                    <CardDescription className="text-white/70">Add, edit, or remove school programs.</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-10 space-y-10">
+                <form onSubmit={handleSaveCourse} className="grid md:grid-cols-2 gap-10">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>Title</Label>
+                        <Input value={courseForm.title} onChange={(e) => setCourseForm({...courseForm, title: e.target.value})} className="rounded-xl" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Category</Label>
+                        <Select value={courseForm.category} onValueChange={(v) => setCourseForm({...courseForm, category: v})}>
+                          <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Foundational">Foundational</SelectItem>
+                            <SelectItem value="Leadership">Leadership</SelectItem>
+                            <SelectItem value="Premium">Premium</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Subtitle</Label>
+                      <Input value={courseForm.subtitle} onChange={(e) => setCourseForm({...courseForm, subtitle: e.target.value})} className="rounded-xl" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Description</Label>
+                      <Textarea value={courseForm.description} onChange={(e) => setCourseForm({...courseForm, description: e.target.value})} className="rounded-xl min-h-[80px]" />
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label>Lessons</Label>
+                        <Input placeholder="e.g. 13+ Topics" value={courseForm.lessons} onChange={(e) => setCourseForm({...courseForm, lessons: e.target.value})} className="rounded-xl" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Rating</Label>
+                        <Input type="number" step="0.1" value={courseForm.rating} onChange={(e) => setCourseForm({...courseForm, rating: parseFloat(e.target.value)})} className="rounded-xl" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Order</Label>
+                        <Input type="number" value={courseForm.order} onChange={(e) => setCourseForm({...courseForm, order: parseInt(e.target.value)})} className="rounded-xl" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Highlights (comma separated)</Label>
+                      <Input placeholder="e.g. Needs vs Wants, Banking Basics" value={courseForm.highlights} onChange={(e) => setCourseForm({...courseForm, highlights: e.target.value})} className="rounded-xl" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Course Image</Label>
+                      <Button type="button" variant="outline" className="w-full h-12 rounded-xl border-dashed border-2" onClick={() => courseFileInputRef.current?.click()}>
+                        <Upload className="w-4 h-4 mr-2" /> {courseForm.imageUrl ? 'Change Image' : 'Select Image'}
+                      </Button>
+                      <input type="file" ref={courseFileInputRef} onChange={(e) => handleFileChange(e, 'course')} accept="image/*" className="hidden" />
+                    </div>
+                    <div className="flex gap-4">
+                      <Button type="submit" disabled={isCourseProcessing} className="flex-1 h-14 bg-primary text-white font-bold rounded-xl mt-4">
+                        {isCourseProcessing ? 'Saving...' : editingCourseId ? 'Update Course' : 'Add Course'}
+                      </Button>
+                      {editingCourseId && (
+                        <Button type="button" variant="outline" onClick={() => { setEditingCourseId(null); setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', order: 0 }); setCoursePreview(null); }} className="h-14 rounded-xl mt-4">
+                          Cancel
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <Label className="uppercase tracking-widest text-xs font-bold text-muted-foreground">Catalog Card Preview</Label>
+                    <div className="border rounded-3xl p-4 bg-slate-50/50">
+                       <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-4 bg-slate-200">
+                          {coursePreview ? (
+                            <Image src={coursePreview} alt="Preview" fill className="object-cover" />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-slate-400"><ImageIcon className="w-12 h-12" /></div>
+                          )}
+                       </div>
+                       <h3 className="text-xl font-bold text-primary">{courseForm.title || 'Course Title'}</h3>
+                       <p className="text-sm text-accent font-bold uppercase">{courseForm.subtitle || 'Course Subtitle'}</p>
+                    </div>
+                  </div>
+                </form>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-10 border-t">
+                  {courses?.map((course) => (
+                    <div key={course.id} className="group relative rounded-2xl overflow-hidden finance-3d-shadow bg-white flex flex-col">
+                      <div className="relative aspect-video">
+                        <Image src={course.imageUrl} alt={course.title} fill className="object-cover" />
+                      </div>
+                      <div className="p-4 flex-grow">
+                        <div className="flex justify-between items-start mb-2">
+                           <span className="text-xs font-bold bg-primary/10 text-primary px-2 py-1 rounded">{course.category}</span>
+                           <div className="flex items-center text-yellow-500 font-bold text-sm"><Star className="w-3 h-3 fill-yellow-500 mr-1" /> {course.rating}</div>
+                        </div>
+                        <h4 className="font-bold text-lg leading-tight line-clamp-1">{course.title}</h4>
+                      </div>
+                      <div className="p-4 pt-0 flex gap-2">
+                        <Button variant="outline" size="sm" className="flex-1 rounded-lg" onClick={() => handleEditCourse(course)}>
+                          <Edit2 className="w-4 h-4 mr-2" /> Edit
+                        </Button>
+                        <Button variant="destructive" size="sm" className="rounded-lg" onClick={() => handleDeleteDoc('courses', course.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Slideshow Manager */}
           {isAdmin && (
             <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">

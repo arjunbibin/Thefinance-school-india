@@ -79,6 +79,26 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["imageUrl", "createdAt"]
+    },
+    "Course": {
+      "title": "Course",
+      "type": "object",
+      "description": "A school course or program.",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "imageHint": { "type": "string" },
+        "category": { "type": "string" },
+        "rating": { "type": "number" },
+        "lessons": { "type": "string" },
+        "highlights": { "type": "array", "items": { "type": "string" } },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "category", "order"]
     }
   },
   "auth": {
@@ -104,6 +124,10 @@
     "/gallery/{imageId}": {
       "schema": "GalleryImage",
       "description": "Images for the school memories gallery."
+    },
+    "/courses/{courseId}": {
+      "schema": "Course",
+      "description": "Academic courses and programs."
     }
   }
 }
