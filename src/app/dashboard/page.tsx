@@ -278,7 +278,7 @@ export default function Dashboard() {
   };
 
   const handleDeleteDoc = (path: string, id: string) => {
-    if (!confirm("Are you sure you want to delete this item? This action cannot be undone.")) return;
+    if (!confirm(`Are you sure you want to delete this ${path.slice(0, -1)}? This action cannot be undone.`)) return;
     const docRef = doc(db, path, id);
     deleteDocumentNonBlocking(docRef);
     toast({ title: "Item Removed Successfully" });
@@ -357,8 +357,11 @@ export default function Dashboard() {
                             type="button" 
                             variant="destructive" 
                             size="sm" 
-                            className="w-full rounded-lg relative z-20 font-bold" 
-                            onClick={() => handleDeleteDoc('videos', v.id)}
+                            className="w-full rounded-lg relative z-50 font-bold" 
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleDeleteDoc('videos', v.id);
+                            }}
                           >
                             <Trash2 className="w-3 h-3 mr-2" /> Remove
                           </Button>
@@ -410,7 +413,7 @@ export default function Dashboard() {
                       {courses?.map(c => (
                         <div key={c.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-3 group border relative">
                           <p className="font-bold text-xs truncate">{c.title}</p>
-                          <div className="flex gap-2 relative z-20">
+                          <div className="flex gap-2 relative z-50">
                             <Button type="button" variant="outline" size="sm" className="h-10 rounded-lg flex-1 font-bold" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')})}}><Edit2 className="w-4 h-4 mr-2" /> Edit</Button>
                             <Button type="button" variant="destructive" size="sm" className="h-10 w-10 p-0 rounded-lg" onClick={() => handleDeleteDoc('courses', c.id)}><Trash2 className="w-4 h-4" /></Button>
                           </div>
@@ -454,7 +457,7 @@ export default function Dashboard() {
                         <div key={m.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col items-center text-center gap-2 group border relative">
                           <div className="w-16 h-16 rounded-full overflow-hidden relative border-2 border-white shadow-md mb-2"><Image src={m.imageUrl || `https://picsum.photos/seed/${m.id}/100/100`} alt="m" fill className="object-cover" /></div>
                           <p className="text-xs font-bold truncate w-full">{m.name}</p>
-                          <div className="flex gap-2 w-full relative z-20">
+                          <div className="flex gap-2 w-full relative z-50">
                             <Button type="button" variant="outline" size="sm" className="h-9 flex-1 rounded-lg" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-3 h-3" /></Button>
                             <Button type="button" variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg" onClick={() => handleDeleteDoc('team', m.id)}><Trash2 className="w-3 h-3" /></Button>
                           </div>
@@ -505,7 +508,7 @@ export default function Dashboard() {
                             type="button" 
                             variant="destructive" 
                             size="sm" 
-                            className="w-full rounded-xl relative z-20 font-bold" 
+                            className="w-full rounded-xl relative z-50 font-bold" 
                             onClick={() => handleDeleteDoc('reviews', r.id)}
                           >
                             <Trash2 className="w-3 h-3 mr-2" /> Delete
@@ -537,7 +540,7 @@ export default function Dashboard() {
                               type="button" 
                               variant="destructive" 
                               size="icon" 
-                              className="absolute top-1 right-1 h-7 w-7 z-30 opacity-80" 
+                              className="absolute top-1 right-1 h-7 w-7 z-50 opacity-90 shadow-lg" 
                               onClick={() => handleDeleteDoc('slides', s.id)}
                             >
                               <Trash2 className="w-4 h-4" />
@@ -564,7 +567,7 @@ export default function Dashboard() {
                               type="button" 
                               variant="destructive" 
                               size="icon" 
-                              className="absolute top-1 right-1 h-7 w-7 z-30 opacity-80" 
+                              className="absolute top-1 right-1 h-7 w-7 z-50 opacity-90 shadow-lg" 
                               onClick={() => handleDeleteDoc('gallery', g.id)}
                             >
                               <Trash2 className="w-4 h-4" />

@@ -8,9 +8,10 @@ service cloud.firestore {
     function isStaff() {
       // Primary admin UID always has full access
       let isAdmin = request.auth.uid == 'bfCiMYT33fNetne0TXaLYCIu7T03';
-      // Staff check: must have a profile and role != 'user'
-      let isStaffMember = exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) && 
-                          get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role != 'user';
+      
+      // Staff check: must have a profile and a role that is not 'user'
+      let userProfilePath = /databases/$(database)/documents/userProfiles/$(request.auth.uid);
+      let isStaffMember = exists(userProfilePath) && get(userProfilePath).data.role != 'user';
       
       return isSignedIn() && (isAdmin || isStaffMember);
     }
