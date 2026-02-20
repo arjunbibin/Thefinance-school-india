@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -123,19 +122,6 @@ export default function TestimonialVideosPage() {
                             <Play className="w-6 h-6 text-white/40" />
                           </div>
                         )}
-                      </div>
-
-                      {/* Video Info Card */}
-                      <div className={cn(
-                        "absolute bottom-0 left-0 right-0 p-8 glass-morphism transition-transform duration-500 delay-100",
-                        isActive ? "translate-y-0" : "translate-y-full"
-                      )}>
-                        <h3 className="text-primary font-headline font-bold text-xl mb-1">{video.title || "Success Story"}</h3>
-                        <div className="flex items-center gap-3 text-xs font-bold text-accent uppercase tracking-widest">
-                          <Volume2 className="w-4 h-4" /> HQ Audio 
-                          <span className="w-1 h-1 bg-accent rounded-full" />
-                          <Maximize2 className="w-4 h-4" /> 9:16 Full HD
-                        </div>
                       </div>
                     </div>
                   </div>
