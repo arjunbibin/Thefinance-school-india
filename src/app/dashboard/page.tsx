@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth } from '@/firebase';
 import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp, setDoc, where } from 'firebase/firestore';
-import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon, Camera, BookOpen, Star, Plus, Edit2, Check, Tag, ExternalLink, MessageSquare, X, Mail } from 'lucide-react';
+import { LogOut, ShieldAlert, Users, Briefcase, Trash2, Upload, BookOpen, Star, Plus, MessageSquare, Image as ImageIcon, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
@@ -60,31 +60,27 @@ export default function Dashboard() {
   const reviewsQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'reviews'), orderBy('createdAt', 'desc')) : null, [db, isAuthorized]);
   const { data: reviews } = useCollection(reviewsQuery);
 
-  // --- REVIEW FORM STATE ---
-  const [newReview, setNewReview] = useState({ userName: '', userEmail: '', content: '', rating: 5, userPhoto: '' });
+  // --- FORM STATES ---
+  const [newReview, setNewReview] = useState({ userName: '', content: '', rating: 5, userPhoto: '' });
   const [reviewPreview, setReviewPreview] = useState<string | null>(null);
   const [isReviewProcessing, setIsReviewProcessing] = useState(false);
 
-  // Admin Role State
-  const [targetUserId, setTargetUserId] = useState('');
-  const [selectedRole, setSelectedRole] = useState('user');
-  const [isAdminProcessing, setIsAdminProcessing] = useState(false);
-
-  // Slideshow State
   const [newSlide, setNewSlide] = useState({ title: '', description: '', imageUrl: '', order: 0 });
   const [slidePreview, setSlidePreview] = useState<string | null>(null);
-  const [isSlideProcessing, setIsProcessing] = useState(false);
+  const [isSlideProcessing, setIsSlideProcessing] = useState(false);
 
-  // Gallery State
   const [newGalleryImg, setNewGalleryImg] = useState({ description: '', imageUrl: '' });
   const [galleryPreview, setGalleryPreview] = useState<string | null>(null);
   const [isGalleryProcessing, setIsGalleryProcessing] = useState(false);
 
-  // Course State
   const [courseForm, setCourseForm] = useState({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
   const [coursePreview, setCoursePreview] = useState<string | null>(null);
   const [isCourseProcessing, setIsCourseProcessing] = useState(false);
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
+
+  const [targetUserId, setTargetUserId] = useState('');
+  const [selectedRole, setSelectedRole] = useState('user');
+  const [isAdminProcessing, setIsAdminProcessing] = useState(false);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -121,6 +117,51 @@ export default function Dashboard() {
     }
   };
 
+  const handleSaveSlide = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSlide.imageUrl || !newSlide.title) {
+       toast({ variant: "destructive", title: "Missing Data", description: "Title and Image are required." });
+       return;
+    }
+    setIsSlideProcessing(true);
+    try {
+      await addDoc(collection(db, 'slides'), {
+        ...newSlide,
+        order: Number(newSlide.order),
+        createdAt: serverTimestamp()
+      });
+      toast({ title: "Slide Added", description: "Homepage slideshow updated." });
+      setNewSlide({ title: '', description: '', imageUrl: '', order: 0 });
+      setSlidePreview(null);
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Failed", description: error.message });
+    } finally {
+      setIsSlideProcessing(false);
+    }
+  };
+
+  const handleSaveGallery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newGalleryImg.imageUrl) {
+      toast({ variant: "destructive", title: "Missing Image", description: "Please upload an image." });
+      return;
+    }
+    setIsGalleryProcessing(true);
+    try {
+      await addDoc(collection(db, 'gallery'), {
+        ...newGalleryImg,
+        createdAt: serverTimestamp()
+      });
+      toast({ title: "Gallery Updated", description: "Memory added to the gallery." });
+      setNewGalleryImg({ description: '', imageUrl: '' });
+      setGalleryPreview(null);
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Failed", description: error.message });
+    } finally {
+      setIsGalleryProcessing(false);
+    }
+  };
+
   const handleAddReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newReview.userName || !newReview.content) {
@@ -132,10 +173,10 @@ export default function Dashboard() {
       await addDoc(collection(db, 'reviews'), {
         ...newReview,
         createdAt: serverTimestamp(),
-        approved: true // Admins add pre-approved reviews
+        approved: true 
       });
       toast({ title: "Review Added", description: "Testimonial is now live on the homepage." });
-      setNewReview({ userName: '', userEmail: '', content: '', rating: 5, userPhoto: '' });
+      setNewReview({ userName: '', content: '', rating: 5, userPhoto: '' });
       setReviewPreview(null);
     } catch (error: any) {
       toast({ variant: "destructive", title: "Failed", description: error.message });
@@ -197,7 +238,7 @@ export default function Dashboard() {
                 <div className="p-3 bg-primary/10 rounded-2xl"><MessageSquare className="w-6 h-6" /></div>
                 <div>
                   <CardTitle className="text-2xl font-headline font-bold">Curated Reviews</CardTitle>
-                  <CardDescription className="text-primary/70">Manually add and manage testimonials shown on the home page.</CardDescription>
+                  <CardDescription className="text-primary/70">Manually add testimonials shown on the home page.</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -211,17 +252,7 @@ export default function Dashboard() {
                     </div>
                     <div className="space-y-2">
                       <Label>Rating (1-5)</Label>
-                      <Input 
-                        type="number" 
-                        min="1" 
-                        max="5" 
-                        value={newReview.rating} 
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value);
-                          setNewReview({...newReview, rating: isNaN(val) ? 0 : val});
-                        }} 
-                        className="rounded-xl" 
-                      />
+                      <Input type="number" min="1" max="5" value={newReview.rating} onChange={(e) => setNewReview({...newReview, rating: parseInt(e.target.value) || 0})} className="rounded-xl" />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -240,23 +271,20 @@ export default function Dashboard() {
                   </Button>
                 </div>
                 <div className="space-y-4">
-                   <Label className="uppercase text-xs font-bold text-muted-foreground">Live Preview</Label>
+                   <Label className="uppercase text-xs font-bold text-muted-foreground">Preview</Label>
                    <div className="border rounded-3xl p-6 bg-slate-50 relative">
                      <div className="flex items-center gap-4 mb-4">
                        <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-200">
                          {reviewPreview && <Image src={reviewPreview} alt="p" fill className="object-cover" />}
                        </div>
                        <div>
-                         <p className="font-bold text-primary">{newReview.userName || 'Student Name'}</p>
+                         <p className="font-bold text-primary">{newReview.userName || 'Name'}</p>
                          <div className="flex gap-1">
-                           {/* Added safety check for valid rating length */}
-                           {[...Array(Math.max(0, Math.min(5, newReview.rating || 0)))].map((_, i) => (
-                             <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                           ))}
+                           {[...Array(Math.max(0, newReview.rating || 0))].map((_, i) => <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
                          </div>
                        </div>
                      </div>
-                     <p className="text-sm italic text-muted-foreground">"{newReview.content || 'Share the success story here...'}"</p>
+                     <p className="text-sm italic">"{newReview.content || 'Testimonial content...'}"</p>
                    </div>
                 </div>
               </form>
@@ -268,10 +296,7 @@ export default function Dashboard() {
                       <div className="w-10 h-10 rounded-lg overflow-hidden relative">
                         <Image src={r.userPhoto || `https://picsum.photos/seed/${r.id}/100/100`} alt="p" fill className="object-cover" />
                       </div>
-                      <div>
-                        <p className="font-bold text-sm">{r.userName}</p>
-                        <p className="text-xs text-muted-foreground line-clamp-1">{r.content}</p>
-                      </div>
+                      <div><p className="font-bold text-sm">{r.userName}</p></div>
                     </div>
                     <Button variant="destructive" size="icon" className="rounded-xl" onClick={() => handleDeleteDoc('reviews', r.id)}><Trash2 className="w-4 h-4" /></Button>
                   </div>
@@ -280,16 +305,90 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* OTHER MANAGERS - KEPT FOR FULL FUNCTIONALITY */}
           {isAdmin && (
             <>
-              {/* Course Manager */}
+              {/* SLIDESHOW MANAGER */}
               <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
                 <CardHeader className="bg-primary text-white p-10">
-                  <div className="flex items-center gap-4"><BookOpen className="w-6 h-6" /> <CardTitle>Courses</CardTitle></div>
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white/10 rounded-2xl"><ImageIcon className="w-6 h-6" /></div>
+                    <CardTitle>Slideshow Manager</CardTitle>
+                  </div>
                 </CardHeader>
+                <CardContent className="p-10 space-y-10">
+                  <form onSubmit={handleSaveSlide} className="grid md:grid-cols-2 gap-10">
+                    <div className="space-y-4">
+                      <div className="space-y-2"><Label>Title</Label><Input value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl" required /></div>
+                      <div className="space-y-2"><Label>Description</Label><Textarea value={newSlide.description} onChange={e => setNewSlide({...newSlide, description: e.target.value})} className="rounded-xl" /></div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2"><Label>Order</Label><Input type="number" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value) || 0})} className="rounded-xl" /></div>
+                        <div className="space-y-2"><Label>Slide Image</Label>
+                          <Button type="button" variant="outline" className="w-full rounded-xl" onClick={() => slideFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload</Button>
+                          <input type="file" ref={slideFileInputRef} onChange={e => handleFileChange(e, 'slide')} accept="image/*" className="hidden" />
+                        </div>
+                      </div>
+                      <Button type="submit" disabled={isSlideProcessing} className="w-full h-12 bg-primary text-white font-bold rounded-xl">{isSlideProcessing ? 'Saving...' : 'Add Slide'}</Button>
+                    </div>
+                    <div>
+                      <Label className="uppercase text-xs font-bold text-muted-foreground mb-4 block">Slide Preview</Label>
+                      <div className="aspect-video rounded-3xl overflow-hidden bg-slate-100 relative finance-3d-shadow-inner">
+                        {slidePreview && <Image src={slidePreview} alt="p" fill className="object-cover" />}
+                        <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-6 text-white">
+                          <h4 className="font-bold text-xl">{newSlide.title || 'Slide Title'}</h4>
+                          <p className="text-sm opacity-80">{newSlide.description || 'Description goes here...'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-10 border-t">
+                    {slides?.map(s => (
+                      <div key={s.id} className="relative group rounded-2xl overflow-hidden aspect-video">
+                        <Image src={s.imageUrl} alt="s" fill className="object-cover" />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <Button variant="destructive" size="icon" onClick={() => handleDeleteDoc('slides', s.id)}><Trash2 className="w-4 h-4" /></Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* GALLERY MANAGER */}
+              <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+                <CardHeader className="bg-accent text-primary p-10">
+                  <div className="flex items-center gap-4"><div className="p-3 bg-primary/10 rounded-2xl"><Camera className="w-6 h-6" /></div><CardTitle>School Memories (Gallery)</CardTitle></div>
+                </CardHeader>
+                <CardContent className="p-10 space-y-10">
+                  <form onSubmit={handleSaveGallery} className="grid md:grid-cols-2 gap-10">
+                    <div className="space-y-4">
+                      <div className="space-y-2"><Label>Description</Label><Input value={newGalleryImg.description} onChange={e => setNewGalleryImg({...newGalleryImg, description: e.target.value})} className="rounded-xl" placeholder="E.g. Workshop in Bangalore" /></div>
+                      <div className="space-y-2"><Label>Memory Photo</Label>
+                        <Button type="button" variant="outline" className="w-full rounded-xl" onClick={() => galleryFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Select Image</Button>
+                        <input type="file" ref={galleryFileInputRef} onChange={e => handleFileChange(e, 'gallery')} accept="image/*" className="hidden" />
+                      </div>
+                      <Button type="submit" disabled={isGalleryProcessing} className="w-full h-12 bg-primary text-white font-bold rounded-xl">{isGalleryProcessing ? 'Adding...' : 'Add Memory'}</Button>
+                    </div>
+                    <div className="aspect-square rounded-3xl overflow-hidden bg-slate-100 relative finance-3d-shadow-inner max-w-xs mx-auto md:mx-0">
+                      {galleryPreview && <Image src={galleryPreview} alt="p" fill className="object-cover" />}
+                    </div>
+                  </form>
+                  <div className="grid grid-cols-3 md:grid-cols-6 gap-4 pt-10 border-t">
+                    {galleryItems?.map(g => (
+                      <div key={g.id} className="relative group rounded-xl overflow-hidden aspect-square">
+                        <Image src={g.imageUrl} alt="g" fill className="object-cover" />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <Button variant="destructive" size="sm" onClick={() => handleDeleteDoc('gallery', g.id)}><Trash2 className="w-3 h-3" /></Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Course Manager */}
+              <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+                <CardHeader className="bg-primary text-white p-10"><div className="flex items-center gap-4"><BookOpen className="w-6 h-6" /> <CardTitle>Courses</CardTitle></div></CardHeader>
                 <CardContent className="p-10">
-                  <div className="text-center py-4 text-muted-foreground italic">Course catalog is active. See below to edit.</div>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {courses?.map(c => (
                       <div key={c.id} className="p-4 border rounded-2xl flex flex-col items-center gap-2">
