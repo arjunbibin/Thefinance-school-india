@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
-import { Play, Pause } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 export default function TestimonialVideosPage() {
@@ -63,12 +63,12 @@ export default function TestimonialVideosPage() {
                 >
                   <div className="relative aspect-[9/16] w-full bg-slate-900">
                     {isActive ? (
-                      /* Active Player */
+                      /* Active Player - Plays directly in grid */
                       <div className="w-full h-full">
                         {ytId ? (
                           <iframe
                             src={`https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&controls=1`}
-                            className="w-full h-full"
+                            className="w-full h-full border-none"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
                           />
@@ -92,12 +92,12 @@ export default function TestimonialVideosPage() {
                           <img 
                             src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} 
                             alt={video.title}
-                            className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                            className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
                           />
                         ) : (
                           <video 
                             src={video.videoUrl} 
-                            className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                            className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
                             muted
                             playsInline
                           />
@@ -107,8 +107,10 @@ export default function TestimonialVideosPage() {
                           <div className="w-16 h-16 bg-accent text-primary rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform duration-500">
                             <Play className="w-8 h-8 fill-primary ml-1" />
                           </div>
-                          <div className="mt-6 px-4 py-2 glass-morphism rounded-xl border border-white/30 transform translate-y-2 group-hover:translate-y-0 transition-all">
-                             <p className="text-white font-headline font-bold text-sm">{video.title || 'Watch Story'}</p>
+                          <div className="mt-6 px-4 py-2 glass-morphism rounded-xl border border-white/30 transform translate-y-2 group-hover:translate-y-0 transition-all max-w-[85%]">
+                             <p className="text-black font-headline font-bold text-sm text-center line-clamp-2">
+                               {video.title || 'Watch Story'}
+                             </p>
                           </div>
                         </div>
                       </div>
