@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -6,7 +5,7 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Play, Pause, SkipForward, Video as VideoIcon, Download } from 'lucide-react';
+import { Play, Pause, SkipForward, Video as VideoIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function VideoShowcase() {
@@ -84,6 +83,7 @@ export default function VideoShowcase() {
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
                   onClick={togglePlay}
+                  controlsList="nodownload"
                 />
                 
                 {/* Control Overlay */}
@@ -115,17 +115,6 @@ export default function VideoShowcase() {
                     <h3 className="text-white font-headline font-bold text-2xl mb-1">{activeVideo.title || 'Workshop Highlights'}</h3>
                     <p className="text-white/60 text-sm">Now Playing: Video {currentIndex + 1} of {videos.length}</p>
                   </div>
-                  
-                  <a 
-                    href={activeVideo.videoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-md p-4 rounded-2xl border border-white/20 transition-all pointer-events-auto flex items-center gap-2 font-bold text-sm shadow-xl"
-                    onClick={(e) => e.stopPropagation()}
-                    title="Download current video"
-                  >
-                    <Download className="w-5 h-5" /> <span className="hidden sm:inline">Download</span>
-                  </a>
                 </div>
               </>
             )}
@@ -182,21 +171,7 @@ export default function VideoShowcase() {
                   </div>
                 </button>
                 
-                <div className="flex items-center gap-2">
-                  <a 
-                    href={video.videoUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className={cn(
-                      "p-2 rounded-lg transition-colors",
-                      currentIndex === index ? "hover:bg-white/20 text-white" : "hover:bg-slate-100 text-muted-foreground"
-                    )}
-                    title="Download video"
-                  >
-                    <Download className="w-4 h-4" />
-                  </a>
-                  {currentIndex === index && <SkipForward className="w-4 h-4 opacity-50" />}
-                </div>
+                {currentIndex === index && <SkipForward className="w-4 h-4 opacity-50" />}
               </div>
             ))}
           </div>
