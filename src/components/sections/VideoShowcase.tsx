@@ -6,7 +6,7 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Play, SkipForward, Video as VideoIcon } from 'lucide-react';
+import { Play, Pause, SkipForward, Video as VideoIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function VideoShowcase() {
@@ -23,10 +23,14 @@ export default function VideoShowcase() {
 
   const activeVideo = videos && videos.length > 0 ? videos[currentIndex] : null;
 
-  const handlePlayClick = () => {
+  const togglePlay = () => {
     if (videoRef.current) {
-      videoRef.current.play();
-      setIsPlaying(true);
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
     }
   };
 
@@ -34,7 +38,6 @@ export default function VideoShowcase() {
     if (videos && videos.length > 1) {
       const nextIndex = (currentIndex + 1) % videos.length;
       setCurrentIndex(nextIndex);
-      // Auto-play the next video after state update
     } else {
       setIsPlaying(false);
     }
@@ -43,7 +46,7 @@ export default function VideoShowcase() {
   useEffect(() => {
     if (isPlaying && videoRef.current) {
       videoRef.current.play().catch(() => {
-        // Handle potential play() interruption/failure
+        // Handle potential play() interruption
         setIsPlaying(false);
       });
     }
@@ -70,7 +73,7 @@ export default function VideoShowcase() {
       <div className="grid lg:grid-cols-3 gap-12 items-start">
         {/* Main Video Player */}
         <div className="lg:col-span-2">
-          <Card className="relative aspect-video w-full overflow-hidden border-none bg-black finance-3d-shadow rounded-[2.5rem] group">
+          <Card className="relative aspect-video w-full overflow-hidden border-none bg-black finance-3d-shadow rounded-[2.5rem] group cursor-pointer">
             {activeVideo && (
               <>
                 <video
@@ -80,20 +83,34 @@ export default function VideoShowcase() {
                   onEnded={handleVideoEnded}
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
+                  onClick={togglePlay}
                 />
                 
-                {!isPlaying && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all group-hover:bg-black/20">
-                    <button 
-                      onClick={handlePlayClick}
-                      className="w-24 h-24 bg-accent text-primary rounded-full flex items-center justify-center finance-3d-shadow hover:scale-110 transition-transform"
-                    >
+                {/* Control Overlay */}
+                <div className={cn(
+                  "absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all duration-300 pointer-events-none",
+                  isPlaying ? "opacity-0 group-hover:opacity-100 bg-black/20" : "opacity-100"
+                )}>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      togglePlay();
+                    }}
+                    className="w-24 h-24 bg-accent text-primary rounded-full flex items-center justify-center finance-3d-shadow hover:scale-110 transition-transform pointer-events-auto"
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-10 h-10 fill-primary" />
+                    ) : (
                       <Play className="w-10 h-10 fill-primary ml-1" />
-                    </button>
-                  </div>
-                )}
+                    )}
+                  </button>
+                </div>
 
-                <div className="absolute bottom-8 left-8 right-8 flex items-end justify-between pointer-events-none">
+                {/* Info Overlay */}
+                <div className={cn(
+                  "absolute bottom-8 left-8 right-8 flex items-end justify-between pointer-events-none transition-opacity duration-500",
+                  isPlaying ? "opacity-0 group-hover:opacity-100" : "opacity-100"
+                )}>
                   <div className="bg-black/60 backdrop-blur-md p-6 rounded-3xl border border-white/10 max-w-[80%]">
                     <h3 className="text-white font-headline font-bold text-2xl mb-1">{activeVideo.title || 'Workshop Highlights'}</h3>
                     <p className="text-white/60 text-sm">Now Playing: Video {currentIndex + 1} of {videos.length}</p>
