@@ -103,6 +103,22 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["title", "category", "order"]
+    },
+    "TeamMember": {
+      "title": "TeamMember",
+      "type": "object",
+      "description": "A member of the school staff or leadership team.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "bio": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "isFounder": { "type": "boolean", "default": false },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "role", "order"]
     }
   },
   "auth": {
@@ -132,6 +148,10 @@
     "/courses/{courseId}": {
       "schema": "Course",
       "description": "Academic courses and programs."
+    },
+    "/team/{memberId}": {
+      "schema": "TeamMember",
+      "description": "School staff and leadership team data."
     }
   }
 }

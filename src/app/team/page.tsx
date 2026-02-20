@@ -5,48 +5,24 @@ import React from 'react';
 import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
-import { Users, ShieldCheck, Briefcase, Star } from 'lucide-react';
+import { Users, ShieldCheck, Briefcase, Star, UserSquare } from 'lucide-react';
 
-const TEAM_MEMBERS = [
-  {
-    name: "Arjun Bibin",
-    role: "CEO & Founder",
-    id: "team-ceo",
-    bio: "Passionate about empowering the next generation with practical financial wisdom.",
-    icon: Star,
-    isFounder: true
-  },
-  {
-    name: "Sarah Jenkins",
-    role: "Co-Founder",
-    id: "team-cofounder",
-    bio: "Expert in educational strategy and leadership development for young minds.",
-    icon: ShieldCheck,
-    isFounder: true
-  },
-  {
-    name: "David Chen",
-    role: "General Manager",
-    id: "team-manager1",
-    bio: "Driving operational excellence and community engagement across India.",
-    icon: Briefcase,
-    isFounder: false
-  },
-  {
-    name: "Elena Rodriguez",
-    role: "Tech Head",
-    id: "team-techhead",
-    bio: "Innovating the digital learning experience with cutting-edge 3D tools.",
-    icon: Users,
-    isFounder: false
-  }
+const FALLBACK_TEAM = [
+  { id: "ceo", name: "Arjun Bibin", role: "CEO & Founder", bio: "Passionate about empowering the next generation with financial wisdom.", isFounder: true },
+  { id: "gm", name: "Staff Member", role: "General Manager", bio: "Driving excellence in our financial curriculum.", isFounder: false }
 ];
 
 export default function TeamPage() {
+  const db = useFirestore();
+  const teamQuery = useMemoFirebase(() => query(collection(db, 'team'), orderBy('order', 'asc')), [db]);
+  const { data: remoteTeam, isLoading } = useCollection(teamQuery);
+
+  const teamMembers = remoteTeam && remoteTeam.length > 0 ? remoteTeam : FALLBACK_TEAM;
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Navbar />
@@ -60,38 +36,40 @@ export default function TeamPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-          {TEAM_MEMBERS.map((member, index) => {
-            const placeholder = PlaceHolderImages.find(img => img.id === member.id);
-            const MemberIcon = member.icon;
-            
-            return (
+        {isLoading ? (
+          <div className="flex justify-center py-20"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            {teamMembers.map((member, index) => (
               <div 
                 key={member.id} 
                 className={cn(
                   "flex flex-col items-center text-center group",
-                  "animate-in fade-in slide-in-from-bottom-10 duration-1000",
-                  member.isFounder ? "animate-float" : ""
+                  "animate-in fade-in slide-in-from-bottom-10 duration-1000 fill-mode-forwards"
                 )}
                 style={{ animationDelay: `${index * 150}ms` }}
               >
-                {/* 3D Circular Portrait Container */}
-                <div className="relative mb-8 p-2 rounded-full finance-3d-shadow transition-transform duration-500 group-hover:scale-105 group-hover:-translate-y-2">
-                  <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-white finance-3d-shadow-inner">
-                    <Image
-                      src={placeholder?.imageUrl || `https://picsum.photos/seed/${member.id}/400/400`}
-                      alt={member.name}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                      data-ai-hint="professional portrait"
-                    />
-                    {/* Decorative Ring */}
+                <div className={cn(
+                  "relative mb-8 p-2 rounded-full finance-3d-shadow transition-all duration-500 group-hover:scale-105 group-hover:-translate-y-2",
+                  member.isFounder ? "animate-float" : ""
+                )}>
+                  <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-white finance-3d-shadow-inner bg-slate-100">
+                    {member.imageUrl ? (
+                      <Image
+                        src={member.imageUrl}
+                        alt={member.name}
+                        fill
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        data-ai-hint="professional portrait"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-300"><UserSquare className="w-24 h-24" /></div>
+                    )}
                     <div className="absolute inset-0 border-[6px] border-primary/10 rounded-full pointer-events-none" />
                   </div>
                   
-                  {/* Floating Icon Badge */}
                   <div className="absolute -bottom-2 -right-2 bg-white p-3 rounded-2xl finance-3d-shadow border border-slate-100 transform rotate-12 group-hover:rotate-0 transition-transform">
-                    <MemberIcon className="w-6 h-6 text-accent" />
+                    {member.isFounder ? <Star className="w-6 h-6 text-accent" /> : <ShieldCheck className="w-6 h-6 text-accent" />}
                   </div>
                 </div>
 
@@ -100,14 +78,16 @@ export default function TeamPage() {
                   <Badge variant="secondary" className="px-4 py-1 rounded-lg text-xs font-bold uppercase tracking-widest bg-primary/10 text-primary border-none">
                     {member.role}
                   </Badge>
-                  <p className="text-sm text-muted-foreground mt-4 italic max-w-[250px]">
-                    "{member.bio}"
-                  </p>
+                  {member.bio && (
+                    <p className="text-sm text-muted-foreground mt-4 italic max-w-[250px]">
+                      "{member.bio}"
+                    </p>
+                  )}
                 </div>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
 
       <Footer />
