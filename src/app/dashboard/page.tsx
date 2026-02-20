@@ -13,8 +13,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth } from '@/firebase';
 import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp, setDoc, where } from 'firebase/firestore';
-import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon, Camera, BookOpen, Star, Plus, Edit2, Check, Tag, ExternalLink, MessageSquare, X } from 'lucide-react';
+import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon, Camera, BookOpen, Star, Plus, Edit2, Check, Tag, ExternalLink, MessageSquare, X, Mail } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
 
 export default function Dashboard() {
@@ -37,12 +38,11 @@ export default function Dashboard() {
     if (!isUserLoading && !user) {
       router.push('/login');
     }
-    if (profile && profile.role === 'user') {
-      auth.signOut();
-      router.push('/login');
-      toast({ variant: "destructive", title: "Unauthorized", description: "Your account has no management role." });
+    if (!isProfileLoading && profile && profile.role === 'user') {
+      router.push('/');
+      toast({ variant: "destructive", title: "Unauthorized", description: "This portal is for authorized staff only." });
     }
-  }, [user, isUserLoading, router, profile, auth, toast]);
+  }, [user, isUserLoading, router, profile, isProfileLoading, toast]);
 
   // Authorization flag for data fetching
   const isAuthorized = profile && profile.role !== 'user';
@@ -266,7 +266,7 @@ export default function Dashboard() {
     }
   };
 
-  if (isUserLoading || isProfileLoading || !isAuthorized) {
+  if (isUserLoading || isProfileLoading || (user && !isAuthorized && profile?.role !== 'user')) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -307,7 +307,7 @@ export default function Dashboard() {
                 <div className="p-3 bg-primary/10 rounded-2xl"><MessageSquare className="w-6 h-6" /></div>
                 <div>
                   <CardTitle className="text-2xl font-headline font-bold">Review Moderation</CardTitle>
-                  <CardDescription className="text-primary/70">Approve or remove student testimonials.</CardDescription>
+                  <CardDescription className="text-primary/70">Verify identity and approve student testimonials.</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -324,6 +324,9 @@ export default function Dashboard() {
                         <Badge variant={review.approved ? "default" : "outline"} className={review.approved ? "bg-green-500" : ""}>
                           {review.approved ? "Approved" : "Pending"}
                         </Badge>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3 bg-white/50 w-fit px-2 py-1 rounded-md border">
+                        <Mail className="w-3 h-3" /> {review.userEmail}
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-2 italic">"{review.content}"</p>
                     </div>
