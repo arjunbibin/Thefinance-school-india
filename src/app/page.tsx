@@ -23,7 +23,8 @@ import {
   Target,
   CircleCheckBig,
   ArrowRight,
-  Users
+  Users,
+  MessageSquare
 } from 'lucide-react';
 
 export default function Home() {
@@ -133,6 +134,11 @@ export default function Home() {
             <Link href="/team" className="w-full md:w-auto">
               <Button variant="outline" className="h-14 md:h-16 px-8 md:px-10 rounded-2xl border-2 border-primary text-primary font-bold text-base md:text-lg finance-3d-shadow hover:scale-105 transition-transform flex items-center gap-3 w-full bg-white">
                 View Our Team <Users className="w-6 h-6" />
+              </Button>
+            </Link>
+            <Link href="#testimonials" className="w-full md:w-auto">
+              <Button variant="outline" className="h-14 md:h-16 px-8 md:px-10 rounded-2xl border-2 border-accent text-primary font-bold text-base md:text-lg finance-3d-shadow hover:scale-105 transition-transform flex items-center gap-3 w-full bg-white">
+                See Our Testimonials <MessageSquare className="w-6 h-6 text-accent" />
               </Button>
             </Link>
           </div>
