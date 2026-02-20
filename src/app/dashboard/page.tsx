@@ -52,7 +52,7 @@ import {
   Play, 
   Edit2,
   Settings,
-  Image as ImageIcon,
+  ImageIcon,
   Globe,
   Layout,
   Clapperboard
@@ -357,7 +357,7 @@ export default function Dashboard() {
                         <div className="space-y-2"><Label>Sequence Order</Label><Input type="number" value={newTestimonialVideo.order} onChange={e => setNewTestimonialVideo({...newTestimonialVideo, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div>
                         <Button type="submit" className="w-full h-14 rounded-xl shadow-lg font-bold text-lg" disabled={uploadProgress !== null}>Publish Testimonial Video</Button>
                       </div>
-                      <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 flex items-center justify-center relative aspect-[9/16] max-h-[500px] mx-auto w-full">
+                      <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 flex items-center justify-center relative aspect-[9/16] max-h-[350px] mx-auto w-full">
                         {newTestimonialVideo.isYoutube && getYoutubeId(newTestimonialVideo.videoUrl) ? (
                           <iframe src={`https://www.youtube.com/embed/${getYoutubeId(newTestimonialVideo.videoUrl)}`} className="w-full h-full" />
                         ) : newTestimonialVideo.videoUrl ? (
@@ -401,7 +401,7 @@ export default function Dashboard() {
                         <div className="space-y-2"><Label>Display Sequence</Label><Input type="number" value={newVideo.order} onChange={e => setNewVideo({...newVideo, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div>
                         <Button type="submit" className="w-full h-14 rounded-xl shadow-lg font-bold text-lg" disabled={uploadProgress !== null}>Publish Success Story</Button>
                       </div>
-                      <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 flex items-center justify-center relative aspect-[16/9] mx-auto w-full">
+                      <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 flex items-center justify-center relative aspect-[16/9] max-h-[250px] mx-auto w-full">
                         {newVideo.isYoutube && getYoutubeId(newVideo.videoUrl) ? (
                           <iframe src={`https://www.youtube.com/embed/${getYoutubeId(newVideo.videoUrl)}`} className="w-full h-full" />
                         ) : newVideo.videoUrl ? (
