@@ -128,8 +128,9 @@ export default function Dashboard() {
   const [newReview, setNewReview] = useState({ userName: '', userPhoto: '', content: '', rating: 5 });
   const [newVideo, setNewVideo] = useState({ title: '', videoUrl: '', order: 0 });
   
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+  // File holding states for multi-stage upload
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({});
 
   const [itemToDelete, setItemToDelete] = useState<{ path: string; id: string } | null>(null);
 
@@ -139,35 +140,50 @@ export default function Dashboard() {
     router.push('/');
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'slide' | 'gallery' | 'course' | 'team' | 'review' | 'video') => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (type === 'video') {
-        if (file.size > 30 * 1024 * 1024) {
-          toast({ variant: "destructive", title: "File Too Large", description: "Videos are limited to 30MB." });
-          return;
-        }
-        setVideoFile(file);
-        setNewVideo({ ...newVideo, videoUrl: URL.createObjectURL(file) });
+      if (type === 'video' && file.size > 30 * 1024 * 1024) {
+        toast({ variant: "destructive", title: "File Too Large", description: "Videos are limited to 30MB." });
+        return;
+      }
+      if (type !== 'video' && file.size > 5 * 1024 * 1024) {
+        toast({ variant: "destructive", title: "File Too Large", description: "Images must be smaller than 5MB." });
         return;
       }
 
-      if (file.size > 1024 * 1024) {
-        toast({ variant: "destructive", title: "File Too Large", description: "Images must be smaller than 1MB." });
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        if (type === 'slide') setNewSlide({ ...newSlide, imageUrl: base64 });
-        else if (type === 'gallery') setNewGalleryImg({ ...newGalleryImg, imageUrl: base64 });
-        else if (type === 'course') setCourseForm({ ...courseForm, imageUrl: base64 });
-        else if (type === 'team') setTeamForm({ ...teamForm, imageUrl: base64 });
-        else if (type === 'review') setNewReview({ ...newReview, userPhoto: base64 });
-      };
-      reader.readAsDataURL(file);
+      setSelectedFiles(prev => ({ ...prev, [type]: file }));
+      
+      // Local preview
+      const previewUrl = URL.createObjectURL(file);
+      if (type === 'slide') setNewSlide(prev => ({ ...prev, imageUrl: previewUrl }));
+      else if (type === 'gallery') setNewGalleryImg(prev => ({ ...prev, imageUrl: previewUrl }));
+      else if (type === 'course') setCourseForm(prev => ({ ...prev, imageUrl: previewUrl }));
+      else if (type === 'team') setTeamForm(prev => ({ ...prev, imageUrl: previewUrl }));
+      else if (type === 'review') setNewReview(prev => ({ ...prev, userPhoto: previewUrl }));
+      else if (type === 'video') setNewVideo(prev => ({ ...prev, videoUrl: previewUrl }));
     }
+  };
+
+  const uploadFile = async (file: File, folder: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const storageRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          setUploadProgress(progress);
+        }, 
+        (error) => {
+          setUploadProgress(null);
+          reject(error);
+        }, 
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then(resolve).catch(reject);
+        }
+      );
+    });
   };
 
   const handleSaveBranding = (e: React.FormEvent) => {
@@ -176,128 +192,180 @@ export default function Dashboard() {
     toast({ title: "Branding Updated Successfully" });
   };
 
-  const handleSaveCourse = (e: React.FormEvent) => {
+  const handleSaveCourse = async (e: React.FormEvent) => {
     e.preventDefault();
-    const highlightsArray = typeof courseForm.highlights === 'string' ? courseForm.highlights.split(',').map(h => h.trim()).filter(h => h !== '') : (courseForm.highlights || []);
-    const data = { 
-      title: courseForm.title,
-      subtitle: courseForm.subtitle,
-      description: courseForm.description,
-      imageUrl: courseForm.imageUrl,
-      category: courseForm.category,
-      rating: Number(courseForm.rating),
-      lessons: courseForm.lessons,
-      highlights: highlightsArray,
-      buyLink: courseForm.buyLink,
-      order: Number(courseForm.order)
-    };
+    let finalImageUrl = courseForm.imageUrl;
 
-    if (editingCourseId) {
-      const docRef = doc(db, 'courses', editingCourseId);
-      updateDocumentNonBlocking(docRef, data);
-      toast({ title: "Course Updated" });
-    } else {
-      const colRef = collection(db, 'courses');
-      addDocumentNonBlocking(colRef, { ...data, createdAt: serverTimestamp() });
-      toast({ title: "Course Added" });
+    try {
+      if (selectedFiles['course']) {
+        finalImageUrl = await uploadFile(selectedFiles['course'], 'courses');
+      }
+
+      const highlightsArray = typeof courseForm.highlights === 'string' ? courseForm.highlights.split(',').map(h => h.trim()).filter(h => h !== '') : (courseForm.highlights || []);
+      const data = { 
+        title: courseForm.title,
+        subtitle: courseForm.subtitle,
+        description: courseForm.description,
+        imageUrl: finalImageUrl,
+        category: courseForm.category,
+        rating: Number(courseForm.rating),
+        lessons: courseForm.lessons,
+        highlights: highlightsArray,
+        buyLink: courseForm.buyLink,
+        order: Number(courseForm.order)
+      };
+
+      if (editingCourseId) {
+        const docRef = doc(db, 'courses', editingCourseId);
+        updateDocumentNonBlocking(docRef, data);
+        toast({ title: "Course Updated" });
+      } else {
+        const colRef = collection(db, 'courses');
+        addDocumentNonBlocking(colRef, { ...data, createdAt: serverTimestamp() });
+        toast({ title: "Course Added" });
+      }
+
+      setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
+      setEditingCourseId(null);
+      setSelectedFiles(prev => ({ ...prev, course: null }));
+      setUploadProgress(null);
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Upload Failed", description: err.message });
     }
-    setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
-    setEditingCourseId(null);
   };
 
-  const handleSaveTeam = (e: React.FormEvent) => {
+  const handleSaveTeam = async (e: React.FormEvent) => {
     e.preventDefault();
-    const data = {
-      name: teamForm.name,
-      role: teamForm.role,
-      bio: teamForm.bio,
-      imageUrl: teamForm.imageUrl,
-      isFounder: teamForm.isFounder,
-      order: Number(teamForm.order)
-    };
+    let finalImageUrl = teamForm.imageUrl;
 
-    if (editingMemberId) {
-      const docRef = doc(db, 'team', editingMemberId);
-      updateDocumentNonBlocking(docRef, data);
-      toast({ title: "Team Member Updated" });
-    } else {
-      const colRef = collection(db, 'team');
-      addDocumentNonBlocking(colRef, { ...data, createdAt: serverTimestamp() });
-      toast({ title: "Team Member Added" });
+    try {
+      if (selectedFiles['team']) {
+        finalImageUrl = await uploadFile(selectedFiles['team'], 'team');
+      }
+
+      const data = {
+        name: teamForm.name,
+        role: teamForm.role,
+        bio: teamForm.bio,
+        imageUrl: finalImageUrl,
+        isFounder: teamForm.isFounder,
+        order: Number(teamForm.order)
+      };
+
+      if (editingMemberId) {
+        const docRef = doc(db, 'team', editingMemberId);
+        updateDocumentNonBlocking(docRef, data);
+        toast({ title: "Team Member Updated" });
+      } else {
+        const colRef = collection(db, 'team');
+        addDocumentNonBlocking(colRef, { ...data, createdAt: serverTimestamp() });
+        toast({ title: "Team Member Added" });
+      }
+
+      setTeamForm({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
+      setEditingMemberId(null);
+      setSelectedFiles(prev => ({ ...prev, team: null }));
+      setUploadProgress(null);
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Upload Failed", description: err.message });
     }
-    setTeamForm({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
-    setEditingMemberId(null);
   };
 
-  const handleSaveSlide = (e: React.FormEvent) => {
+  const handleSaveSlide = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newSlide.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
+    if (!selectedFiles['slide'] && !newSlide.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
     if (!newSlide.title) return toast({ variant: "destructive", title: "Required", description: "Title is required." });
     
-    const colRef = collection(db, 'slides');
-    addDocumentNonBlocking(colRef, { 
-      title: newSlide.title,
-      description: newSlide.description,
-      imageUrl: newSlide.imageUrl,
-      order: Number(newSlide.order), 
-      createdAt: serverTimestamp() 
-    });
+    try {
+      let finalImageUrl = newSlide.imageUrl;
+      if (selectedFiles['slide']) {
+        finalImageUrl = await uploadFile(selectedFiles['slide'], 'slides');
+      }
+
+      const colRef = collection(db, 'slides');
+      addDocumentNonBlocking(colRef, { 
+        title: newSlide.title,
+        description: newSlide.description,
+        imageUrl: finalImageUrl,
+        order: Number(newSlide.order), 
+        createdAt: serverTimestamp() 
+      });
+      
+      toast({ title: "Slide Added Successfully" });
+      setNewSlide({ title: '', description: '', imageUrl: '', order: 0 });
+      setSelectedFiles(prev => ({ ...prev, slide: null }));
+      setUploadProgress(null);
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Upload Failed", description: err.message });
+    }
+  };
+
+  const handleSaveGallery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedFiles['gallery'] && !newGalleryImg.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
     
-    toast({ title: "Slide Added Successfully" });
-    setNewSlide({ title: '', description: '', imageUrl: '', order: 0 });
+    try {
+      let finalImageUrl = newGalleryImg.imageUrl;
+      if (selectedFiles['gallery']) {
+        finalImageUrl = await uploadFile(selectedFiles['gallery'], 'gallery');
+      }
+
+      const colRef = collection(db, 'gallery');
+      addDocumentNonBlocking(colRef, { 
+        description: newGalleryImg.description,
+        imageUrl: finalImageUrl,
+        createdAt: serverTimestamp() 
+      });
+      toast({ title: "Memory Image Added" });
+      setNewGalleryImg({ description: '', imageUrl: '' });
+      setSelectedFiles(prev => ({ ...prev, gallery: null }));
+      setUploadProgress(null);
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Upload Failed", description: err.message });
+    }
   };
 
-  const handleSaveGallery = (e: React.FormEvent) => {
+  const handleSaveReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newGalleryImg.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
-    const colRef = collection(db, 'gallery');
-    addDocumentNonBlocking(colRef, { ...newGalleryImg, createdAt: serverTimestamp() });
-    toast({ title: "Memory Image Added" });
-    setNewGalleryImg({ description: '', imageUrl: '' });
-  };
+    try {
+      let finalImageUrl = newReview.userPhoto;
+      if (selectedFiles['review']) {
+        finalImageUrl = await uploadFile(selectedFiles['review'], 'reviews');
+      }
 
-  const handleSaveReview = (e: React.FormEvent) => {
-    e.preventDefault();
-    const colRef = collection(db, 'reviews');
-    addDocumentNonBlocking(colRef, { ...newReview, createdAt: serverTimestamp() });
-    toast({ title: "Testimonial Added" });
-    setNewReview({ userName: '', userPhoto: '', content: '', rating: 5 });
+      const colRef = collection(db, 'reviews');
+      addDocumentNonBlocking(colRef, { ...newReview, userPhoto: finalImageUrl, createdAt: serverTimestamp() });
+      toast({ title: "Testimonial Added" });
+      setNewReview({ userName: '', userPhoto: '', content: '', rating: 5 });
+      setSelectedFiles(prev => ({ ...prev, review: null }));
+      setUploadProgress(null);
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Upload Failed", description: err.message });
+    }
   };
 
   const handleSaveVideo = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!videoFile) return toast({ variant: "destructive", title: "Required", description: "Video file is required." });
+    if (!selectedFiles['video']) return toast({ variant: "destructive", title: "Required", description: "Video file is required." });
     
-    setUploadProgress(0);
-    const storageRef = ref(storage, `videos/${Date.now()}_${videoFile.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, videoFile);
-
-    uploadTask.on('state_changed', 
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
-      }, 
-      (error) => {
-        toast({ variant: "destructive", title: "Upload Failed", description: error.message });
-        setUploadProgress(null);
-      }, 
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          const data = { 
-            title: newVideo.title, 
-            videoUrl: downloadURL, 
-            order: Number(newVideo.order), 
-            createdAt: serverTimestamp() 
-          };
-          const colRef = collection(db, 'videos');
-          addDocumentNonBlocking(colRef, data);
-          setUploadProgress(null);
-          setVideoFile(null);
-          setNewVideo({ title: '', videoUrl: '', order: 0 });
-          toast({ title: "Showcase Video Published" });
-        });
-      }
-    );
+    try {
+      const downloadURL = await uploadFile(selectedFiles['video'], 'videos');
+      const data = { 
+        title: newVideo.title, 
+        videoUrl: downloadURL, 
+        order: Number(newVideo.order), 
+        createdAt: serverTimestamp() 
+      };
+      const colRef = collection(db, 'videos');
+      addDocumentNonBlocking(colRef, data);
+      
+      setUploadProgress(null);
+      setSelectedFiles(prev => ({ ...prev, video: null }));
+      setNewVideo({ title: '', videoUrl: '', order: 0 });
+      toast({ title: "Showcase Video Published" });
+    } catch (err: any) {
+      toast({ variant: "destructive", title: "Upload Failed", description: err.message });
+    }
   };
 
   const confirmDelete = () => {
@@ -346,6 +414,17 @@ export default function Dashboard() {
                 <TabsTrigger value="branding" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Global Branding</TabsTrigger>
               </TabsList>
 
+              {/* Progress Bar for all uploads */}
+              {uploadProgress !== null && (
+                <Card className="mb-10 p-6 border-none finance-3d-shadow bg-primary text-white animate-in zoom-in-95">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="font-bold flex items-center gap-2"><Upload className="w-4 h-4" /> Processing Cloud Upload...</span>
+                    <span className="font-headline font-bold">{Math.round(uploadProgress)}%</span>
+                  </div>
+                  <Progress value={uploadProgress} className="h-3 bg-white/20" />
+                </Card>
+              )}
+
               <TabsContent value="videos">
                 <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
                   <CardHeader className="bg-primary text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Video className="w-6 h-6" /> Success Stories Video Manager</CardTitle></CardHeader>
@@ -355,16 +434,10 @@ export default function Dashboard() {
                         <div className="space-y-2"><Label>Video Caption/Title</Label><Input value={newVideo.title} onChange={e => setNewVideo({...newVideo, title: e.target.value})} className="rounded-xl h-12" placeholder="e.g. Student Leadership Workshop" /></div>
                         <div className="space-y-2"><Label>Display Sequence Order</Label><Input type="number" value={newVideo.order} onChange={e => setNewVideo({...newVideo, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div>
                         <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-14 bg-slate-50" onClick={() => videoFileInputRef.current?.click()}>
-                          <Upload className="w-4 h-4 mr-2" /> {videoFile ? 'Change Selected File' : 'Select Video (max 30MB)'}
+                          <Upload className="w-4 h-4 mr-2" /> {selectedFiles['video'] ? 'Change Selected File' : 'Select Video (max 30MB)'}
                         </Button>
                         <input type="file" ref={videoFileInputRef} onChange={e => handleFileChange(e, 'video')} accept="video/*" className="hidden" />
-                        {uploadProgress !== null && (
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-xs font-bold text-primary"><span>Uploading to Firebase Storage...</span><span>{Math.round(uploadProgress)}%</span></div>
-                            <Progress value={uploadProgress} className="h-2" />
-                          </div>
-                        )}
-                        <Button type="submit" className="w-full h-14 rounded-xl shadow-lg font-bold text-lg" disabled={uploadProgress !== null || !videoFile}>
+                        <Button type="submit" className="w-full h-14 rounded-xl shadow-lg font-bold text-lg" disabled={uploadProgress !== null || !selectedFiles['video']}>
                           {uploadProgress !== null ? 'Uploading Media...' : 'Add Video to Showcase'}
                         </Button>
                       </div>
@@ -419,10 +492,10 @@ export default function Dashboard() {
                           <div className="space-y-2"><Label>Rating</Label><Input type="number" step="0.1" value={courseForm.rating} onChange={e => setCourseForm({...courseForm, rating: parseFloat(e.target.value) || 0})} className="rounded-xl h-12" /></div>
                           <div className="space-y-2"><Label>Display Order</Label><Input type="number" value={courseForm.order} onChange={e => setCourseForm({...courseForm, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div>
                         </div>
-                        <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-12" onClick={() => courseFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {courseForm.imageUrl ? 'Change Banner' : 'Upload Course Cover'}</Button>
+                        <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-12" onClick={() => courseFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {selectedFiles['course'] ? 'Change Banner' : 'Upload Course Cover'}</Button>
                         <input type="file" ref={courseFileInputRef} onChange={e => handleFileChange(e, 'course')} accept="image/*" className="hidden" />
                         <div className="flex gap-4">
-                          <Button type="submit" className="flex-1 h-14 rounded-xl font-bold text-lg">{(editingCourseId ? 'Apply Changes' : 'Publish Course')}</Button>
+                          <Button type="submit" className="flex-1 h-14 rounded-xl font-bold text-lg" disabled={uploadProgress !== null}>{(editingCourseId ? 'Apply Changes' : 'Publish Course')}</Button>
                           {editingCourseId && <Button type="button" variant="ghost" className="h-14 w-14 p-0 rounded-xl bg-slate-100" onClick={() => {setEditingCourseId(null); setCourseForm({id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0})}}><XCircle className="w-6 h-6 text-slate-400" /></Button>}
                         </div>
                       </div>
@@ -458,10 +531,10 @@ export default function Dashboard() {
                           <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-xl border"><Switch checked={teamForm.isFounder} onCheckedChange={v => setTeamForm({...teamForm, isFounder: v})} /><Label className="font-bold">Founder Badge</Label></div>
                           <div className="space-y-2"><Label>Directory Order</Label><Input type="number" value={teamForm.order} onChange={e => setTeamForm({...teamForm, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div>
                         </div>
-                        <Button type="button" variant="outline" className="w-full rounded-xl h-12 border-dashed" onClick={() => teamFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload Portrait</Button>
+                        <Button type="button" variant="outline" className="w-full rounded-xl h-12 border-dashed" onClick={() => teamFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {selectedFiles['team'] ? 'Change Portrait' : 'Upload Portrait'}</Button>
                         <input type="file" ref={teamFileInputRef} onChange={e => handleFileChange(e, 'team')} accept="image/*" className="hidden" />
                         <div className="flex gap-4">
-                          <Button type="submit" className="flex-1 h-14 rounded-xl font-bold text-lg">{(editingMemberId ? 'Save Changes' : 'Add to Faculty')}</Button>
+                          <Button type="submit" className="flex-1 h-14 rounded-xl font-bold text-lg" disabled={uploadProgress !== null}>{(editingMemberId ? 'Save Changes' : 'Add to Faculty')}</Button>
                           {editingMemberId && <Button type="button" variant="ghost" className="h-14 w-14 p-0 rounded-xl bg-slate-100" onClick={() => {setEditingMemberId(null); setTeamForm({id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0})}}><XCircle className="w-6 h-6 text-slate-400" /></Button>}
                         </div>
                       </div>
@@ -498,9 +571,9 @@ export default function Dashboard() {
                         <div className="space-y-2"><Label>Student/Parent Identity</Label><Input value={newReview.userName} onChange={e => setNewReview({...newReview, userName: e.target.value})} className="rounded-xl h-12" required /></div>
                         <div className="space-y-2"><Label>Shared Feedback</Label><Textarea value={newReview.content} onChange={e => setNewReview({...newReview, content: e.target.value})} className="rounded-xl min-h-[120px]" required /></div>
                         <div className="space-y-2"><Label>Satisfaction Rating (1-5)</Label><Input type="number" min="1" max="5" value={newReview.rating} onChange={e => setNewReview({...newReview, rating: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div>
-                        <Button type="button" variant="outline" className="w-full h-12 rounded-xl border-dashed" onClick={() => reviewFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload Portrait</Button>
+                        <Button type="button" variant="outline" className="w-full h-12 rounded-xl border-dashed" onClick={() => reviewFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {selectedFiles['review'] ? 'Change Portrait' : 'Upload Portrait'}</Button>
                         <input type="file" ref={reviewFileInputRef} onChange={e => handleFileChange(e, 'review')} accept="image/*" className="hidden" />
-                        <Button type="submit" className="w-full h-14 font-bold text-lg rounded-xl shadow-lg">Save Testimonial</Button>
+                        <Button type="submit" className="w-full h-14 font-bold text-lg rounded-xl shadow-lg" disabled={uploadProgress !== null}>Save Testimonial</Button>
                       </div>
                       <div className="flex flex-col items-center justify-center p-10 border-4 border-slate-50 rounded-[2.5rem] bg-slate-50 finance-3d-shadow-inner">
                         <div className="flex items-center gap-6 mb-6">
@@ -551,10 +624,10 @@ export default function Dashboard() {
                         <Input placeholder="Description (Optional)" value={newSlide.description} onChange={e => setNewSlide({...newSlide, description: e.target.value})} className="rounded-xl h-12" />
                         <Input type="number" placeholder="Sequence (Order)" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" />
                         <Button type="button" variant="outline" className="w-full h-12 border-dashed" onClick={() => slideFileInputRef.current?.click()}>
-                          <Upload className="w-4 h-4 mr-2" /> {newSlide.imageUrl ? 'Change Slide Image' : 'Pick Slide Image'}
+                          <Upload className="w-4 h-4 mr-2" /> {selectedFiles['slide'] ? 'Change Slide Image' : 'Pick Slide Image'}
                         </Button>
                         <input type="file" ref={slideFileInputRef} onChange={e => handleFileChange(e, 'slide')} accept="image/*" className="hidden" />
-                        <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={!newSlide.imageUrl}>
+                        <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={uploadProgress !== null || (!selectedFiles['slide'] && !newSlide.imageUrl)}>
                           <PlusCircle className="w-4 h-4 mr-2" /> Add to Carousel
                         </Button>
                       </form>
@@ -583,9 +656,9 @@ export default function Dashboard() {
                     <CardContent className="p-8 space-y-6">
                       <form onSubmit={handleSaveGallery} className="space-y-4">
                         <Input placeholder="Short Narrative" value={newGalleryImg.description} onChange={e => setNewGalleryImg({...newGalleryImg, description: e.target.value})} className="rounded-xl h-12" />
-                        <Button type="button" variant="outline" className="w-full h-12 border-dashed" onClick={() => galleryFileInputRef.current?.click()}>Pick Gallery Image</Button>
+                        <Button type="button" variant="outline" className="w-full h-12 border-dashed" onClick={() => galleryFileInputRef.current?.click()}>{selectedFiles['gallery'] ? 'Change Gallery Image' : 'Pick Gallery Image'}</Button>
                         <input type="file" ref={galleryFileInputRef} onChange={e => handleFileChange(e, 'gallery')} accept="image/*" className="hidden" />
-                        <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={!newGalleryImg.imageUrl}>Publish to Gallery</Button>
+                        <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={uploadProgress !== null || (!selectedFiles['gallery'] && !newGalleryImg.imageUrl)}>Publish to Gallery</Button>
                       </form>
                       <div className="grid grid-cols-3 gap-3 pt-6 border-t">
                         {galleryItems?.map(g => (
