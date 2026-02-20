@@ -90,6 +90,30 @@
       "description": "Outdoor group learning",
       "imageUrl": "https://picsum.photos/seed/gal6/800/600",
       "imageHint": "campus life"
+    },
+    {
+      "id": "team-ceo",
+      "description": "CEO Profile",
+      "imageUrl": "https://picsum.photos/seed/ceo1/400/400",
+      "imageHint": "professional man"
+    },
+    {
+      "id": "team-cofounder",
+      "description": "Co-Founder Profile",
+      "imageUrl": "https://picsum.photos/seed/cofounder1/400/400",
+      "imageHint": "professional woman"
+    },
+    {
+      "id": "team-manager1",
+      "description": "General Manager",
+      "imageUrl": "https://picsum.photos/seed/gm1/400/400",
+      "imageHint": "professional person"
+    },
+    {
+      "id": "team-techhead",
+      "description": "Tech Head",
+      "imageUrl": "https://picsum.photos/seed/tech1/400/400",
+      "imageHint": "software engineer"
     }
   ]
 }

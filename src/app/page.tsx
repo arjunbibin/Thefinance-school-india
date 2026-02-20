@@ -21,7 +21,8 @@ import {
   MessageCircle, 
   Target,
   CircleCheckBig,
-  ArrowRight
+  ArrowRight,
+  Users
 } from 'lucide-react';
 
 export default function Home() {
@@ -122,10 +123,15 @@ export default function Home() {
 
         <div className="space-y-4">
           <ShowcaseSlideshow />
-          <div className="flex justify-center animate-in fade-in slide-in-from-bottom-5 duration-700">
-            <Link href="/gallery">
-              <Button className="h-14 md:h-16 px-8 md:px-10 rounded-2xl bg-primary text-white font-bold text-base md:text-lg finance-3d-shadow hover:scale-105 transition-transform flex items-center gap-3">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-6 animate-in fade-in slide-in-from-bottom-5 duration-700 px-6">
+            <Link href="/gallery" className="w-full md:w-auto">
+              <Button className="h-14 md:h-16 px-8 md:px-10 rounded-2xl bg-primary text-white font-bold text-base md:text-lg finance-3d-shadow hover:scale-105 transition-transform flex items-center gap-3 w-full">
                 See More Memories <ArrowRight className="w-6 h-6" />
+              </Button>
+            </Link>
+            <Link href="/team" className="w-full md:w-auto">
+              <Button variant="outline" className="h-14 md:h-16 px-8 md:px-10 rounded-2xl border-2 border-primary text-primary font-bold text-base md:text-lg finance-3d-shadow hover:scale-105 transition-transform flex items-center gap-3 w-full bg-white">
+                View Our Team <Users className="w-6 h-6" />
               </Button>
             </Link>
           </div>
