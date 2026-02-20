@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -21,6 +20,20 @@ export default function Footer() {
 
   const logoUrl = branding?.logoUrl || "https://firebasestorage.googleapis.com/v0/b/studio-6721629864-6b462.firebasestorage.app/o/logo%2Flogo.png?alt=media&token=1c70983d-c10f-440b-a75b-99d4013b1c9c";
   const appName = branding?.appName || 'The Finance School India';
+  
+  const socialLinks = {
+    whatsapp: branding?.whatsappUrl || "#",
+    facebook: branding?.facebookUrl || "#",
+    instagram: branding?.instagramUrl || "#",
+    youtube: branding?.youtubeUrl || "#",
+    email: branding?.emailAddress ? `mailto:${branding.emailAddress}` : "mailto:support@financeschool.in"
+  };
+
+  const handleSocialClick = (url: string) => {
+    if (url && url !== "#") {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   return (
     <footer className="bg-primary text-white pt-24 pb-12 px-6">
@@ -44,21 +57,41 @@ export default function Footer() {
             An Edu-Tech initiative focused on building financial awareness, leadership skills, and real-life readiness among children.
           </p>
           <div className="flex flex-wrap gap-4">
-            <div className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" title="WhatsApp">
+            <button 
+              onClick={() => handleSocialClick(socialLinks.whatsapp)}
+              className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" 
+              title="WhatsApp"
+            >
               <MessageCircle className="w-5 h-5" />
-            </div>
-            <div className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" title="Facebook">
+            </button>
+            <button 
+              onClick={() => handleSocialClick(socialLinks.facebook)}
+              className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" 
+              title="Facebook"
+            >
               <Facebook className="w-5 h-5" />
-            </div>
-            <div className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" title="Instagram">
+            </button>
+            <button 
+              onClick={() => handleSocialClick(socialLinks.instagram)}
+              className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" 
+              title="Instagram"
+            >
               <Instagram className="w-5 h-5" />
-            </div>
-            <div className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" title="YouTube">
+            </button>
+            <button 
+              onClick={() => handleSocialClick(socialLinks.youtube)}
+              className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" 
+              title="YouTube"
+            >
               <Youtube className="w-5 h-5" />
-            </div>
-            <div className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" title="Email">
+            </button>
+            <button 
+              onClick={() => handleSocialClick(socialLinks.email)}
+              className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" 
+              title="Email"
+            >
               <Mail className="w-5 h-5" />
-            </div>
+            </button>
           </div>
         </div>
 
@@ -90,7 +123,9 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
         <p>© 2024 {appName}. Building tomorrow's entrepreneurs.</p>
         <div className="flex gap-8">
-          <span className="flex items-center gap-2"><Mail className="w-4 h-4" /> support@financeschool.in</span>
+          <span className="flex items-center gap-2">
+            <Mail className="w-4 h-4" /> {branding?.emailAddress || "support@financeschool.in"}
+          </span>
         </div>
       </div>
     </footer>

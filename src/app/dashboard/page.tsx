@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -55,7 +54,12 @@ import {
   ImageIcon,
   Globe,
   Layout,
-  Clapperboard
+  Clapperboard,
+  Mail,
+  Facebook,
+  Instagram,
+  Youtube,
+  MessageCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -113,8 +117,31 @@ export default function Dashboard() {
   const { data: branding } = useDoc(brandingRef);
 
   // --- STATES ---
-  const [brandingForm, setBrandingForm] = useState({ appName: '', logoUrl: '', tagline: '' });
-  useEffect(() => { if (branding) setBrandingForm({ appName: branding.appName || '', logoUrl: branding.logoUrl || '', tagline: branding.tagline || '' }); }, [branding]);
+  const [brandingForm, setBrandingForm] = useState({ 
+    appName: '', 
+    logoUrl: '', 
+    tagline: '',
+    whatsappUrl: '',
+    facebookUrl: '',
+    instagramUrl: '',
+    youtubeUrl: '',
+    emailAddress: ''
+  });
+
+  useEffect(() => { 
+    if (branding) {
+      setBrandingForm({ 
+        appName: branding.appName || '', 
+        logoUrl: branding.logoUrl || '', 
+        tagline: branding.tagline || '',
+        whatsappUrl: branding.whatsappUrl || '',
+        facebookUrl: branding.facebookUrl || '',
+        instagramUrl: branding.instagramUrl || '',
+        youtubeUrl: branding.youtubeUrl || '',
+        emailAddress: branding.emailAddress || ''
+      }); 
+    }
+  }, [branding]);
 
   const [courseForm, setCourseForm] = useState({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
@@ -185,8 +212,10 @@ export default function Dashboard() {
 
   const handleSaveBranding = (e: React.FormEvent) => {
     e.preventDefault();
-    setDocumentNonBlocking(brandingRef!, brandingForm, { merge: true });
-    toast({ title: "Branding Updated Successfully" });
+    if (brandingRef) {
+      setDocumentNonBlocking(brandingRef, brandingForm, { merge: true });
+      toast({ title: "Branding & Social Updated" });
+    }
   };
 
   const handleSaveCourse = async (e: React.FormEvent) => {
@@ -328,7 +357,7 @@ export default function Dashboard() {
                 <TabsTrigger value="courses" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Academic Courses</TabsTrigger>
                 <TabsTrigger value="team" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Leadership Team</TabsTrigger>
                 <TabsTrigger value="assets" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Slides & Gallery</TabsTrigger>
-                <TabsTrigger value="branding" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Global Branding</TabsTrigger>
+                <TabsTrigger value="branding" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Configuration</TabsTrigger>
               </TabsList>
 
               {uploadProgress !== null && (
@@ -537,8 +566,45 @@ export default function Dashboard() {
 
               <TabsContent value="branding">
                 <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
-                  <CardHeader className="bg-slate-900 text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Settings className="w-6 h-6" /> Branding Configuration</CardTitle></CardHeader>
-                  <CardContent className="p-10"><form onSubmit={handleSaveBranding} className="max-w-2xl space-y-6"><div className="space-y-2"><Label>Name</Label><Input value={brandingForm.appName} onChange={e => setBrandingForm({...brandingForm, appName: e.target.value})} className="rounded-xl h-12" /></div><div className="space-y-2"><Label>Tagline</Label><Input value={brandingForm.tagline} onChange={e => setBrandingForm({...brandingForm, tagline: e.target.value})} className="rounded-xl h-12" /></div><div className="space-y-2"><Label>Logo URL</Label><Input value={brandingForm.logoUrl} onChange={e => setBrandingForm({...brandingForm, logoUrl: e.target.value})} className="rounded-xl h-12" /></div><Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg bg-slate-900 text-white">Save Institutional Profile</Button></form></CardContent>
+                  <CardHeader className="bg-slate-900 text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Settings className="w-6 h-6" /> Configuration & Social Links</CardTitle></CardHeader>
+                  <CardContent className="p-10">
+                    <form onSubmit={handleSaveBranding} className="max-w-4xl grid md:grid-cols-2 gap-x-12 gap-y-6">
+                      <div className="space-y-6">
+                        <h3 className="font-headline font-bold text-xl text-primary border-b pb-2">Identity</h3>
+                        <div className="space-y-2"><Label>Institutional Name</Label><Input value={brandingForm.appName} onChange={e => setBrandingForm({...brandingForm, appName: e.target.value})} className="rounded-xl h-12" /></div>
+                        <div className="space-y-2"><Label>Brand Tagline</Label><Input value={brandingForm.tagline} onChange={e => setBrandingForm({...brandingForm, tagline: e.target.value})} className="rounded-xl h-12" /></div>
+                        <div className="space-y-2"><Label>Logo URL</Label><Input value={brandingForm.logoUrl} onChange={e => setBrandingForm({...brandingForm, logoUrl: e.target.value})} className="rounded-xl h-12" /></div>
+                      </div>
+
+                      <div className="space-y-6">
+                        <h3 className="font-headline font-bold text-xl text-primary border-b pb-2">Social & Contact</h3>
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2"><MessageCircle className="w-4 h-4" /> WhatsApp Link</Label>
+                          <Input value={brandingForm.whatsappUrl} onChange={e => setBrandingForm({...brandingForm, whatsappUrl: e.target.value})} className="rounded-xl h-12" placeholder="https://wa.me/..." />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2"><Facebook className="w-4 h-4" /> Facebook URL</Label>
+                          <Input value={brandingForm.facebookUrl} onChange={e => setBrandingForm({...brandingForm, facebookUrl: e.target.value})} className="rounded-xl h-12" placeholder="https://facebook.com/..." />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2"><Instagram className="w-4 h-4" /> Instagram URL</Label>
+                          <Input value={brandingForm.instagramUrl} onChange={e => setBrandingForm({...brandingForm, instagramUrl: e.target.value})} className="rounded-xl h-12" placeholder="https://instagram.com/..." />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2"><Youtube className="w-4 h-4" /> YouTube Channel URL</Label>
+                          <Input value={brandingForm.youtubeUrl} onChange={e => setBrandingForm({...brandingForm, youtubeUrl: e.target.value})} className="rounded-xl h-12" placeholder="https://youtube.com/..." />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2"><Mail className="w-4 h-4" /> Support Email</Label>
+                          <Input value={brandingForm.emailAddress} onChange={e => setBrandingForm({...brandingForm, emailAddress: e.target.value})} className="rounded-xl h-12" placeholder="support@..." />
+                        </div>
+                      </div>
+                      
+                      <div className="md:col-span-2 pt-6">
+                        <Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg bg-slate-900 text-white">Save Institutional Profile</Button>
+                      </div>
+                    </form>
+                  </CardContent>
                 </Card>
               </TabsContent>
             </Tabs>

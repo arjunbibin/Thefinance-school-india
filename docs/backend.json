@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "UserProfile": {
@@ -51,7 +50,12 @@
       "properties": {
         "appName": { "type": "string" },
         "logoUrl": { "type": "string" },
-        "tagline": { "type": "string" }
+        "tagline": { "type": "string" },
+        "whatsappUrl": { "type": "string", "format": "uri" },
+        "facebookUrl": { "type": "string", "format": "uri" },
+        "instagramUrl": { "type": "string", "format": "uri" },
+        "youtubeUrl": { "type": "string", "format": "uri" },
+        "emailAddress": { "type": "string", "format": "email" }
       }
     },
     "Slide": {
