@@ -95,6 +95,7 @@
         "rating": { "type": "number" },
         "lessons": { "type": "string" },
         "highlights": { "type": "array", "items": { "type": "string" } },
+        "buyLink": { "type": "string", "format": "uri", "description": "External link for course registration/payment" },
         "order": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
       },

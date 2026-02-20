@@ -2,9 +2,10 @@
 "use client"
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { PlayCircle, Award, Users, Briefcase, Star, CheckCircle2, BookOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { PlayCircle, Award, Users, Briefcase, Star, CheckCircle2, BookOpen, ShoppingCart, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -20,7 +21,8 @@ const DEFAULT_COURSES = [
     category: "Foundational",
     lessons: "13+ Topics",
     rating: 4.8,
-    highlights: ["Needs vs Wants", "Banking Basics", "Compounding Magic"]
+    highlights: ["Needs vs Wants", "Banking Basics", "Compounding Magic"],
+    buyLink: "https://financeschool.in/register"
   },
   {
     id: 'course-2',
@@ -31,7 +33,8 @@ const DEFAULT_COURSES = [
     category: "Leadership",
     lessons: "18+ Topics",
     rating: 4.9,
-    highlights: ["Public Speaking", "Emotional Intelligence", "Personal Branding"]
+    highlights: ["Public Speaking", "Emotional Intelligence", "Personal Branding"],
+    buyLink: "https://financeschool.in/register"
   },
   {
     id: 'course-3',
@@ -42,7 +45,8 @@ const DEFAULT_COURSES = [
     category: "Premium",
     lessons: "Full Suite",
     rating: 5.0,
-    highlights: ["Business Strategy", "Ethical Leadership", "Practical Case Studies"]
+    highlights: ["Business Strategy", "Ethical Leadership", "Practical Case Studies"],
+    buyLink: "https://financeschool.in/register"
   }
 ];
 
@@ -67,12 +71,18 @@ export default function CourseCatalog() {
     );
   }
 
+  const handleBuyNow = (link: string) => {
+    if (link) {
+      window.open(link, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <section id="courses" className="py-12 md:py-16 px-6 max-w-7xl mx-auto relative overflow-hidden">
       <div className="absolute top-1/4 -right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
       
       <div className="mb-12 text-center animate-in fade-in slide-in-from-top-10 duration-1000">
-        <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50">Our Programs</Badge>
+        <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">Our Programs</Badge>
         <h2 className="text-4xl md:text-6xl font-headline font-bold mb-4 tracking-tight">Courses Designed for <span className="text-primary underline decoration-accent underline-offset-8">Future Leaders</span></h2>
         <p className="text-muted-foreground max-w-2xl mx-auto text-lg italic">"Building financial awareness and real-life readiness among children."</p>
       </div>
@@ -121,7 +131,7 @@ export default function CourseCatalog() {
                 </CardDescription>
               </CardHeader>
 
-              <CardContent className="pt-0 pb-8 space-y-3">
+              <CardContent className="pt-0 pb-4 space-y-3">
                 <div className="grid grid-cols-1 gap-2">
                   {course.highlights?.map((item: string, i: number) => (
                     <div key={i} className="flex items-center gap-2 text-xs font-medium text-slate-600">
@@ -131,6 +141,15 @@ export default function CourseCatalog() {
                   ))}
                 </div>
               </CardContent>
+
+              <CardFooter className="pt-0 pb-8 px-6">
+                <Button 
+                  onClick={() => handleBuyNow(course.buyLink)}
+                  className="w-full h-12 bg-primary text-white font-bold rounded-xl shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group/btn"
+                >
+                  <ShoppingCart className="w-5 h-5" /> Buy Now <ArrowRight className="w-4 h-4 ml-1 group-hover/btn:translate-x-1 transition-transform" />
+                </Button>
+              </CardFooter>
             </Card>
           );
         })}

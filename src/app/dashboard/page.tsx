@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth } from '@/firebase';
 import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp, setDoc } from 'firebase/firestore';
-import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon, Camera, BookOpen, Star, Plus, Edit2, Check, Tag } from 'lucide-react';
+import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon, Camera, BookOpen, Star, Plus, Edit2, Check, Tag, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -68,6 +68,7 @@ export default function Dashboard() {
     rating: 5.0, 
     lessons: '', 
     highlights: '', 
+    buyLink: '',
     order: 0 
   });
   const [coursePreview, setCoursePreview] = useState<string | null>(null);
@@ -209,7 +210,7 @@ export default function Dashboard() {
         toast({ title: "Course Added", description: `${courseForm.title} has been added to the catalog.` });
       }
       
-      setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', order: courses ? courses.length + 1 : 0 });
+      setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: courses ? courses.length + 1 : 0 });
       setCoursePreview(null);
       setEditingCourseId(null);
       if (courseFileInputRef.current) courseFileInputRef.current.value = '';
@@ -232,6 +233,7 @@ export default function Dashboard() {
       rating: course.rating || 5.0,
       lessons: course.lessons || '',
       highlights: course.highlights?.join(', ') || '',
+      buyLink: course.buyLink || '',
       order: course.order || 0
     });
     setCoursePreview(course.imageUrl);
@@ -305,7 +307,7 @@ export default function Dashboard() {
                       <div className="space-y-2">
                         <Label>Category</Label>
                         <Input 
-                          placeholder="e.g. Foundational, Premium, New Category" 
+                          placeholder="e.g. Foundational, Premium" 
                           value={courseForm.category} 
                           onChange={(e) => setCourseForm({...courseForm, category: e.target.value})} 
                           className="rounded-xl" 
@@ -335,6 +337,10 @@ export default function Dashboard() {
                       </div>
                     </div>
                     <div className="space-y-2">
+                      <Label>Buy/Registration Link (URL)</Label>
+                      <Input placeholder="https://..." value={courseForm.buyLink} onChange={(e) => setCourseForm({...courseForm, buyLink: e.target.value})} className="rounded-xl" />
+                    </div>
+                    <div className="space-y-2">
                       <Label>Highlights (comma separated)</Label>
                       <Input placeholder="e.g. Needs vs Wants, Banking Basics" value={courseForm.highlights} onChange={(e) => setCourseForm({...courseForm, highlights: e.target.value})} className="rounded-xl" />
                     </div>
@@ -350,7 +356,7 @@ export default function Dashboard() {
                         {isCourseProcessing ? 'Saving...' : editingCourseId ? 'Update Course' : 'Add Course'}
                       </Button>
                       {editingCourseId && (
-                        <Button type="button" variant="outline" onClick={() => { setEditingCourseId(null); setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', order: 0 }); setCoursePreview(null); }} className="h-14 rounded-xl mt-4">
+                        <Button type="button" variant="outline" onClick={() => { setEditingCourseId(null); setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 }); setCoursePreview(null); }} className="h-14 rounded-xl mt-4">
                           Cancel
                         </Button>
                       )}
@@ -368,10 +374,11 @@ export default function Dashboard() {
                        </div>
                        <h3 className="text-xl font-bold text-primary">{courseForm.title || 'Course Title'}</h3>
                        <p className="text-sm text-accent font-bold uppercase">{courseForm.subtitle || 'Course Subtitle'}</p>
-                       <div className="mt-2 flex items-center gap-2">
-                         <Tag className="w-3 h-3 text-muted-foreground" />
-                         <span className="text-xs font-medium text-muted-foreground">{courseForm.category}</span>
-                       </div>
+                       {courseForm.buyLink && (
+                         <div className="mt-2 flex items-center gap-2 text-xs font-bold text-green-600">
+                           <ExternalLink className="w-3 h-3" /> Registration Link Active
+                         </div>
+                       )}
                     </div>
                   </div>
                 </form>
@@ -529,11 +536,6 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ))}
-                  {(!galleryItems || galleryItems.length === 0) && (
-                    <div className="col-span-full py-12 text-center text-muted-foreground font-medium bg-slate-50 rounded-3xl border-2 border-dashed">
-                      No images in gallery yet.
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>
