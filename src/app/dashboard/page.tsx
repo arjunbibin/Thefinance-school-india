@@ -11,9 +11,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { Progress } from '@/components/ui/progress';
+import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth, useStorage, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
-import { LogOut, ShieldAlert, Users, Trash2, Upload, BookOpen, Plus, Edit2, XCircle, UserSquare, Star, Video, Play, AlertCircle } from 'lucide-react';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { LogOut, ShieldAlert, Users, Trash2, Upload, BookOpen, Plus, Edit2, XCircle, UserSquare, Star, Video, Play, AlertCircle, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -21,6 +23,7 @@ export default function Dashboard() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const db = useFirestore();
+  const storage = useStorage();
   const router = useRouter();
   const { toast } = useToast();
   
@@ -75,6 +78,9 @@ export default function Dashboard() {
   const [newGalleryImg, setNewGalleryImg] = useState({ description: '', imageUrl: '' });
   const [newReview, setNewReview] = useState({ userName: '', userPhoto: '', content: '', rating: 5 });
   const [newVideo, setNewVideo] = useState({ title: '', videoUrl: '', order: 0 });
+  
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -84,14 +90,19 @@ export default function Dashboard() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'slide' | 'gallery' | 'course' | 'team' | 'review' | 'video') => {
     const file = e.target.files?.[0];
     if (file) {
-      // Size check: Firestore document limit is 1MB. 
-      // Base64 adds ~33% overhead. So 700KB is a safe max file size.
+      if (type === 'video') {
+        if (file.size > 30 * 1024 * 1024) {
+          toast({ variant: "destructive", title: "File Too Large", description: "Videos are limited to 30MB." });
+          return;
+        }
+        setVideoFile(file);
+        setNewVideo({ ...newVideo, videoUrl: URL.createObjectURL(file) });
+        return;
+      }
+
+      // For images, keep Base64 for simplicity since they are small
       if (file.size > 700 * 1024) {
-        toast({ 
-          variant: "destructive", 
-          title: "File Too Large", 
-          description: "Please use a file smaller than 700KB. Firestore limits apply." 
-        });
+        toast({ variant: "destructive", title: "File Too Large", description: "Images must be smaller than 700KB." });
         return;
       }
 
@@ -103,7 +114,6 @@ export default function Dashboard() {
         else if (type === 'course') setCourseForm({ ...courseForm, imageUrl: base64 });
         else if (type === 'team') setTeamForm({ ...teamForm, imageUrl: base64 });
         else if (type === 'review') setNewReview({ ...newReview, userPhoto: base64 });
-        else if (type === 'video') setNewVideo({ ...newVideo, videoUrl: base64 });
       };
       reader.readAsDataURL(file);
     }
@@ -207,25 +217,43 @@ export default function Dashboard() {
     setNewReview({ userName: '', userPhoto: '', content: '', rating: 5 });
   };
 
-  const handleSaveVideo = (e: React.FormEvent) => {
+  const handleSaveVideo = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newVideo.videoUrl) return toast({ variant: "destructive", title: "Required", description: "Video file is required." });
+    if (!videoFile) return toast({ variant: "destructive", title: "Required", description: "Video file is required." });
     
-    const colRef = collection(db, 'videos');
-    const data = { ...newVideo, order: Number(newVideo.order), createdAt: serverTimestamp() };
-    
-    addDoc(colRef, data).catch((err) => {
-      // Specifically handle potential size errors for videos
-      const errorMessage = err?.message || "";
-      if (errorMessage.includes("too large")) {
-        toast({ variant: "destructive", title: "Save Failed", description: "The video file is too large for database storage. Please use a smaller clip (< 700KB)." });
-      } else {
-        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
-      }
-    });
+    setUploadProgress(0);
+    const storageRef = ref(storage, `videos/${Date.now()}_${videoFile.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, videoFile);
 
-    toast({ title: "Saving Video...", description: "Video is being synced to the cloud." });
-    setNewVideo({ title: '', videoUrl: '', order: 0 });
+    uploadTask.on('state_changed', 
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(progress);
+      }, 
+      (error) => {
+        toast({ variant: "destructive", title: "Upload Failed", description: error.message });
+        setUploadProgress(null);
+      }, 
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          const data = { 
+            title: newVideo.title, 
+            videoUrl: downloadURL, 
+            order: Number(newVideo.order), 
+            createdAt: serverTimestamp() 
+          };
+          const colRef = collection(db, 'videos');
+          addDoc(colRef, data).catch((err) => {
+            errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
+          });
+          
+          setUploadProgress(null);
+          setVideoFile(null);
+          setNewVideo({ title: '', videoUrl: '', order: 0 });
+          toast({ title: "Video Published Successfully" });
+        });
+      }
+    );
   };
 
   const handleDeleteDoc = (path: string, id: string) => {
@@ -267,31 +295,59 @@ export default function Dashboard() {
             <CardContent className="p-10">
               <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl mb-6 flex items-start gap-3 text-sm text-slate-600">
                 <AlertCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                <p><strong>Limit:</strong> Videos must be smaller than 700KB to be stored. Use compressed MP4 clips for the best results.</p>
+                <p><strong>Capacity:</strong> Videos up to 30MB are supported via Firebase Storage. For optimal playback, use compressed MP4 files.</p>
               </div>
+              
               <form onSubmit={handleSaveVideo} className="grid md:grid-cols-2 gap-10">
                 <div className="space-y-4">
                   <div className="space-y-2"><Label>Video Title</Label><Input value={newVideo.title} onChange={e => setNewVideo({...newVideo, title: e.target.value})} className="rounded-xl" placeholder="e.g. Student Success Story" /></div>
                   <div className="space-y-2"><Label>Display Order</Label><Input type="number" value={newVideo.order} onChange={e => setNewVideo({...newVideo, order: parseInt(e.target.value)})} className="rounded-xl" /></div>
-                  <Button type="button" variant="outline" className="w-full rounded-xl border-dashed" onClick={() => videoFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {newVideo.videoUrl ? 'Change Video' : 'Upload Video clip'}</Button>
-                  <input type="file" ref={videoFileInputRef} onChange={e => handleFileChange(e, 'video')} accept="video/*" className="hidden" />
-                  <Button type="submit" className="w-full h-12 rounded-xl">Publish Video</Button>
+                  
+                  <div className="space-y-4 pt-2">
+                    <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-14" onClick={() => videoFileInputRef.current?.click()}>
+                      <Upload className="w-4 h-4 mr-2" /> {videoFile ? 'Change Video' : 'Select Video (max 30MB)'}
+                    </Button>
+                    <input type="file" ref={videoFileInputRef} onChange={e => handleFileChange(e, 'video')} accept="video/*" className="hidden" />
+                    
+                    {uploadProgress !== null && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs font-bold text-primary">
+                          <span>Uploading...</span>
+                          <span>{Math.round(uploadProgress)}%</span>
+                        </div>
+                        <Progress value={uploadProgress} className="h-2" />
+                      </div>
+                    )}
+
+                    <Button type="submit" className="w-full h-14 rounded-xl shadow-lg" disabled={uploadProgress !== null}>
+                      {uploadProgress !== null ? 'Uploading to Cloud...' : 'Publish Video'}
+                    </Button>
+                  </div>
                 </div>
+                
                 <div className="border rounded-[2rem] overflow-hidden bg-slate-900 finance-3d-shadow-inner flex items-center justify-center relative aspect-video">
                   {newVideo.videoUrl ? (
-                    <video src={newVideo.videoUrl} className="w-full h-full object-cover" controls />
+                    <video key={newVideo.videoUrl} src={newVideo.videoUrl} className="w-full h-full object-cover" controls />
                   ) : (
                     <div className="text-white/20 flex flex-col items-center gap-2">
                       <Play className="w-12 h-12 opacity-20" />
                       <p className="text-sm font-bold">Video Preview</p>
                     </div>
                   )}
+                  {uploadProgress !== null && (
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-white p-6 text-center">
+                       <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin mb-4" />
+                       <p className="font-bold">Syncing High-Quality Video</p>
+                       <p className="text-xs opacity-60">This may take a minute for larger files</p>
+                    </div>
+                  )}
                 </div>
               </form>
+
               <div className="grid md:grid-cols-4 gap-4 mt-10">
                 {videoGallery?.map(v => (
-                  <div key={v.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-2">
-                    <p className="font-bold text-xs truncate">{v.title || 'Untitled'}</p>
+                  <div key={v.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-2 group relative">
+                    <p className="font-bold text-xs truncate pr-6">{v.title || 'Untitled'}</p>
                     <div className="relative aspect-video rounded-lg overflow-hidden bg-black mb-2">
                        <video src={v.videoUrl} className="w-full h-full object-cover" />
                     </div>
@@ -334,7 +390,7 @@ export default function Dashboard() {
                     <div className="space-y-2"><Label>Order</Label><Input type="number" value={courseForm.order} onChange={e => setCourseForm({...courseForm, order: parseInt(e.target.value)})} className="rounded-xl" /></div>
                   </div>
                   <Button type="button" variant="outline" className="w-full rounded-xl border-dashed" onClick={() => courseFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {courseForm.imageUrl ? 'Change Image' : 'Upload Image'}</Button>
-                  <input type="file" ref={courseFileInputRef} onChange={e => handleFileChange(e, 'course')} accept="image/*" className="hidden" />
+                  <input type="file" id="courseImg" ref={courseFileInputRef} onChange={e => handleFileChange(e, 'course')} accept="image/*" className="hidden" />
                   <div className="flex gap-4">
                     <Button type="submit" className="flex-1 h-12 rounded-xl">{(editingCourseId ? 'Update' : 'Publish')}</Button>
                     {editingCourseId && <Button type="button" variant="ghost" onClick={() => {setEditingCourseId(null); setCourseForm({id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0})}}><XCircle className="w-4 h-4" /></Button>}
@@ -349,7 +405,7 @@ export default function Dashboard() {
                   <div key={c.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-2">
                     <p className="font-bold text-xs truncate">{c.title}</p>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="h-8 rounded-lg flex-1" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: c.highlights.join(', ')})}}><Edit2 className="w-3 h-3" /></Button>
+                      <Button variant="outline" size="sm" className="h-8 rounded-lg flex-1" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')})}}><Edit2 className="w-3 h-3" /></Button>
                       <Button variant="destructive" size="sm" className="h-8 w-8 p-0" onClick={() => handleDeleteDoc('courses', c.id)}><Trash2 className="w-3 h-3" /></Button>
                     </div>
                   </div>
@@ -377,7 +433,7 @@ export default function Dashboard() {
                     <div className="space-y-2"><Label>Order</Label><Input type="number" value={teamForm.order} onChange={e => setTeamForm({...teamForm, order: parseInt(e.target.value)})} className="rounded-xl" /></div>
                   </div>
                   <Button type="button" variant="outline" className="w-full rounded-xl" onClick={() => teamFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload Portrait</Button>
-                  <input type="file" ref={teamFileInputRef} onChange={e => handleFileChange(e, 'team')} accept="image/*" className="hidden" />
+                  <input type="file" id="teamImg" ref={teamFileInputRef} onChange={e => handleFileChange(e, 'team')} accept="image/*" className="hidden" />
                   <div className="flex gap-4">
                     <Button type="submit" className="flex-1 h-12 rounded-xl">{(editingMemberId ? 'Update' : 'Add Member')}</Button>
                     {editingMemberId && <Button type="button" variant="ghost" onClick={() => {setEditingMemberId(null); setTeamForm({id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0})}}><XCircle className="w-4 h-4" /></Button>}
@@ -417,7 +473,7 @@ export default function Dashboard() {
                     <Input placeholder="Title" value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl" />
                     <Input type="number" placeholder="Order" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value)})} className="rounded-xl" />
                     <Button type="button" variant="outline" className="w-full" onClick={() => slideFileInputRef.current?.click()}>Select Slide</Button>
-                    <input type="file" ref={slideFileInputRef} onChange={e => handleFileChange(e, 'slide')} accept="image/*" className="hidden" />
+                    <input type="file" id="slideImg" ref={slideFileInputRef} onChange={e => handleFileChange(e, 'slide')} accept="image/*" className="hidden" />
                     <Button type="submit" className="w-full h-12">Add Slide</Button>
                   </form>
                   <div className="grid grid-cols-3 gap-2">
@@ -431,7 +487,7 @@ export default function Dashboard() {
                   <form onSubmit={handleSaveGallery} className="space-y-4">
                     <Input placeholder="Description" value={newGalleryImg.description} onChange={e => setNewGalleryImg({...newGalleryImg, description: e.target.value})} className="rounded-xl" />
                     <Button type="button" variant="outline" className="w-full" onClick={() => galleryFileInputRef.current?.click()}>Select Memory</Button>
-                    <input type="file" ref={galleryFileInputRef} onChange={e => handleFileChange(e, 'gallery')} accept="image/*" className="hidden" />
+                    <input type="file" id="galImg" ref={galleryFileInputRef} onChange={e => handleFileChange(e, 'gallery')} accept="image/*" className="hidden" />
                     <Button type="submit" className="w-full h-12">Add Memory</Button>
                   </form>
                   <div className="grid grid-cols-3 gap-2">
@@ -440,6 +496,50 @@ export default function Dashboard() {
                 </CardContent>
              </Card>
           </div>
+
+          {/* ADD REVIEW FORM */}
+          <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+            <CardHeader className="bg-primary text-white p-10">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-2xl"><Star className="w-6 h-6" /></div>
+                <CardTitle className="text-2xl font-headline font-bold">Add Student Review</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="p-10">
+              <form onSubmit={handleSaveReview} className="grid md:grid-cols-2 gap-10">
+                <div className="space-y-4">
+                  <div className="space-y-2"><Label>Student Name</Label><Input value={newReview.userName} onChange={e => setNewReview({...newReview, userName: e.target.value})} className="rounded-xl" required /></div>
+                  <div className="space-y-2"><Label>Feedback Content</Label><Textarea value={newReview.content} onChange={e => setNewReview({...newReview, content: e.target.value})} className="rounded-xl min-h-[100px]" required /></div>
+                  <div className="space-y-2"><Label>Rating (1-5)</Label><Input type="number" min="1" max="5" value={newReview.rating} onChange={e => setNewReview({...newReview, rating: parseInt(e.target.value) || 0})} className="rounded-xl" /></div>
+                  <Button type="button" variant="outline" className="w-full rounded-xl" onClick={() => reviewFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload Photo</Button>
+                  <input type="file" id="revImg" ref={reviewFileInputRef} onChange={e => handleFileChange(e, 'review')} accept="image/*" className="hidden" />
+                  <Button type="submit" className="w-full h-12 rounded-xl">Save Review</Button>
+                </div>
+                <div className="flex flex-col items-center justify-center p-6 border rounded-[2rem] bg-slate-50 finance-3d-shadow-inner">
+                   <div className="flex items-center gap-4 mb-4">
+                      <div className="relative w-20 h-20 rounded-2xl overflow-hidden border-2 border-white shadow-lg bg-white">
+                        {newReview.userPhoto ? <Image src={newReview.userPhoto} alt="r" fill className="object-cover" /> : <UserSquare className="w-full h-full text-slate-200" />}
+                      </div>
+                      <div>
+                         <p className="font-bold text-primary">{newReview.userName || 'Student Name'}</p>
+                         <div className="flex gap-1">
+                           {[...Array(isNaN(newReview.rating) ? 0 : Math.max(0, Math.min(5, newReview.rating)))].map((_, i) => <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
+                         </div>
+                      </div>
+                   </div>
+                   <p className="text-xs text-muted-foreground italic text-center max-w-[200px]">"{newReview.content || 'Great workshop, learned a lot about money management!'}"</p>
+                </div>
+              </form>
+              <div className="grid md:grid-cols-4 gap-4 mt-10">
+                {reviews?.map(r => (
+                  <div key={r.id} className="p-4 bg-slate-50 rounded-2xl flex items-center justify-between gap-2">
+                    <p className="text-xs font-bold truncate flex-1">{r.userName}</p>
+                    <Button variant="destructive" size="sm" className="h-6 w-6 p-0" onClick={() => handleDeleteDoc('reviews', r.id)}><Trash2 className="w-2 h-2" /></Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </main>
       <Footer />
