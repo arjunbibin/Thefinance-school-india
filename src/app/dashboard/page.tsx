@@ -27,7 +27,21 @@ import {
 } from '@/firebase';
 import { doc, collection, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { LogOut, ShieldAlert, Users, Trash2, Upload, BookOpen, XCircle, UserSquare, Star, Video, Play, AlertCircle, Edit2 } from 'lucide-react';
+import { 
+  LogOut, 
+  ShieldAlert, 
+  Users, 
+  Trash2, 
+  Upload, 
+  BookOpen, 
+  XCircle, 
+  UserSquare, 
+  Star, 
+  Video, 
+  Play, 
+  AlertCircle, 
+  Edit2 
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
