@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth } from '@/firebase';
 import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp, setDoc } from 'firebase/firestore';
-import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon, Camera, BookOpen, Star, Plus, Edit2, Check } from 'lucide-react';
+import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon, Camera, BookOpen, Star, Plus, Edit2, Check, Tag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -304,14 +304,12 @@ export default function Dashboard() {
                       </div>
                       <div className="space-y-2">
                         <Label>Category</Label>
-                        <Select value={courseForm.category} onValueChange={(v) => setCourseForm({...courseForm, category: v})}>
-                          <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Foundational">Foundational</SelectItem>
-                            <SelectItem value="Leadership">Leadership</SelectItem>
-                            <SelectItem value="Premium">Premium</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Input 
+                          placeholder="e.g. Foundational, Premium, New Category" 
+                          value={courseForm.category} 
+                          onChange={(e) => setCourseForm({...courseForm, category: e.target.value})} 
+                          className="rounded-xl" 
+                        />
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -370,6 +368,10 @@ export default function Dashboard() {
                        </div>
                        <h3 className="text-xl font-bold text-primary">{courseForm.title || 'Course Title'}</h3>
                        <p className="text-sm text-accent font-bold uppercase">{courseForm.subtitle || 'Course Subtitle'}</p>
+                       <div className="mt-2 flex items-center gap-2">
+                         <Tag className="w-3 h-3 text-muted-foreground" />
+                         <span className="text-xs font-medium text-muted-foreground">{courseForm.category}</span>
+                       </div>
                     </div>
                   </div>
                 </form>
