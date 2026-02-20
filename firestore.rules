@@ -5,29 +5,35 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+    
+    function isPrimaryAdmin() {
+      return isSignedIn() && request.auth.uid == 'bfCiMYT33fNetne0TXaLYCIu7T03';
     }
+
     function getRole() {
       return get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role;
     }
+
     function isAdmin() {
-      return isSignedIn() && getRole() == 'admin';
+      return isPrimaryAdmin() || (isSignedIn() && getRole() == 'admin');
     }
 
     match /userProfiles/{userId} {
       allow get: if isSignedIn();
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if (isSignedIn() && request.auth.uid == userId) || isAdmin();
     }
 
     match /reviews/{reviewId} {
+      allow read: if true;
       allow create: if isSignedIn();
-      allow read, update, delete: if isAdmin();
+      allow update, delete: if isAdmin();
     }
 
     match /config/branding {
       allow read: if true;
+      allow write: if isAdmin();
     }
 
     match /slides/{slideId} {

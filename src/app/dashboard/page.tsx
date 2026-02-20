@@ -12,8 +12,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth } from '@/firebase';
-import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp, setDoc } from 'firebase/firestore';
-import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon, Camera, BookOpen, Star, Plus, Edit2, Check, Tag, ExternalLink } from 'lucide-react';
+import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp, setDoc, where } from 'firebase/firestore';
+import { LogOut, ShieldAlert, UserPlus, Users, Briefcase, Trash2, Upload, Eye, Image as ImageIcon, Camera, BookOpen, Star, Plus, Edit2, Check, Tag, ExternalLink, MessageSquare, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -32,15 +32,33 @@ export default function Dashboard() {
   const profileRef = useMemoFirebase(() => user ? doc(db, 'userProfiles', user.uid) : null, [db, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
 
+  // Security Check
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+    if (profile && profile.role === 'user') {
+      auth.signOut();
+      router.push('/login');
+      toast({ variant: "destructive", title: "Unauthorized", description: "Your account has no management role." });
+    }
+  }, [user, isUserLoading, router, profile, auth, toast]);
+
+  // Authorization flag for data fetching
+  const isAuthorized = profile && profile.role !== 'user';
+
   // Lists
-  const slidesQuery = useMemoFirebase(() => query(collection(db, 'slides'), orderBy('order', 'asc')), [db]);
+  const slidesQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'slides'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
   const { data: slides } = useCollection(slidesQuery);
 
-  const galleryQuery = useMemoFirebase(() => query(collection(db, 'gallery'), orderBy('createdAt', 'desc')), [db]);
+  const galleryQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'gallery'), orderBy('createdAt', 'desc')) : null, [db, isAuthorized]);
   const { data: galleryItems } = useCollection(galleryQuery);
 
-  const coursesQuery = useMemoFirebase(() => query(collection(db, 'courses'), orderBy('order', 'asc')), [db]);
+  const coursesQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'courses'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
   const { data: courses } = useCollection(coursesQuery);
+
+  const reviewsQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'reviews'), orderBy('createdAt', 'desc')) : null, [db, isAuthorized]);
+  const { data: reviews } = useCollection(reviewsQuery);
 
   // Admin Role State
   const [targetUserId, setTargetUserId] = useState('');
@@ -74,17 +92,6 @@ export default function Dashboard() {
   const [coursePreview, setCoursePreview] = useState<string | null>(null);
   const [isCourseProcessing, setIsCourseProcessing] = useState(false);
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push('/login');
-    }
-    if (profile && profile.role === 'user') {
-      auth.signOut();
-      router.push('/login');
-      toast({ variant: "destructive", title: "Unauthorized", description: "Your account has no management role." });
-    }
-  }, [user, isUserLoading, router, profile, auth, toast]);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -221,6 +228,15 @@ export default function Dashboard() {
     }
   };
 
+  const handleApproveReview = async (id: string, currentStatus: boolean) => {
+    try {
+      await updateDoc(doc(db, 'reviews', id), { approved: !currentStatus });
+      toast({ title: currentStatus ? "Review Hidden" : "Review Published", description: currentStatus ? "Hidden from home page." : "Now visible on the home page!" });
+    } catch (error: any) {
+      toast({ variant: "destructive", title: "Action Failed", description: error.message });
+    }
+  };
+
   const handleEditCourse = (course: any) => {
     setEditingCourseId(course.id);
     setCourseForm({
@@ -250,7 +266,7 @@ export default function Dashboard() {
     }
   };
 
-  if (isUserLoading || isProfileLoading) {
+  if (isUserLoading || isProfileLoading || !isAuthorized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -284,6 +300,55 @@ export default function Dashboard() {
         </div>
 
         <div className="grid gap-12">
+          {/* Review Moderation */}
+          <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+            <CardHeader className="bg-accent text-primary p-10">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-primary/10 rounded-2xl"><MessageSquare className="w-6 h-6" /></div>
+                <div>
+                  <CardTitle className="text-2xl font-headline font-bold">Review Moderation</CardTitle>
+                  <CardDescription className="text-primary/70">Approve or remove student testimonials.</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-10">
+              <div className="grid gap-6">
+                {reviews?.map((review) => (
+                  <div key={review.id} className="flex flex-col md:flex-row items-start md:items-center gap-6 p-6 rounded-3xl bg-slate-50 border border-slate-100 finance-3d-shadow-inner transition-all hover:bg-white hover:finance-3d-shadow">
+                    <div className="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0">
+                      <Image src={review.userPhoto} alt={review.userName} fill className="object-cover" />
+                    </div>
+                    <div className="flex-grow">
+                      <div className="flex items-center gap-3 mb-1">
+                        <h4 className="font-bold text-primary">{review.userName}</h4>
+                        <Badge variant={review.approved ? "default" : "outline"} className={review.approved ? "bg-green-500" : ""}>
+                          {review.approved ? "Approved" : "Pending"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-2 italic">"{review.content}"</p>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <Button 
+                        size="icon" 
+                        variant={review.approved ? "outline" : "default"} 
+                        className={`rounded-xl ${!review.approved ? "bg-green-600 hover:bg-green-700" : ""}`}
+                        onClick={() => handleApproveReview(review.id, review.approved)}
+                      >
+                        {review.approved ? <X className="w-5 h-5" /> : <Check className="w-5 h-5" />}
+                      </Button>
+                      <Button size="icon" variant="destructive" className="rounded-xl" onClick={() => handleDeleteDoc('reviews', review.id)}>
+                        <Trash2 className="w-5 h-5" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {(!reviews || reviews.length === 0) && (
+                  <div className="text-center py-12 text-muted-foreground italic">No reviews submitted yet.</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Course Manager */}
           {isAdmin && (
             <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">

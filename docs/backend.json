@@ -34,11 +34,14 @@
       "type": "object",
       "description": "A review or feedback message submitted by a user.",
       "properties": {
+        "id": { "type": "string" },
         "userId": { "type": "string" },
         "userName": { "type": "string" },
         "userEmail": { "type": "string" },
+        "userPhoto": { "type": "string" },
         "content": { "type": "string" },
         "rating": { "type": "number" },
+        "approved": { "type": "boolean", "default": false },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "content", "createdAt"]
@@ -95,7 +98,7 @@
         "rating": { "type": "number" },
         "lessons": { "type": "string" },
         "highlights": { "type": "array", "items": { "type": "string" } },
-        "buyLink": { "type": "string", "format": "uri", "description": "External link for course registration/payment" },
+        "buyLink": { "type": "string", "format": "uri" },
         "order": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
       },

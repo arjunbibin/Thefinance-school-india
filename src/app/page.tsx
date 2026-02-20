@@ -5,6 +5,7 @@ import ThreeHero from '@/components/ThreeHero';
 import Navbar from '@/components/Navbar';
 import CourseCatalog from '@/components/sections/CourseCatalog';
 import ShowcaseSlideshow from '@/components/sections/ShowcaseSlideshow';
+import ReviewsSection from '@/components/sections/ReviewsSection';
 import Footer from '@/components/Footer';
 import FinanceIcon3D from '@/components/FinanceIcon3D';
 import { Card } from '@/components/ui/card';
@@ -129,6 +130,9 @@ export default function Home() {
             </Link>
           </div>
         </div>
+
+        {/* Reviews Section */}
+        <ReviewsSection />
 
         {/* Course Structure Section */}
         <section className="max-w-7xl mx-auto px-6 py-8 md:py-12">
