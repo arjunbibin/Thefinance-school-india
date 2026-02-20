@@ -1,4 +1,3 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -8,12 +7,12 @@ service cloud.firestore {
     
     function isStaff() {
       // Primary admin UID always has full access
-      // Other users must have a role that isn't 'user' in their profile
-      return isSignedIn() && (
-        request.auth.uid == 'bfCiMYT33fNetne0TXaLYCIu7T03' || 
-        (exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) && 
-         get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role != 'user')
-      );
+      let isAdmin = request.auth.uid == 'bfCiMYT33fNetne0TXaLYCIu7T03';
+      // Staff check: must have a profile and role != 'user'
+      let isStaffMember = exists(/databases/$(database)/documents/userProfiles/$(request.auth.uid)) && 
+                          get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role != 'user';
+      
+      return isSignedIn() && (isAdmin || isStaffMember);
     }
 
     match /userProfiles/{userId} {

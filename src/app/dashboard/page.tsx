@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -139,8 +138,8 @@ export default function Dashboard() {
         return;
       }
 
-      if (file.size > 700 * 1024) {
-        toast({ variant: "destructive", title: "File Too Large", description: "Images must be smaller than 700KB." });
+      if (file.size > 500 * 1024) {
+        toast({ variant: "destructive", title: "File Too Large", description: "Images must be smaller than 500KB to ensure smooth syncing." });
         return;
       }
 
@@ -282,7 +281,7 @@ export default function Dashboard() {
     if (!confirm("Delete this item permanently? This cannot be undone.")) return;
     const docRef = doc(db, path, id);
     deleteDocumentNonBlocking(docRef);
-    toast({ title: "Item Removed" });
+    toast({ title: "Item Removed Successfully" });
   };
 
   if (isUserLoading || isProfileLoading) {
@@ -355,7 +354,15 @@ export default function Dashboard() {
                         <div key={v.id} className="p-4 bg-slate-50 rounded-2xl relative group border">
                           <p className="font-bold text-[10px] truncate mb-2">{v.title || 'Untitled Showcase'}</p>
                           <div className="aspect-video rounded-lg overflow-hidden bg-black mb-3"><video src={v.videoUrl} className="w-full h-full object-cover" /></div>
-                          <Button type="button" variant="destructive" size="sm" className="w-full rounded-lg z-20 relative font-bold" onClick={() => handleDeleteDoc('videos', v.id)}><Trash2 className="w-3 h-3 mr-2" /> Remove</Button>
+                          <Button 
+                            type="button" 
+                            variant="destructive" 
+                            size="sm" 
+                            className="w-full rounded-lg relative z-20 font-bold" 
+                            onClick={() => handleDeleteDoc('videos', v.id)}
+                          >
+                            <Trash2 className="w-3 h-3 mr-2" /> Remove
+                          </Button>
                         </div>
                       ))}
                     </div>
@@ -403,11 +410,11 @@ export default function Dashboard() {
                     </form>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t">
                       {courses?.map(c => (
-                        <div key={c.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-3 group border">
+                        <div key={c.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-3 group border relative">
                           <p className="font-bold text-xs truncate">{c.title}</p>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 relative z-20">
                             <Button type="button" variant="outline" size="sm" className="h-10 rounded-lg flex-1 font-bold" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')})}}><Edit2 className="w-4 h-4 mr-2" /> Edit</Button>
-                            <Button type="button" variant="destructive" size="sm" className="h-10 w-10 p-0 rounded-lg relative z-30" onClick={() => handleDeleteDoc('courses', c.id)}><Trash2 className="w-4 h-4" /></Button>
+                            <Button type="button" variant="destructive" size="sm" className="h-10 w-10 p-0 rounded-lg" onClick={() => handleDeleteDoc('courses', c.id)}><Trash2 className="w-4 h-4" /></Button>
                           </div>
                         </div>
                       ))}
@@ -447,12 +454,12 @@ export default function Dashboard() {
                     </form>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t">
                       {teamMembers?.map(m => (
-                        <div key={m.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col items-center text-center gap-2 group border">
+                        <div key={m.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col items-center text-center gap-2 group border relative">
                           <div className="w-16 h-16 rounded-full overflow-hidden relative border-2 border-white shadow-md mb-2"><Image src={m.imageUrl || `https://picsum.photos/seed/${m.id}/100/100`} alt="m" fill className="object-cover" /></div>
                           <p className="text-xs font-bold truncate w-full">{m.name}</p>
-                          <div className="flex gap-2 w-full">
+                          <div className="flex gap-2 w-full relative z-20">
                             <Button type="button" variant="outline" size="sm" className="h-9 flex-1 rounded-lg" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-3 h-3" /></Button>
-                            <Button type="button" variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg relative z-30" onClick={() => handleDeleteDoc('team', m.id)}><Trash2 className="w-3 h-3" /></Button>
+                            <Button type="button" variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg" onClick={() => handleDeleteDoc('team', m.id)}><Trash2 className="w-3 h-3" /></Button>
                           </div>
                         </div>
                       ))}
@@ -492,13 +499,21 @@ export default function Dashboard() {
                     </form>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-10 border-t">
                       {reviews?.map(r => (
-                        <div key={r.id} className="p-6 bg-slate-50 rounded-[2rem] flex flex-col gap-4 relative border">
+                        <div key={r.id} className="p-6 bg-slate-50 rounded-[2rem] flex flex-col gap-4 border relative">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full overflow-hidden relative border shadow-sm"><Image src={r.userPhoto || `https://picsum.photos/seed/${r.id}/100/100`} alt="r" fill className="object-cover" /></div>
                             <p className="text-[10px] font-bold truncate flex-1">{r.userName}</p>
                           </div>
                           <p className="text-[10px] text-muted-foreground line-clamp-3 italic">"{r.content}"</p>
-                          <Button type="button" variant="destructive" size="sm" className="w-full rounded-xl relative z-30 font-bold" onClick={() => handleDeleteDoc('reviews', r.id)}><Trash2 className="w-3 h-3 mr-2" /> Delete</Button>
+                          <Button 
+                            type="button" 
+                            variant="destructive" 
+                            size="sm" 
+                            className="w-full rounded-xl relative z-20 font-bold" 
+                            onClick={() => handleDeleteDoc('reviews', r.id)}
+                          >
+                            <Trash2 className="w-3 h-3 mr-2" /> Delete
+                          </Button>
                         </div>
                       ))}
                     </div>
@@ -520,7 +535,20 @@ export default function Dashboard() {
                         <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={!newSlide.imageUrl}>Add to Carousel</Button>
                       </form>
                       <div className="grid grid-cols-3 gap-3 pt-6 border-t">
-                        {slides?.map(s => <div key={s.id} className="relative aspect-video rounded-xl overflow-hidden group border shadow-sm"><Image src={s.imageUrl} alt="s" fill className="object-cover" /><Button type="button" variant="destructive" size="icon" className="absolute top-1 right-1 h-7 w-7 z-30 opacity-80" onClick={() => handleDeleteDoc('slides', s.id)}><Trash2 className="w-4 h-4" /></Button></div>)}
+                        {slides?.map(s => (
+                          <div key={s.id} className="relative aspect-video rounded-xl overflow-hidden group border shadow-sm">
+                            <Image src={s.imageUrl} alt="s" fill className="object-cover" />
+                            <Button 
+                              type="button" 
+                              variant="destructive" 
+                              size="icon" 
+                              className="absolute top-1 right-1 h-7 w-7 z-30 opacity-80" 
+                              onClick={() => handleDeleteDoc('slides', s.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
                       </div>
                     </CardContent>
                   </Card>
@@ -534,7 +562,20 @@ export default function Dashboard() {
                         <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={!newGalleryImg.imageUrl}>Publish to Gallery</Button>
                       </form>
                       <div className="grid grid-cols-3 gap-3 pt-6 border-t">
-                        {galleryItems?.map(g => <div key={g.id} className="relative aspect-square rounded-xl overflow-hidden group border shadow-sm"><Image src={g.imageUrl} alt="g" fill className="object-cover" /><Button type="button" variant="destructive" size="icon" className="absolute top-1 right-1 h-7 w-7 z-30 opacity-80" onClick={() => handleDeleteDoc('gallery', g.id)}><Trash2 className="w-4 h-4" /></Button></div>)}
+                        {galleryItems?.map(g => (
+                          <div key={g.id} className="relative aspect-square rounded-xl overflow-hidden group border shadow-sm">
+                            <Image src={g.imageUrl} alt="g" fill className="object-cover" />
+                            <Button 
+                              type="button" 
+                              variant="destructive" 
+                              size="icon" 
+                              className="absolute top-1 right-1 h-7 w-7 z-30 opacity-80" 
+                              onClick={() => handleDeleteDoc('gallery', g.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
                       </div>
                     </CardContent>
                   </Card>
