@@ -6,7 +6,7 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Play, Pause, SkipForward, Video as VideoIcon } from 'lucide-react';
+import { Play, Pause, SkipForward, Video as VideoIcon, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function VideoShowcase() {
@@ -96,7 +96,7 @@ export default function VideoShowcase() {
                       e.stopPropagation();
                       togglePlay();
                     }}
-                    className="w-24 h-24 bg-accent text-primary rounded-full flex items-center justify-center finance-3d-shadow hover:scale-110 transition-transform pointer-events-auto"
+                    className="w-24 h-24 bg-accent text-primary rounded-full flex items-center justify-center finance-3d-shadow hover:scale-110 transition-transform pointer-events-auto shadow-2xl"
                   >
                     {isPlaying ? (
                       <Pause className="w-10 h-10 fill-primary" />
@@ -111,10 +111,21 @@ export default function VideoShowcase() {
                   "absolute bottom-8 left-8 right-8 flex items-end justify-between pointer-events-none transition-opacity duration-500",
                   isPlaying ? "opacity-0 group-hover:opacity-100" : "opacity-100"
                 )}>
-                  <div className="bg-black/60 backdrop-blur-md p-6 rounded-3xl border border-white/10 max-w-[80%]">
+                  <div className="bg-black/60 backdrop-blur-md p-6 rounded-3xl border border-white/10 max-w-[70%]">
                     <h3 className="text-white font-headline font-bold text-2xl mb-1">{activeVideo.title || 'Workshop Highlights'}</h3>
                     <p className="text-white/60 text-sm">Now Playing: Video {currentIndex + 1} of {videos.length}</p>
                   </div>
+                  
+                  <a 
+                    href={activeVideo.videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-md p-4 rounded-2xl border border-white/20 transition-all pointer-events-auto flex items-center gap-2 font-bold text-sm shadow-xl"
+                    onClick={(e) => e.stopPropagation()}
+                    title="Download current video"
+                  >
+                    <Download className="w-5 h-5" /> <span className="hidden sm:inline">Download</span>
+                  </a>
                 </div>
               </>
             )}
@@ -123,48 +134,70 @@ export default function VideoShowcase() {
 
         {/* Playlist / Next Up */}
         <div className="space-y-6">
-          <div className="flex items-center gap-2 mb-4">
-             <VideoIcon className="w-5 h-5 text-accent" />
-             <h4 className="font-headline font-bold text-primary text-xl">Playlist</h4>
+          <div className="flex items-center justify-between mb-4">
+             <div className="flex items-center gap-2">
+               <VideoIcon className="w-5 h-5 text-accent" />
+               <h4 className="font-headline font-bold text-primary text-xl">Playlist</h4>
+             </div>
+             <Badge variant="secondary" className="bg-primary/5 text-primary text-[10px] uppercase font-bold">{videos.length} clips</Badge>
           </div>
           
           <div className="grid gap-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
             {videos.map((video, index) => (
-              <button
+              <div
                 key={video.id}
-                onClick={() => {
-                  setCurrentIndex(index);
-                  setIsPlaying(true);
-                }}
                 className={cn(
-                  "flex items-center gap-4 p-4 rounded-[1.5rem] text-left transition-all border-none finance-3d-shadow",
+                  "group/item flex items-center gap-4 p-4 rounded-[1.5rem] transition-all border-none finance-3d-shadow relative",
                   currentIndex === index 
                     ? "bg-primary text-white scale-[1.02]" 
                     : "bg-white text-muted-foreground hover:bg-slate-50"
                 )}
               >
-                <div className={cn(
-                  "w-12 h-12 rounded-xl flex items-center justify-center shrink-0",
-                  currentIndex === index ? "bg-white/20" : "bg-primary/10 text-primary"
-                )}>
-                  {currentIndex === index && isPlaying ? (
-                    <div className="flex gap-1 items-end h-4">
-                      <div className="w-1 bg-white animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-1 bg-white animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-1 bg-white animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                  ) : (
-                    <Play className={cn("w-5 h-5", currentIndex === index ? "fill-white" : "fill-primary")} />
-                  )}
+                <button
+                  onClick={() => {
+                    setCurrentIndex(index);
+                    setIsPlaying(true);
+                  }}
+                  className="flex-1 flex items-center gap-4 text-left overflow-hidden"
+                >
+                  <div className={cn(
+                    "w-12 h-12 rounded-xl flex items-center justify-center shrink-0",
+                    currentIndex === index ? "bg-white/20" : "bg-primary/10 text-primary"
+                  )}>
+                    {currentIndex === index && isPlaying ? (
+                      <div className="flex gap-1 items-end h-4">
+                        <div className="w-1 bg-white animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-1 bg-white animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-1 bg-white animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
+                    ) : (
+                      <Play className={cn("w-5 h-5", currentIndex === index ? "fill-white" : "fill-primary")} />
+                    )}
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <p className="font-bold text-sm truncate">{video.title || `Video ${index + 1}`}</p>
+                    <p className={cn("text-xs", currentIndex === index ? "text-white/60" : "text-muted-foreground")}>
+                      {currentIndex === index ? 'Playing' : 'Up next'}
+                    </p>
+                  </div>
+                </button>
+                
+                <div className="flex items-center gap-2">
+                  <a 
+                    href={video.videoUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={cn(
+                      "p-2 rounded-lg transition-colors",
+                      currentIndex === index ? "hover:bg-white/20 text-white" : "hover:bg-slate-100 text-muted-foreground"
+                    )}
+                    title="Download video"
+                  >
+                    <Download className="w-4 h-4" />
+                  </a>
+                  {currentIndex === index && <SkipForward className="w-4 h-4 opacity-50" />}
                 </div>
-                <div className="flex-1 overflow-hidden">
-                  <p className="font-bold text-sm truncate">{video.title || `Video ${index + 1}`}</p>
-                  <p className={cn("text-xs", currentIndex === index ? "text-white/60" : "text-muted-foreground")}>
-                    {currentIndex === index ? 'Playing' : 'Up next'}
-                  </p>
-                </div>
-                {currentIndex === index && <SkipForward className="w-4 h-4 opacity-50" />}
-              </button>
+              </div>
             ))}
           </div>
         </div>
