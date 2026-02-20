@@ -55,7 +55,8 @@ import {
   Image as ImageIcon,
   MessageSquare,
   Globe,
-  Layout
+  Layout,
+  PlusCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -231,9 +232,18 @@ export default function Dashboard() {
   const handleSaveSlide = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSlide.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
+    if (!newSlide.title) return toast({ variant: "destructive", title: "Required", description: "Title is required." });
+    
     const colRef = collection(db, 'slides');
-    addDocumentNonBlocking(colRef, { ...newSlide, order: Number(newSlide.order), createdAt: serverTimestamp() });
-    toast({ title: "Slide Added" });
+    addDocumentNonBlocking(colRef, { 
+      title: newSlide.title,
+      description: newSlide.description,
+      imageUrl: newSlide.imageUrl,
+      order: Number(newSlide.order), 
+      createdAt: serverTimestamp() 
+    });
+    
+    toast({ title: "Slide Added Successfully" });
     setNewSlide({ title: '', description: '', imageUrl: '', order: 0 });
   };
 
@@ -537,25 +547,32 @@ export default function Dashboard() {
                     <CardHeader className="bg-primary text-white p-8"><CardTitle className="flex items-center gap-3"><ImageIcon className="w-5 h-5" /> Homepage Slides</CardTitle></CardHeader>
                     <CardContent className="p-8 space-y-6">
                       <form onSubmit={handleSaveSlide} className="space-y-4">
-                        <Input placeholder="Heading Title" value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl h-12" />
+                        <Input placeholder="Heading Title" value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl h-12" required />
+                        <Input placeholder="Description (Optional)" value={newSlide.description} onChange={e => setNewSlide({...newSlide, description: e.target.value})} className="rounded-xl h-12" />
                         <Input type="number" placeholder="Sequence (Order)" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" />
-                        <Button type="button" variant="outline" className="w-full h-12 border-dashed" onClick={() => slideFileInputRef.current?.click()}>Pick Slide Image</Button>
+                        <Button type="button" variant="outline" className="w-full h-12 border-dashed" onClick={() => slideFileInputRef.current?.click()}>
+                          <Upload className="w-4 h-4 mr-2" /> {newSlide.imageUrl ? 'Change Slide Image' : 'Pick Slide Image'}
+                        </Button>
                         <input type="file" ref={slideFileInputRef} onChange={e => handleFileChange(e, 'slide')} accept="image/*" className="hidden" />
-                        <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={!newSlide.imageUrl}>Add to Carousel</Button>
+                        <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={!newSlide.imageUrl}>
+                          <PlusCircle className="w-4 h-4 mr-2" /> Add to Carousel
+                        </Button>
                       </form>
                       <div className="grid grid-cols-3 gap-3 pt-6 border-t">
                         {slides?.map(s => (
                           <div key={s.id} className="relative aspect-video rounded-xl overflow-hidden group border shadow-sm">
                             <Image src={s.imageUrl} alt="s" fill className="object-cover" />
-                            <Button 
-                              type="button" 
-                              variant="destructive" 
-                              size="icon" 
-                              className="absolute top-1 right-1 h-7 w-7 z-30 opacity-90 shadow-lg" 
-                              onClick={() => setItemToDelete({ path: 'slides', id: s.id })}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Button 
+                                type="button" 
+                                variant="destructive" 
+                                size="icon" 
+                                className="h-8 w-8 z-30 shadow-lg" 
+                                onClick={() => setItemToDelete({ path: 'slides', id: s.id })}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -574,15 +591,17 @@ export default function Dashboard() {
                         {galleryItems?.map(g => (
                           <div key={g.id} className="relative aspect-square rounded-xl overflow-hidden group border shadow-sm">
                             <Image src={g.imageUrl} alt="g" fill className="object-cover" />
-                            <Button 
-                              type="button" 
-                              variant="destructive" 
-                              size="icon" 
-                              className="absolute top-1 right-1 h-7 w-7 z-30 opacity-90 shadow-lg" 
-                              onClick={() => setItemToDelete({ path: 'gallery', id: g.id })}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <Button 
+                                type="button" 
+                                variant="destructive" 
+                                size="icon" 
+                                className="h-8 w-8 z-30 shadow-lg" 
+                                onClick={() => setItemToDelete({ path: 'gallery', id: g.id })}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </div>
                         ))}
                       </div>
