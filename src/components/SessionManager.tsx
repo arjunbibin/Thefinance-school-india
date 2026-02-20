@@ -2,45 +2,57 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useAuth, useUser } from '@/firebase';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 
 /**
  * SessionManager monitors user activity and enforces a session timeout.
- * If the user is inactive for a set interval, they are logged out.
+ * It also signs out the user immediately if they navigate away from the admin dashboard.
  */
 export default function SessionManager() {
   const { user } = useUser();
   const auth = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
   const { toast } = useToast();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Interval for inactivity (e.g., 30 minutes)
   const INACTIVITY_LIMIT = 30 * 60 * 1000;
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback((reason?: string) => {
     if (auth.currentUser) {
       auth.signOut().then(() => {
-        router.push('/login');
-        toast({
-          variant: "destructive",
-          title: "Session Expired",
-          description: "You have been logged out due to inactivity. Please sign in again.",
-        });
+        if (reason === 'inactivity') {
+          router.push('/login');
+          toast({
+            variant: "destructive",
+            title: "Session Expired",
+            description: "You have been logged out due to inactivity. Please sign in again.",
+          });
+        }
       });
     }
   }, [auth, router, toast]);
 
+  // STRICT ROUTE PROTECTION: 
+  // If a user is logged in and leaves the dashboard, sign them out immediately.
+  useEffect(() => {
+    if (user && pathname !== '/dashboard' && pathname !== '/login') {
+      auth.signOut();
+    }
+  }, [user, pathname, auth]);
+
   const resetTimeout = useCallback(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    if (user) {
-      timeoutRef.current = setTimeout(handleLogout, INACTIVITY_LIMIT);
+    // Only monitor inactivity while on the dashboard
+    if (user && pathname === '/dashboard') {
+      timeoutRef.current = setTimeout(() => handleLogout('inactivity'), INACTIVITY_LIMIT);
     }
-  }, [user, handleLogout, INACTIVITY_LIMIT]);
+  }, [user, pathname, handleLogout, INACTIVITY_LIMIT]);
 
   useEffect(() => {
-    if (user) {
+    if (user && pathname === '/dashboard') {
       // List of events to track as "activity"
       const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
       
@@ -56,7 +68,7 @@ export default function SessionManager() {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
       };
     }
-  }, [user, resetTimeout]);
+  }, [user, pathname, resetTimeout]);
 
   return null;
 }
