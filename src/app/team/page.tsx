@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -45,7 +44,7 @@ export default function TeamPage() {
                 key={member.id} 
                 className={cn(
                   "flex flex-col items-center text-center group",
-                  "animate-in fade-in slide-in-from-bottom-10 duration-1000 fill-mode-forwards"
+                  "animate-in fade-in slide-in-from-bottom-20 duration-1000 fill-mode-forwards"
                 )}
                 style={{ animationDelay: `${index * 150}ms` }}
               >
