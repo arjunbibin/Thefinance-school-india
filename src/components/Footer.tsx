@@ -3,7 +3,14 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Twitter, Linkedin, Mail, MessageSquare, ShieldCheck } from 'lucide-react';
+import { 
+  Facebook, 
+  Instagram, 
+  Youtube, 
+  MessageCircle, 
+  Mail, 
+  ShieldCheck 
+} from 'lucide-react';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 
@@ -36,10 +43,22 @@ export default function Footer() {
           <p className="text-slate-400 max-w-sm mb-8">
             An Edu-Tech initiative focused on building financial awareness, leadership skills, and real-life readiness among children.
           </p>
-          <div className="flex gap-4">
-            <div className="p-2 rounded-lg bg-white/10 hover:bg-accent hover:text-primary transition-colors cursor-pointer"><Twitter className="w-5 h-5" /></div>
-            <div className="p-2 rounded-lg bg-white/10 hover:bg-accent hover:text-primary transition-colors cursor-pointer"><Linkedin className="w-5 h-5" /></div>
-            <div className="p-2 rounded-lg bg-white/10 hover:bg-accent hover:text-primary transition-colors cursor-pointer"><MessageSquare className="w-5 h-5" /></div>
+          <div className="flex flex-wrap gap-4">
+            <div className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" title="WhatsApp">
+              <MessageCircle className="w-5 h-5" />
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" title="Facebook">
+              <Facebook className="w-5 h-5" />
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" title="Instagram">
+              <Instagram className="w-5 h-5" />
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" title="YouTube">
+              <Youtube className="w-5 h-5" />
+            </div>
+            <div className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" title="Email">
+              <Mail className="w-5 h-5" />
+            </div>
           </div>
         </div>
 
