@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
-import { Play, X, Clapperboard } from 'lucide-react';
+import { Play, X } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
@@ -87,12 +87,6 @@ export default function TestimonialVideosPage() {
                       <div className="mt-8 px-6 py-2 glass-morphism rounded-2xl border border-white/30 transform translate-y-4 group-hover:translate-y-0 transition-transform">
                          <p className="text-white font-headline font-bold text-lg">{video.title || 'Watch Story'}</p>
                       </div>
-                    </div>
-
-                    <div className="absolute top-6 left-6 z-30">
-                       <Badge className="bg-primary/80 backdrop-blur-md text-white border-none py-1 px-3 flex items-center gap-2">
-                          <Clapperboard className="w-3 h-3" /> 9:16 Shorts
-                       </Badge>
                     </div>
                   </div>
                 </Card>
