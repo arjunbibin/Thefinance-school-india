@@ -7,7 +7,7 @@ import Footer from '@/components/Footer';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
-import { Play, Pause, ChevronLeft, ChevronRight, X, Clapperboard } from 'lucide-react';
+import { Play, X, Clapperboard, ChevronLeft, ChevronRight } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { cn } from '@/lib/utils';
 
@@ -25,16 +25,18 @@ export default function TestimonialVideosPage() {
   
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
-    // Stop playback when moving to another video
-    setIsPlaying(false);
     setActiveVideoId(null);
-    Object.values(videoRefs.current).forEach(ref => ref?.pause());
+    Object.values(videoRefs.current).forEach(ref => {
+      if (ref) {
+        ref.pause();
+        ref.currentTime = 0;
+      }
+    });
   }, [emblaApi]);
 
   useEffect(() => {
@@ -48,6 +50,13 @@ export default function TestimonialVideosPage() {
     };
   }, [emblaApi, onSelect]);
 
+  const getYoutubeId = (url: string) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
   const togglePlay = (id: string) => {
     const video = videoRefs.current[id];
     const videoData = videos?.find(v => v.id === id);
@@ -55,24 +64,17 @@ export default function TestimonialVideosPage() {
 
     if (activeVideoId !== id) {
       setActiveVideoId(id);
-      setIsPlaying(true);
-      if (video && !ytId) video.play();
+      if (video && !ytId) {
+        video.play().catch(() => {
+          console.warn("Autoplay blocked by browser");
+        });
+      }
     } else {
-      if (!ytId && video) {
-        if (isPlaying) video.pause();
-        else video.play();
-        setIsPlaying(!isPlaying);
-      } else if (ytId) {
-        setIsPlaying(!isPlaying);
+      setActiveVideoId(null);
+      if (video && !ytId) {
+        video.pause();
       }
     }
-  };
-
-  const getYoutubeId = (url: string) => {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
   };
 
   if (isLoading) {
@@ -94,13 +96,12 @@ export default function TestimonialVideosPage() {
       <main className="flex-grow pt-24 pb-32">
         <div className="max-w-7xl mx-auto px-6 mb-16 text-center animate-in fade-in slide-in-from-top-10 duration-1000">
           <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">The Success Vault</Badge>
-          <h1 className="text-4xl md:text-7xl font-headline font-bold text-primary tracking-tight">Our <span className="text-accent">Stories</span></h1>
+          <h1 className="text-4xl md:text-7xl font-headline font-bold text-primary tracking-tight">Student <span className="text-accent">Success</span></h1>
           <p className="text-muted-foreground mt-6 max-w-2xl mx-auto text-lg md:text-xl font-medium">
-            Swipe through our 3D success gallery to see how we transform financial futures.
+            Browse through our interactive 3D story cards to see real transformations.
           </p>
         </div>
 
-        {/* 3D Techy App Switcher Carousel */}
         <div className="relative w-full max-w-[1400px] mx-auto perspective-1000 overflow-visible px-4">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] h-[70%] bg-primary/5 blur-[150px] rounded-full pointer-events-none" />
 
@@ -130,11 +131,10 @@ export default function TestimonialVideosPage() {
                       )}
                       onClick={() => isActive && togglePlay(video.id)}
                     >
-                      {/* Interactive Reflection */}
                       <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/20 pointer-events-none z-20" />
 
                       {ytId ? (
-                        <div className="w-full h-full relative">
+                        <div className="w-full h-full relative" key={`yt-${video.id}`}>
                           <iframe
                             src={`https://www.youtube.com/embed/${ytId}?autoplay=${isActivated ? 1 : 0}&modestbranding=1&rel=0&controls=0&showinfo=0&mute=${isActivated ? 0 : 1}`}
                             className={cn(
@@ -144,10 +144,11 @@ export default function TestimonialVideosPage() {
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
                           />
-                          {!isActivated && <div className="absolute inset-0 z-30" />} 
+                          {!isActivated && <div className="absolute inset-0 z-30 bg-transparent" />} 
                         </div>
                       ) : (
                         <video
+                          key={`mp4-${video.id}`}
                           ref={el => { videoRefs.current[video.id] = el; }}
                           src={video.videoUrl}
                           className={cn(
@@ -156,10 +157,10 @@ export default function TestimonialVideosPage() {
                           )}
                           playsInline
                           loop
+                          muted={!isActivated}
                         />
                       )}
                       
-                      {/* Play State Overlays */}
                       {!isActivated && isActive && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[4px] z-40 group-hover:bg-black/20 transition-all">
                           <div className="w-20 h-20 bg-accent text-primary rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(14,165,233,0.6)] finance-3d-shadow transform group-hover:scale-110 transition-transform">
@@ -171,15 +172,15 @@ export default function TestimonialVideosPage() {
                         </div>
                       )}
 
-                      {/* Controls Overlay */}
                       {isActivated && (
                         <div className="absolute top-6 right-6 z-50">
                           <button 
                             onClick={(e) => {
                               e.stopPropagation();
                               setActiveVideoId(null);
-                              setIsPlaying(false);
-                              if (!ytId) videoRefs.current[video.id]?.pause();
+                              if (!ytId) {
+                                videoRefs.current[video.id]?.pause();
+                              }
                             }}
                             className="w-12 h-12 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white hover:bg-white/30 transition-all border border-white/20 shadow-2xl"
                           >
@@ -188,7 +189,6 @@ export default function TestimonialVideosPage() {
                         </div>
                       )}
 
-                      {/* Techy Badge */}
                       <div className="absolute bottom-6 left-6 z-40">
                          <Badge className="bg-primary/80 backdrop-blur-md text-white border-none py-1 px-3 flex items-center gap-2">
                             <Clapperboard className="w-3 h-3" /> HQ Video
@@ -201,14 +201,12 @@ export default function TestimonialVideosPage() {
             </div>
           </div>
 
-          {/* Nav Controls */}
           <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between pointer-events-none px-2 md:px-8 z-50">
             <button onClick={() => emblaApi?.scrollPrev()} className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-md finance-3d-shadow flex items-center justify-center text-primary pointer-events-auto hover:bg-primary hover:text-white transition-all transform hover:-translate-x-1"><ChevronLeft className="w-8 h-8" /></button>
             <button onClick={() => emblaApi?.scrollNext()} className="w-14 h-14 rounded-2xl bg-white/80 backdrop-blur-md finance-3d-shadow flex items-center justify-center text-primary pointer-events-auto hover:bg-primary hover:text-white transition-all transform hover:translate-x-1"><ChevronRight className="w-8 h-8" /></button>
           </div>
         </div>
 
-        {/* Status Indicators */}
         <div className="mt-12 flex flex-col items-center gap-8">
           <div className="flex gap-4">
             {videos?.map((_, i) => (
