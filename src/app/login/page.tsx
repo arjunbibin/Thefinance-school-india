@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useFirestore } from '@/firebase';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
@@ -24,11 +24,18 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
 
+  // Force logout on mount to ensure fresh credentials every time
+  useEffect(() => {
+    signOut(auth);
+  }, [auth]);
+
   const validateAndSyncProfile = async (user: any) => {
     const docRef = doc(db, 'userProfiles', user.uid);
     const docSnap = await getDoc(docRef);
     
-    // Auto-promote the primary admin UID
+    // Generate a new session ID for single-session enforcement
+    const activeSessionId = crypto.randomUUID();
+
     if (user.uid === PRIMARY_ADMIN_UID) {
       const adminData = {
         id: user.uid,
@@ -36,21 +43,24 @@ export default function LoginPage() {
         firstName: user.displayName?.split(' ')[0] || 'Primary',
         lastName: user.displayName?.split(' ').slice(1).join(' ') || 'Admin',
         role: 'admin',
-        registrationDate: new Date().toISOString()
+        activeSessionId, // Save the new session ID
+        registrationDate: docSnap.exists() ? docSnap.data().registrationDate : new Date().toISOString()
       };
       await setDoc(docRef, adminData, { merge: true });
+      localStorage.setItem('activeSessionId', activeSessionId);
       return true;
     }
 
-    // Strictly check for existing staff/admin role
     if (docSnap.exists()) {
       const role = docSnap.data().role;
       if (role && role !== 'user') {
+        // Sync activeSessionId for authorized staff
+        await setDoc(docRef, { activeSessionId }, { merge: true });
+        localStorage.setItem('activeSessionId', activeSessionId);
         return true;
       }
     }
     
-    // If not primary admin and no existing staff profile, deny access
     await signOut(auth);
     toast({ 
       variant: "destructive", 
@@ -115,7 +125,7 @@ export default function LoginPage() {
               Staff Sign In
             </CardTitle>
             <CardDescription className="text-white/70 font-medium">
-              Access The Finance School India Admin Portal
+              Credentials required for every session.
             </CardDescription>
           </CardHeader>
           

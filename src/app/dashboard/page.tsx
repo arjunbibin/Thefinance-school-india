@@ -133,6 +133,7 @@ export default function Dashboard() {
   const [itemToDelete, setItemToDelete] = useState<{ path: string; id: string } | null>(null);
 
   const handleLogout = async () => {
+    localStorage.removeItem('activeSessionId');
     await auth.signOut();
     router.push('/');
   };

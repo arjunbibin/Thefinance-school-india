@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -12,7 +11,7 @@ export default function Footer() {
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
 
-  const logoUrl = "https://firebasestorage.googleapis.com/v0/b/studio-6721629864-6b462.firebasestorage.app/o/logo%2Flogo.png?alt=media&token=1c70983d-c10f-440b-a75b-99d4013b1c9c";
+  const logoUrl = branding?.logoUrl || "https://firebasestorage.googleapis.com/v0/b/studio-6721629864-6b462.firebasestorage.app/o/logo%2Flogo.png?alt=media&token=1c70983d-c10f-440b-a75b-99d4013b1c9c";
   const appName = branding?.appName || 'The Finance School India';
 
   return (
@@ -60,8 +59,8 @@ export default function Footer() {
             <li className="hover:text-accent cursor-pointer">Doubt Clearing</li>
             <li className="hover:text-accent cursor-pointer">Recorded Sessions</li>
             <li>
-              <Link href="/dashboard" className="flex items-center gap-2 hover:text-accent cursor-pointer text-white/50 text-xs font-bold uppercase tracking-widest mt-4">
-                <ShieldCheck className="w-4 h-4" /> Admin Portal
+              <Link href="/login" className="flex items-center gap-2 hover:text-accent cursor-pointer text-white/50 text-xs font-bold uppercase tracking-widest mt-4">
+                <ShieldCheck className="w-4 h-4" /> Staff Portal
               </Link>
             </li>
           </ul>
