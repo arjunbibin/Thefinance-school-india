@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -14,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
 import { doc, updateDoc, collection, addDoc, deleteDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
-import { LogOut, ShieldAlert, Users, Trash2, Upload, BookOpen, Plus, Edit2, XCircle, UserSquare, Star, Video, Play } from 'lucide-react';
+import { LogOut, ShieldAlert, Users, Trash2, Upload, BookOpen, Plus, Edit2, XCircle, UserSquare, Star, Video, Play, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 
@@ -85,6 +84,17 @@ export default function Dashboard() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'slide' | 'gallery' | 'course' | 'team' | 'review' | 'video') => {
     const file = e.target.files?.[0];
     if (file) {
+      // Size check: Firestore document limit is 1MB. 
+      // Base64 adds ~33% overhead. So 700KB is a safe max file size.
+      if (file.size > 700 * 1024) {
+        toast({ 
+          variant: "destructive", 
+          title: "File Too Large", 
+          description: "Please use a file smaller than 700KB. Firestore limits apply." 
+        });
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64 = reader.result as string;
@@ -165,8 +175,9 @@ export default function Dashboard() {
     if (!newSlide.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
     
     const colRef = collection(db, 'slides');
-    addDoc(colRef, { ...newSlide, order: Number(newSlide.order), createdAt: serverTimestamp() }).catch((err) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: newSlide }));
+    const data = { ...newSlide, order: Number(newSlide.order), createdAt: serverTimestamp() };
+    addDoc(colRef, data).catch((err) => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
     });
     toast({ title: "Slide Added" });
     setNewSlide({ title: '', description: '', imageUrl: '', order: 0 });
@@ -177,8 +188,9 @@ export default function Dashboard() {
     if (!newGalleryImg.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
     
     const colRef = collection(db, 'gallery');
-    addDoc(colRef, { ...newGalleryImg, createdAt: serverTimestamp() }).catch((err) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: newGalleryImg }));
+    const data = { ...newGalleryImg, createdAt: serverTimestamp() };
+    addDoc(colRef, data).catch((err) => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
     });
     toast({ title: "Memory Added" });
     setNewGalleryImg({ description: '', imageUrl: '' });
@@ -187,8 +199,9 @@ export default function Dashboard() {
   const handleSaveReview = (e: React.FormEvent) => {
     e.preventDefault();
     const colRef = collection(db, 'reviews');
-    addDoc(colRef, { ...newReview, createdAt: serverTimestamp() }).catch((err) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: newReview }));
+    const data = { ...newReview, createdAt: serverTimestamp() };
+    addDoc(colRef, data).catch((err) => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
     });
     toast({ title: "Review Added" });
     setNewReview({ userName: '', userPhoto: '', content: '', rating: 5 });
@@ -201,13 +214,17 @@ export default function Dashboard() {
     const colRef = collection(db, 'videos');
     const data = { ...newVideo, order: Number(newVideo.order), createdAt: serverTimestamp() };
     
-    // We initiate the write without awaiting, which prevents the UI from sticking.
-    // If the video is > 1MB, Firestore will throw a background error handled by the error emitter.
     addDoc(colRef, data).catch((err) => {
-      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
+      // Specifically handle potential size errors for videos
+      const errorMessage = err?.message || "";
+      if (errorMessage.includes("too large")) {
+        toast({ variant: "destructive", title: "Save Failed", description: "The video file is too large for database storage. Please use a smaller clip (< 700KB)." });
+      } else {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: colRef.path, operation: 'create', requestResourceData: data }));
+      }
     });
 
-    toast({ title: "Video Upload Initiated", description: "The video is being synced in the background." });
+    toast({ title: "Saving Video...", description: "Video is being synced to the cloud." });
     setNewVideo({ title: '', videoUrl: '', order: 0 });
   };
 
@@ -248,6 +265,10 @@ export default function Dashboard() {
               </div>
             </CardHeader>
             <CardContent className="p-10">
+              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl mb-6 flex items-start gap-3 text-sm text-slate-600">
+                <AlertCircle className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                <p><strong>Limit:</strong> Videos must be smaller than 700KB to be stored. Use compressed MP4 clips for the best results.</p>
+              </div>
               <form onSubmit={handleSaveVideo} className="grid md:grid-cols-2 gap-10">
                 <div className="space-y-4">
                   <div className="space-y-2"><Label>Video Title</Label><Input value={newVideo.title} onChange={e => setNewVideo({...newVideo, title: e.target.value})} className="rounded-xl" placeholder="e.g. Student Success Story" /></div>
@@ -384,40 +405,6 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* REVIEW ADDER */}
-          <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
-            <CardHeader className="bg-primary text-white p-10"><CardTitle>Review & Success Story Curation</CardTitle></CardHeader>
-            <CardContent className="p-10">
-               <form onSubmit={handleSaveReview} className="grid md:grid-cols-2 gap-10">
-                  <div className="space-y-4">
-                    <Input placeholder="Name" value={newReview.userName} onChange={e => setNewReview({...newReview, userName: e.target.value})} className="rounded-xl" required />
-                    <Textarea placeholder="Testimonial Content" value={newReview.content} onChange={e => setNewReview({...newReview, content: e.target.value})} className="rounded-xl min-h-[100px]" required />
-                    <div className="space-y-2"><Label>Rating (1-5)</Label><Input type="number" min="1" max="5" value={newReview.rating} onChange={e => setNewReview({...newReview, rating: parseInt(e.target.value)})} className="rounded-xl" /></div>
-                    <Button type="button" variant="outline" className="w-full" onClick={() => reviewFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload User Photo</Button>
-                    <input type="file" ref={reviewFileInputRef} onChange={e => handleFileChange(e, 'review')} accept="image/*" className="hidden" />
-                    <Button type="submit" className="w-full h-12">Publish Review</Button>
-                  </div>
-                  <div className="p-6 border rounded-[2rem] bg-slate-50 finance-3d-shadow-inner flex flex-col items-center justify-center text-center">
-                    <div className="w-20 h-20 rounded-2xl overflow-hidden mb-4 finance-3d-shadow bg-white relative">
-                      {newReview.userPhoto && <Image src={newReview.userPhoto} alt="u" fill className="object-cover" />}
-                    </div>
-                    <p className="font-bold text-primary">{newReview.userName || 'Student Name'}</p>
-                    <div className="flex gap-1">
-                      {[...Array(isNaN(newReview.rating) ? 0 : Math.max(0, Math.min(5, newReview.rating)))].map((_, i) => <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
-                    </div>
-                  </div>
-               </form>
-               <div className="grid md:grid-cols-4 gap-4 mt-10">
-                 {reviews?.map(r => (
-                   <div key={r.id} className="p-3 bg-slate-50 rounded-2xl flex justify-between items-center">
-                     <p className="text-xs font-bold truncate">{r.userName}</p>
-                     <Button variant="destructive" size="sm" className="h-6 w-6 p-0" onClick={() => handleDeleteDoc('reviews', r.id)}><Trash2 className="w-2 h-2" /></Button>
-                   </div>
-                 ))}
-               </div>
             </CardContent>
           </Card>
 
