@@ -8,7 +8,7 @@ service cloud.firestore {
     
     function isStaff() {
       // Primary admin UID check (Hardcoded for maximum security and immediate access)
-      let isAdmin = request.auth.uid == 'bfCiMYT33fNetne0TXaLYCIu7T03';
+      let isAdmin = request.auth.uid == '3Vq3NnyBQVgwKcqdPIqSOof8glx1';
       
       // Staff check: must have a profile and a role that is not 'user'
       let userProfilePath = /databases/$(database)/documents/userProfiles/$(request.auth.uid);

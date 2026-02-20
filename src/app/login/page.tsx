@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -13,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ShieldCheck, Lock } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 
-const PRIMARY_ADMIN_UID = 'bfCiMYT33fNetne0TXaLYCIu7T03';
+const PRIMARY_ADMIN_UID = '3Vq3NnyBQVgwKcqdPIqSOof8glx1';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
