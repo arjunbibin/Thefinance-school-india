@@ -56,7 +56,8 @@ import {
   MessageSquare,
   Globe,
   Layout,
-  PlusCircle
+  PlusCircle,
+  Link as LinkIcon
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -126,7 +127,7 @@ export default function Dashboard() {
   const [newSlide, setNewSlide] = useState({ title: '', description: '', imageUrl: '', order: 0 });
   const [newGalleryImg, setNewGalleryImg] = useState({ description: '', imageUrl: '' });
   const [newReview, setNewReview] = useState({ userName: '', userPhoto: '', content: '', rating: 5 });
-  const [newVideo, setNewVideo] = useState({ title: '', videoUrl: '', order: 0 });
+  const [newVideo, setNewVideo] = useState({ title: '', videoUrl: '', order: 0, isYoutube: false });
   
   // File holding states for multi-stage upload
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
@@ -143,8 +144,8 @@ export default function Dashboard() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (type === 'video' && file.size > 30 * 1024 * 1024) {
-        toast({ variant: "destructive", title: "File Too Large", description: "Videos are limited to 30MB." });
+      if (type === 'video' && file.size > 50 * 1024 * 1024) {
+        toast({ variant: "destructive", title: "File Too Large", description: "Videos are limited to 50MB." });
         return;
       }
       if (type !== 'video' && file.size > 5 * 1024 * 1024) {
@@ -161,7 +162,9 @@ export default function Dashboard() {
       else if (type === 'course') setCourseForm(prev => ({ ...prev, imageUrl: previewUrl }));
       else if (type === 'team') setTeamForm(prev => ({ ...prev, imageUrl: previewUrl }));
       else if (type === 'review') setNewReview(prev => ({ ...prev, userPhoto: previewUrl }));
-      else if (type === 'video') setNewVideo(prev => ({ ...prev, videoUrl: previewUrl }));
+      else if (type === 'video') {
+        setNewVideo(prev => ({ ...prev, videoUrl: previewUrl, isYoutube: false }));
+      }
     }
   };
 
@@ -346,13 +349,18 @@ export default function Dashboard() {
 
   const handleSaveVideo = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFiles['video']) return toast({ variant: "destructive", title: "Required", description: "Video file is required." });
+    if (!newVideo.isYoutube && !selectedFiles['video']) return toast({ variant: "destructive", title: "Required", description: "Video file is required." });
+    if (newVideo.isYoutube && !newVideo.videoUrl) return toast({ variant: "destructive", title: "Required", description: "YouTube URL is required." });
     
     try {
-      const downloadURL = await uploadFile(selectedFiles['video'], 'videos');
+      let finalUrl = newVideo.videoUrl;
+      if (!newVideo.isYoutube && selectedFiles['video']) {
+        finalUrl = await uploadFile(selectedFiles['video'], 'videos');
+      }
+
       const data = { 
         title: newVideo.title, 
-        videoUrl: downloadURL, 
+        videoUrl: finalUrl, 
         order: Number(newVideo.order), 
         createdAt: serverTimestamp() 
       };
@@ -361,7 +369,7 @@ export default function Dashboard() {
       
       setUploadProgress(null);
       setSelectedFiles(prev => ({ ...prev, video: null }));
-      setNewVideo({ title: '', videoUrl: '', order: 0 });
+      setNewVideo({ title: '', videoUrl: '', order: 0, isYoutube: false });
       toast({ title: "Showcase Video Published" });
     } catch (err: any) {
       toast({ variant: "destructive", title: "Upload Failed", description: err.message });
@@ -374,6 +382,12 @@ export default function Dashboard() {
     deleteDocumentNonBlocking(docRef);
     toast({ title: "Item Removed Successfully" });
     setItemToDelete(null);
+  };
+
+  const getYoutubeId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
   };
 
   if (isUserLoading || isProfileLoading) {
@@ -432,24 +446,58 @@ export default function Dashboard() {
                     <form onSubmit={handleSaveVideo} className="grid md:grid-cols-2 gap-10">
                       <div className="space-y-4">
                         <div className="space-y-2"><Label>Video Caption/Title</Label><Input value={newVideo.title} onChange={e => setNewVideo({...newVideo, title: e.target.value})} className="rounded-xl h-12" placeholder="e.g. Student Leadership Workshop" /></div>
+                        
+                        <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-xl border">
+                          <Switch checked={newVideo.isYoutube} onCheckedChange={v => setNewVideo({...newVideo, isYoutube: v, videoUrl: ''})} />
+                          <Label className="font-bold">Use YouTube Link Instead</Label>
+                        </div>
+
+                        {newVideo.isYoutube ? (
+                          <div className="space-y-2">
+                            <Label>YouTube URL</Label>
+                            <Input value={newVideo.videoUrl} onChange={e => setNewVideo({...newVideo, videoUrl: e.target.value})} className="rounded-xl h-12" placeholder="https://www.youtube.com/watch?v=..." />
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-14 bg-slate-50" onClick={() => videoFileInputRef.current?.click()}>
+                              <Upload className="w-4 h-4 mr-2" /> {selectedFiles['video'] ? 'Change Selected File' : 'Select Video (max 50MB)'}
+                            </Button>
+                            <input type="file" ref={videoFileInputRef} onChange={e => handleFileChange(e, 'video')} accept="video/*" className="hidden" />
+                          </div>
+                        )}
+
                         <div className="space-y-2"><Label>Display Sequence Order</Label><Input type="number" value={newVideo.order} onChange={e => setNewVideo({...newVideo, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div>
-                        <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-14 bg-slate-50" onClick={() => videoFileInputRef.current?.click()}>
-                          <Upload className="w-4 h-4 mr-2" /> {selectedFiles['video'] ? 'Change Selected File' : 'Select Video (max 30MB)'}
-                        </Button>
-                        <input type="file" ref={videoFileInputRef} onChange={e => handleFileChange(e, 'video')} accept="video/*" className="hidden" />
-                        <Button type="submit" className="w-full h-14 rounded-xl shadow-lg font-bold text-lg" disabled={uploadProgress !== null || !selectedFiles['video']}>
-                          {uploadProgress !== null ? 'Uploading Media...' : 'Add Video to Showcase'}
+                        
+                        <Button type="submit" className="w-full h-14 rounded-xl shadow-lg font-bold text-lg" disabled={uploadProgress !== null || (!selectedFiles['video'] && !newVideo.isYoutube) || (newVideo.isYoutube && !newVideo.videoUrl)}>
+                          {uploadProgress !== null ? 'Uploading Media...' : 'Publish to Showcase'}
                         </Button>
                       </div>
-                      <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 finance-3d-shadow-inner flex items-center justify-center relative aspect-video">
-                        {newVideo.videoUrl ? <video key={newVideo.videoUrl} src={newVideo.videoUrl} className="w-full h-full object-cover" controls /> : <div className="text-white/20 flex flex-col items-center gap-2"><Play className="w-12 h-12 opacity-20" /><p className="text-sm font-bold">New Video Preview</p></div>}
+                      
+                      <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 finance-3d-shadow-inner flex items-center justify-center relative aspect-[9/16] max-h-[500px] mx-auto w-full">
+                        {newVideo.isYoutube && getYoutubeId(newVideo.videoUrl) ? (
+                          <iframe src={`https://www.youtube.com/embed/${getYoutubeId(newVideo.videoUrl)}`} className="w-full h-full" />
+                        ) : newVideo.videoUrl ? (
+                          <video key={newVideo.videoUrl} src={newVideo.videoUrl} className="w-full h-full object-cover" controls />
+                        ) : (
+                          <div className="text-white/20 flex flex-col items-center gap-2">
+                            {newVideo.isYoutube ? <LinkIcon className="w-12 h-12 opacity-20" /> : <Play className="w-12 h-12 opacity-20" />}
+                            <p className="text-sm font-bold">Preview (9:16 Shorts Ratio)</p>
+                          </div>
+                        )}
                       </div>
                     </form>
+
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t">
                       {videoGallery?.map(v => (
                         <div key={v.id} className="p-4 bg-slate-50 rounded-2xl relative group border">
                           <p className="font-bold text-[10px] truncate mb-2">{v.title || 'Untitled Showcase'}</p>
-                          <div className="aspect-video rounded-lg overflow-hidden bg-black mb-3"><video src={v.videoUrl} className="w-full h-full object-cover" /></div>
+                          <div className="aspect-[9/16] rounded-lg overflow-hidden bg-black mb-3">
+                            {getYoutubeId(v.videoUrl) ? (
+                              <iframe src={`https://www.youtube.com/embed/${getYoutubeId(v.videoUrl)}`} className="w-full h-full" />
+                            ) : (
+                              <video src={v.videoUrl} className="w-full h-full object-cover" />
+                            )}
+                          </div>
                           <Button 
                             type="button" 
                             variant="destructive" 

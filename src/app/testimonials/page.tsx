@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
-import { Play, Pause, ChevronLeft, ChevronRight, Volume2, Maximize2 } from 'lucide-react';
+import { Play, Pause, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { cn } from '@/lib/utils';
 
@@ -22,14 +22,16 @@ export default function TestimonialVideosPage() {
   });
   
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const videoRefs = React.useRef<Record<string, HTMLVideoElement | null>>({});
+  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
+    // When moving between cards, stop any active playback
     setIsPlaying(false);
-    // Pause all other videos when switching
+    setActiveVideoId(null);
     Object.values(videoRefs.current).forEach(ref => ref?.pause());
   }, [emblaApi]);
 
@@ -45,12 +47,24 @@ export default function TestimonialVideosPage() {
   }, [emblaApi, onSelect]);
 
   const togglePlay = (id: string) => {
-    const video = videoRefs.current[id];
-    if (video) {
-      if (isPlaying) video.pause();
-      else video.play();
-      setIsPlaying(!isPlaying);
+    if (activeVideoId !== id) {
+      setActiveVideoId(id);
+      setIsPlaying(true);
+      // Let the effect handle playing
+    } else {
+      const video = videoRefs.current[id];
+      if (video) {
+        if (isPlaying) video.pause();
+        else video.play();
+        setIsPlaying(!isPlaying);
+      }
     }
+  };
+
+  const getYoutubeId = (url: string) => {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
   };
 
   if (isLoading) {
@@ -74,55 +88,86 @@ export default function TestimonialVideosPage() {
           <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">Immersive Showcase</Badge>
           <h1 className="text-4xl md:text-7xl font-headline font-bold text-primary tracking-tight">Success <span className="text-accent">Stories</span></h1>
           <p className="text-muted-foreground mt-6 max-w-2xl mx-auto text-lg md:text-xl font-medium">
-            Step into the 3D gallery of our students' journeys. Real transformations, captured in action.
+            Browse our transformation gallery like an app switcher. Pick a story to dive in.
           </p>
         </div>
 
-        {/* 3D Carousel Section */}
+        {/* 3D App Switcher Carousel Section */}
         <div className="relative w-full max-w-[1400px] mx-auto perspective-1000">
-          <div className="overflow-hidden" ref={emblaRef}>
+          <div className="overflow-visible" ref={emblaRef}>
             <div className="flex touch-pan-y">
               {videos?.map((video, index) => {
                 const isActive = selectedIndex === index;
+                const isActivated = activeVideoId === video.id;
+                const ytId = getYoutubeId(video.videoUrl);
+
                 return (
                   <div 
                     key={video.id} 
                     className={cn(
-                      "flex-[0_0_85%] md:flex-[0_0_30%] min-w-0 px-4 transition-all duration-700 ease-out",
-                      isActive ? "scale-105 z-10" : "scale-90 opacity-40 blur-[2px] rotate-y-12"
+                      "flex-[0_0_80%] md:flex-[0_0_30%] min-w-0 px-4 transition-all duration-700 ease-out",
+                      isActive ? "scale-105 z-20" : "scale-90 opacity-40 blur-[1px] rotate-y-12 translate-x-4",
+                      index < selectedIndex ? "-rotate-y-12 -translate-x-4" : ""
                     )}
                     style={{ transformStyle: 'preserve-3d' }}
                   >
-                    <div className="relative aspect-[9/16] rounded-[2.5rem] overflow-hidden finance-3d-shadow bg-black group cursor-pointer">
-                      <video
-                        ref={el => { videoRefs.current[video.id] = el; }}
-                        src={video.videoUrl}
-                        className="w-full h-full object-cover"
-                        playsInline
-                        loop
-                        onPlay={() => setIsPlaying(true)}
-                        onPause={() => setIsPlaying(false)}
-                      />
+                    <div 
+                      className={cn(
+                        "relative aspect-[9/16] rounded-[2.5rem] overflow-hidden finance-3d-shadow bg-black group cursor-pointer transition-all duration-500",
+                        isActivated ? "ring-4 ring-accent" : "hover:ring-2 hover:ring-white/20"
+                      )}
+                      onClick={() => !isActivated && isActive && togglePlay(video.id)}
+                    >
+                      {/* Video or YouTube Embed */}
+                      {ytId ? (
+                        <iframe
+                          src={`https://www.youtube.com/embed/${ytId}?autoplay=${isActivated ? 1 : 0}&modestbranding=1&rel=0`}
+                          className="w-full h-full object-cover"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <video
+                          ref={el => { videoRefs.current[video.id] = el; }}
+                          src={video.videoUrl}
+                          className="w-full h-full object-cover"
+                          playsInline
+                          loop
+                        />
+                      )}
                       
-                      {/* Play/Pause Overlay */}
-                      <div 
-                        className={cn(
-                          "absolute inset-0 flex items-center justify-center transition-all duration-300",
-                          isPlaying && isActive ? "opacity-0 group-hover:opacity-100 bg-black/20" : "bg-black/40"
-                        )}
-                        onClick={() => isActive && togglePlay(video.id)}
-                      >
-                        {isActive && (
-                          <button className="w-20 h-20 bg-accent text-primary rounded-full flex items-center justify-center shadow-2xl finance-3d-shadow transition-transform hover:scale-110">
-                            {isPlaying ? <Pause className="w-8 h-8 fill-primary" /> : <Play className="w-8 h-8 fill-primary ml-1" />}
+                      {/* Play Overlay (Only shown when NOT activated) */}
+                      {!isActivated && isActive && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-all">
+                          <button className="w-20 h-20 bg-accent text-primary rounded-full flex items-center justify-center shadow-2xl finance-3d-shadow transform group-hover:scale-110 transition-transform">
+                            <Play className="w-8 h-8 fill-primary ml-1" />
                           </button>
-                        )}
-                        {!isActive && (
-                          <div className="w-16 h-16 border-2 border-white/20 rounded-full flex items-center justify-center">
-                            <Play className="w-6 h-6 text-white/40" />
-                          </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
+
+                      {/* Native Video Controls Overlay */}
+                      {isActivated && !ytId && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                           {!isPlaying && <div className="p-4 bg-black/40 rounded-full"><Play className="w-12 h-12 text-white" /></div>}
+                        </div>
+                      )}
+
+                      {/* Activated Controls (Close/Pause for MP4) */}
+                      {isActivated && (
+                        <div className="absolute top-6 right-6 z-30">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveVideoId(null);
+                              setIsPlaying(false);
+                              if (!ytId) videoRefs.current[video.id]?.pause();
+                            }}
+                            className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 transition-all"
+                          >
+                            <X className="w-6 h-6" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -131,7 +176,7 @@ export default function TestimonialVideosPage() {
           </div>
 
           {/* Navigation Controls */}
-          <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none px-4">
+          <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none px-4 z-40">
             <button 
               onClick={() => emblaApi?.scrollPrev()} 
               className="w-14 h-14 rounded-full bg-white/80 backdrop-blur-md finance-3d-shadow flex items-center justify-center text-primary pointer-events-auto hover:bg-primary hover:text-white transition-all transform hover:-translate-x-2"
