@@ -7,8 +7,7 @@ import Footer from '@/components/Footer';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 
 export default function QuizPortalPage() {
   const db = useFirestore();
@@ -48,18 +47,6 @@ export default function QuizPortalPage() {
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
-              </div>
-              
-              {/* Optional: Fallback button if iframe fails to load or for mobile ease */}
-              <div className="p-12 text-center bg-white border-t">
-                <p className="text-muted-foreground mb-6">Having trouble with the view? Open the quiz in a new window.</p>
-                <Button 
-                  onClick={() => window.open(quizUrl, '_blank')}
-                  variant="outline" 
-                  className="rounded-xl h-14 px-8 border-2 border-primary text-primary font-bold hover:bg-primary hover:text-white transition-all finance-3d-shadow"
-                >
-                  <ExternalLink className="w-5 h-5 mr-2" /> Launch Quiz In New Tab
-                </Button>
               </div>
             </div>
           )}
