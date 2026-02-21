@@ -4,7 +4,7 @@ import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'The Finance School India - Let\'s Deal with The Wealth',
-  description: 'Navigate the future of finance with 3D insights and interactive tools.',
+  description: 'From budgeting basics to investment insights, The Finance School India empowers individuals to take charge of their money with confidence. Learn how to grow, protect, and manage your wealth step by step. Test your financial knowledge with our free interactive quiz.',
 };
 
 export default function RootLayout({
