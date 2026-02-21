@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -59,7 +59,9 @@ import {
   Facebook,
   Instagram,
   Youtube,
-  MessageCircle
+  MessageCircle,
+  PlusCircle,
+  RotateCcw
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -116,6 +118,15 @@ export default function Dashboard() {
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
 
+  // Dynamic Categories from existing courses
+  const uniqueCategories = useMemo(() => {
+    const cats = new Set(['Foundational', 'Leadership', 'Premium']);
+    courses?.forEach(c => {
+      if (c.category) cats.add(c.category);
+    });
+    return Array.from(cats);
+  }, [courses]);
+
   // --- STATES ---
   const [brandingForm, setBrandingForm] = useState({ 
     appName: '', 
@@ -145,6 +156,8 @@ export default function Dashboard() {
 
   const [courseForm, setCourseForm] = useState({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
+  const [customCategoryInput, setCustomCategoryInput] = useState('');
 
   const [teamForm, setTeamForm] = useState({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
@@ -221,10 +234,29 @@ export default function Dashboard() {
   const handleSaveCourse = async (e: React.FormEvent) => {
     e.preventDefault();
     let finalImageUrl = courseForm.imageUrl;
+    const finalCategory = isCustomCategory ? customCategoryInput : courseForm.category;
+
+    if (!finalCategory) {
+      toast({ variant: "destructive", title: "Category Required" });
+      return;
+    }
+
     try {
       if (selectedFiles['course']) finalImageUrl = await uploadFile(selectedFiles['course'], 'courses');
       const highlightsArray = typeof courseForm.highlights === 'string' ? courseForm.highlights.split(',').map(h => h.trim()).filter(h => h !== '') : (courseForm.highlights || []);
-      const data = { title: courseForm.title, subtitle: courseForm.subtitle, description: courseForm.description, imageUrl: finalImageUrl, category: courseForm.category, rating: Number(courseForm.rating), lessons: courseForm.lessons, highlights: highlightsArray, buyLink: courseForm.buyLink, order: Number(courseForm.order) };
+      const data = { 
+        title: courseForm.title, 
+        subtitle: courseForm.subtitle, 
+        description: courseForm.description, 
+        imageUrl: finalImageUrl, 
+        category: finalCategory, 
+        rating: Number(courseForm.rating), 
+        lessons: courseForm.lessons, 
+        highlights: highlightsArray, 
+        buyLink: courseForm.buyLink, 
+        order: Number(courseForm.order) 
+      };
+
       if (editingCourseId) {
         updateDocumentNonBlocking(doc(db, 'courses', editingCourseId), data);
         toast({ title: "Course Updated" });
@@ -232,8 +264,11 @@ export default function Dashboard() {
         addDocumentNonBlocking(collection(db, 'courses'), { ...data, createdAt: serverTimestamp() });
         toast({ title: "Course Added" });
       }
+
       setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
       setEditingCourseId(null);
+      setIsCustomCategory(false);
+      setCustomCategoryInput('');
       setSelectedFiles(prev => ({ ...prev, course: null }));
       setUploadProgress(null);
     } catch (err: any) { toast({ variant: "destructive", title: "Upload Failed", description: err.message }); }
@@ -464,14 +499,45 @@ export default function Dashboard() {
                         <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Title</Label><Input value={courseForm.title} onChange={e => setCourseForm({...courseForm, title: e.target.value})} className="rounded-xl h-12" required /></div><div className="space-y-2"><Label>Subtitle</Label><Input value={courseForm.subtitle} onChange={e => setCourseForm({...courseForm, subtitle: e.target.value})} className="rounded-xl h-12" /></div></div>
                         <div className="space-y-2"><Label>Description</Label><Textarea value={courseForm.description} onChange={e => setCourseForm({...courseForm, description: e.target.value})} className="rounded-xl min-h-[100px]" required /></div>
                         <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2"><Label>Category</Label><Select value={courseForm.category} onValueChange={v => setCourseForm({...courseForm, category: v})}><SelectTrigger className="rounded-xl h-12"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="Foundational">Foundational</SelectItem><SelectItem value="Leadership">Leadership</SelectItem><SelectItem value="Premium">Premium</SelectItem></SelectContent></Select></div>
+                          <div className="space-y-2">
+                            <Label className="flex justify-between items-center">
+                              Category
+                              <Button 
+                                type="button" 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-6 px-2 text-[10px] font-bold"
+                                onClick={() => setIsCustomCategory(!isCustomCategory)}
+                              >
+                                {isCustomCategory ? <RotateCcw className="w-3 h-3 mr-1" /> : <PlusCircle className="w-3 h-3 mr-1" />}
+                                {isCustomCategory ? "Select From List" : "Add New Category"}
+                              </Button>
+                            </Label>
+                            {isCustomCategory ? (
+                              <Input 
+                                placeholder="Enter category name" 
+                                value={customCategoryInput} 
+                                onChange={e => setCustomCategoryInput(e.target.value)}
+                                className="rounded-xl h-12 border-accent"
+                              />
+                            ) : (
+                              <Select value={courseForm.category} onValueChange={v => setCourseForm({...courseForm, category: v})}>
+                                <SelectTrigger className="rounded-xl h-12"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  {uniqueCategories.map(cat => (
+                                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          </div>
                           <div className="space-y-2"><Label>Lesson Count</Label><Input value={courseForm.lessons} onChange={e => setCourseForm({...courseForm, lessons: e.target.value})} className="rounded-xl h-12" /></div>
                         </div>
                         <div className="space-y-2"><Label>Highlights (Separate by commas)</Label><Input value={courseForm.highlights} onChange={e => setCourseForm({...courseForm, highlights: e.target.value})} className="rounded-xl h-12" placeholder="Topic 1, Topic 2, etc." /></div>
                         <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Rating</Label><Input type="number" step="0.1" value={courseForm.rating} onChange={e => setCourseForm({...courseForm, rating: parseFloat(e.target.value) || 0})} className="rounded-xl h-12" /></div><div className="space-y-2"><Label>Order</Label><Input type="number" value={courseForm.order} onChange={e => setCourseForm({...courseForm, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div></div>
                         <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-12" onClick={() => courseFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload Course Banner</Button>
                         <input type="file" ref={courseFileInputRef} onChange={e => handleFileChange(e, 'course')} accept="image/*" className="hidden" />
-                        <div className="flex gap-4"><Button type="submit" className="flex-1 h-14 rounded-xl font-bold text-lg" disabled={uploadProgress !== null}>{(editingCourseId ? 'Save' : 'Publish')}</Button>{editingCourseId && <Button type="button" variant="ghost" className="h-14 w-14 p-0 rounded-xl bg-slate-100" onClick={() => {setEditingCourseId(null); setCourseForm({id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0})}}><XCircle className="w-6 h-6 text-slate-400" /></Button>}</div>
+                        <div className="flex gap-4"><Button type="submit" className="flex-1 h-14 rounded-xl font-bold text-lg" disabled={uploadProgress !== null}>{(editingCourseId ? 'Save' : 'Publish')}</Button>{editingCourseId && <Button type="button" variant="ghost" className="h-14 w-14 p-0 rounded-xl bg-slate-100" onClick={() => {setEditingCourseId(null); setCourseForm({id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0}); setIsCustomCategory(false); setCustomCategoryInput('');}}><XCircle className="w-6 h-6 text-slate-400" /></Button>}</div>
                       </div>
                       <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-50 relative aspect-video">{courseForm.imageUrl && <Image src={courseForm.imageUrl} alt="p" fill className="object-cover" />}</div>
                     </form>
@@ -479,7 +545,8 @@ export default function Dashboard() {
                       {courses?.map(c => (
                         <div key={c.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col gap-3 border relative">
                           <p className="font-bold text-xs truncate">{c.title}</p>
-                          <div className="flex gap-2 relative z-30"><Button type="button" variant="outline" size="sm" className="h-10 rounded-lg flex-1 font-bold" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')})}}><Edit2 className="w-4 h-4 mr-2" /> Edit</Button><Button type="button" variant="destructive" size="sm" className="h-10 w-10 p-0 rounded-lg" onClick={() => setItemToDelete({ path: 'courses', id: c.id })}><Trash2 className="w-4 h-4" /></Button></div>
+                          <Badge variant="outline" className="text-[10px] w-fit h-4 px-1.5">{c.category}</Badge>
+                          <div className="flex gap-2 relative z-30"><Button type="button" variant="outline" size="sm" className="h-10 rounded-lg flex-1 font-bold" onClick={() => {setEditingCourseId(c.id); setCourseForm({...c, highlights: (c.highlights || []).join(', ')}); setIsCustomCategory(false); setCustomCategoryInput('');}}><Edit2 className="w-4 h-4 mr-2" /> Edit</Button><Button type="button" variant="destructive" size="sm" className="h-10 w-10 p-0 rounded-lg" onClick={() => setItemToDelete({ path: 'courses', id: c.id })}><Trash2 className="w-4 h-4" /></Button></div>
                         </div>
                       ))}
                     </div>
