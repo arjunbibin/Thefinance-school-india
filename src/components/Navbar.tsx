@@ -5,8 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { GraduationCap } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 export default function Navbar() {
   const db = useFirestore();
@@ -39,16 +37,6 @@ export default function Navbar() {
           </span>
         </div>
       </Link>
-
-      <div className="flex items-center gap-4">
-        <Link href="/quiz">
-          <Button variant="ghost" className="flex items-center gap-2 font-bold text-primary hover:bg-accent/20 rounded-xl px-4 md:px-6 h-10 md:h-12 border border-primary/10">
-            <GraduationCap className="w-5 h-5 text-accent" />
-            <span className="hidden sm:inline">Attend Quiz</span>
-            <span className="sm:hidden text-xs">Quiz</span>
-          </Button>
-        </Link>
-      </div>
     </nav>
   );
 }
