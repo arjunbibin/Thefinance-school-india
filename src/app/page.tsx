@@ -1,4 +1,6 @@
 
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import ThreeHero from '@/components/ThreeHero';
@@ -24,7 +26,8 @@ import {
   CircleCheckBig,
   ArrowRight,
   Users,
-  MessageSquare
+  MessageSquare,
+  GraduationCap
 } from 'lucide-react';
 
 export default function Home() {
@@ -33,7 +36,7 @@ export default function Home() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative min-h-[80vh] flex items-center justify-center pt-16 px-6 overflow-hidden">
+      <section className="relative min-h-[90vh] flex items-center justify-center pt-16 px-6 overflow-hidden">
         <ThreeHero />
         
         <div className="relative z-10 text-center max-w-5xl animate-in fade-in zoom-in duration-1000">
@@ -52,6 +55,19 @@ export default function Home() {
           <p className="text-xl md:text-2xl text-muted-foreground/80 mb-14 max-w-3xl mx-auto leading-relaxed font-medium">
             From budgeting basics to investment insights, The Finance School India empowers individuals to take charge of their money with confidence. Learn how to grow, protect, and manage your wealth step by step.
           </p>
+
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <Link href="/quiz" className="w-full sm:w-auto">
+              <Button className="h-16 px-12 rounded-2xl bg-accent text-primary font-bold text-xl finance-3d-shadow hover:scale-110 transition-transform flex items-center gap-3 w-full animate-pulse border-none">
+                <GraduationCap className="w-6 h-6" /> Attend Quiz Now
+              </Button>
+            </Link>
+            <Link href="#courses" className="w-full sm:w-auto">
+              <Button variant="outline" className="h-16 px-12 rounded-2xl border-2 border-primary text-primary font-bold text-xl finance-3d-shadow hover:scale-110 transition-transform flex items-center gap-3 w-full bg-white">
+                Explore Courses <ArrowRight className="w-6 h-6" />
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Floating Interactive Icons */}

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -13,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,7 +63,8 @@ import {
   Youtube,
   MessageCircle,
   PlusCircle,
-  RotateCcw
+  RotateCcw,
+  GraduationCap
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -136,7 +139,8 @@ export default function Dashboard() {
     facebookUrl: '',
     instagramUrl: '',
     youtubeUrl: '',
-    emailAddress: ''
+    emailAddress: '',
+    quizUrl: ''
   });
 
   useEffect(() => { 
@@ -149,7 +153,8 @@ export default function Dashboard() {
         facebookUrl: branding.facebookUrl || '',
         instagramUrl: branding.instagramUrl || '',
         youtubeUrl: branding.youtubeUrl || '',
-        emailAddress: branding.emailAddress || ''
+        emailAddress: branding.emailAddress || '',
+        quizUrl: branding.quizUrl || ''
       }); 
     }
   }, [branding]);
@@ -227,7 +232,7 @@ export default function Dashboard() {
     e.preventDefault();
     if (brandingRef) {
       setDocumentNonBlocking(brandingRef, brandingForm, { merge: true });
-      toast({ title: "Branding & Social Updated" });
+      toast({ title: "Configuration Updated" });
     }
   };
 
@@ -641,6 +646,18 @@ export default function Dashboard() {
                         <div className="space-y-2"><Label>Institutional Name</Label><Input value={brandingForm.appName} onChange={e => setBrandingForm({...brandingForm, appName: e.target.value})} className="rounded-xl h-12" /></div>
                         <div className="space-y-2"><Label>Brand Tagline</Label><Input value={brandingForm.tagline} onChange={e => setBrandingForm({...brandingForm, tagline: e.target.value})} className="rounded-xl h-12" /></div>
                         <div className="space-y-2"><Label>Logo URL</Label><Input value={brandingForm.logoUrl} onChange={e => setBrandingForm({...brandingForm, logoUrl: e.target.value})} className="rounded-xl h-12" /></div>
+                        
+                        <h3 className="font-headline font-bold text-xl text-primary border-b pb-2 pt-4">Internal Links</h3>
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2 text-accent font-bold"><GraduationCap className="w-4 h-4" /> Quiz Portal URL</Label>
+                          <Input 
+                            value={brandingForm.quizUrl} 
+                            onChange={e => setBrandingForm({...brandingForm, quizUrl: e.target.value})} 
+                            className="rounded-xl h-12 border-accent/50 focus:border-accent" 
+                            placeholder="https://quiz.financeschool.in/..." 
+                          />
+                          <p className="text-[10px] text-muted-foreground italic">Link users to the embedded quiz portal.</p>
+                        </div>
                       </div>
 
                       <div className="space-y-6">
@@ -668,7 +685,7 @@ export default function Dashboard() {
                       </div>
                       
                       <div className="md:col-span-2 pt-6">
-                        <Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg bg-slate-900 text-white">Save Institutional Profile</Button>
+                        <Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg bg-slate-900 text-white">Save Configuration</Button>
                       </div>
                     </form>
                   </CardContent>

@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -55,7 +56,8 @@
         "facebookUrl": { "type": "string", "format": "uri" },
         "instagramUrl": { "type": "string", "format": "uri" },
         "youtubeUrl": { "type": "string", "format": "uri" },
-        "emailAddress": { "type": "string", "format": "email" }
+        "emailAddress": { "type": "string", "format": "email" },
+        "quizUrl": { "type": "string", "format": "uri" }
       }
     },
     "Slide": {

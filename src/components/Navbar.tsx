@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import { GraduationCap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function Navbar() {
   const db = useFirestore();
@@ -17,7 +19,7 @@ export default function Navbar() {
   const tagline = branding?.tagline || "Let's Deal with The Wealth";
 
   return (
-    <nav className="relative z-50 flex items-center justify-between px-8 py-6 bg-white/40 backdrop-blur-md border-b border-white/20 shadow-sm">
+    <nav className="relative z-50 flex items-center justify-between px-6 md:px-8 py-4 md:py-6 bg-white/40 backdrop-blur-md border-b border-white/20 shadow-sm flex-wrap gap-4">
       <Link href="/" className="flex items-center gap-3 md:gap-5 group">
         <div className="relative w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-2xl md:rounded-3xl overflow-hidden finance-3d-shadow group-hover:scale-110 transition-transform duration-300 bg-white p-1 md:p-2">
           <Image 
@@ -29,14 +31,24 @@ export default function Navbar() {
           />
         </div>
         <div className="flex flex-col">
-          <span className="text-xl md:text-3xl lg:text-4xl font-headline font-bold text-primary tracking-tighter leading-none">
+          <span className="text-lg md:text-3xl lg:text-4xl font-headline font-bold text-primary tracking-tighter leading-none">
             {appName}
           </span>
-          <span className="text-[10px] md:text-xs lg:text-sm font-bold text-accent uppercase tracking-widest mt-1 opacity-80">
+          <span className="text-[8px] md:text-xs lg:text-sm font-bold text-accent uppercase tracking-widest mt-1 opacity-80">
             {tagline}
           </span>
         </div>
       </Link>
+
+      <div className="flex items-center gap-4">
+        <Link href="/quiz">
+          <Button variant="ghost" className="flex items-center gap-2 font-bold text-primary hover:bg-accent/20 rounded-xl px-4 md:px-6 h-10 md:h-12 border border-primary/10">
+            <GraduationCap className="w-5 h-5 text-accent" />
+            <span className="hidden sm:inline">Attend Quiz</span>
+            <span className="sm:hidden text-xs">Quiz</span>
+          </Button>
+        </Link>
+      </div>
     </nav>
   );
 }
