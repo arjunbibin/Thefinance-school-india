@@ -708,7 +708,7 @@ export default function Dashboard() {
                     <CardHeader className="bg-primary text-white p-8"><CardTitle className="flex items-center gap-3"><ImageIcon className="w-5 h-5" /> Slides (Image or Short Video)</CardTitle></CardHeader>
                     <CardContent className="p-8 space-y-6">
                       <form onSubmit={handleSaveSlide} className="space-y-4">
-                        <Input placeholder="Heading" value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl h-12" required />
+                        <Input placeholder="Heading" value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl h-12" />
                         <Input placeholder="Description" value={newSlide.description} onChange={e => setNewSlide({...newSlide, description: e.target.value})} className="rounded-xl h-12" />
                         <Input type="number" placeholder="Order" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" />
                         <Button type="button" variant="outline" className="w-full h-12 border-dashed" onClick={() => slideFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Select Slide Image/GIF/Video</Button>

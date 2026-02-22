@@ -73,7 +73,7 @@
         "imageHint": { "type": "string" },
         "order": { "type": "number" }
       },
-      "required": ["title", "imageUrl", "order"]
+      "required": ["imageUrl", "order"]
     },
     "GalleryImage": {
       "title": "GalleryImage",
