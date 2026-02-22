@@ -124,7 +124,10 @@ export default function ShowcaseSlideshow() {
               
               return (
                 <CarouselItem key={slide.id || index} className="pl-2 md:pl-4">
-                  <Card className="border-none bg-white finance-3d-shadow rounded-[1.5rem] md:rounded-[2rem] overflow-hidden">
+                  <Card 
+                    className="border-none bg-white finance-3d-shadow rounded-[1.5rem] md:rounded-[2rem] overflow-hidden"
+                    onContextMenu={(e) => e.preventDefault()}
+                  >
                     <CardContent className="p-0 relative aspect-video md:aspect-[21/9] bg-slate-900">
                       {isVideo ? (
                         <video 
@@ -134,6 +137,7 @@ export default function ShowcaseSlideshow() {
                           muted 
                           playsInline 
                           onEnded={() => api?.scrollNext()}
+                          controlsList="nodownload"
                         />
                       ) : (
                         <Image
@@ -143,6 +147,7 @@ export default function ShowcaseSlideshow() {
                           className="object-cover"
                           data-ai-hint={slide.imageHint || 'education'}
                           priority={index === 0}
+                          draggable={false}
                         />
                       )}
                       {(slide.title || slide.description) && (

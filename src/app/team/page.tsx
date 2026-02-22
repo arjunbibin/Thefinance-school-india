@@ -47,6 +47,7 @@ export default function TeamPage() {
                   "animate-in fade-in slide-in-from-bottom-20 duration-1000 fill-mode-forwards"
                 )}
                 style={{ animationDelay: `${index * 150}ms` }}
+                onContextMenu={(e) => e.preventDefault()}
               >
                 <div className={cn(
                   "relative mb-8 p-2 rounded-full finance-3d-shadow transition-all duration-500 group-hover:scale-105 group-hover:-translate-y-2",
@@ -60,6 +61,7 @@ export default function TeamPage() {
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                         data-ai-hint="professional portrait"
+                        draggable={false}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-slate-300"><UserSquare className="w-24 h-24" /></div>

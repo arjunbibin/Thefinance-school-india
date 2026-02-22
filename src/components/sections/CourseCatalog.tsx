@@ -94,6 +94,7 @@ export default function CourseCatalog() {
             <Card key={course.id} 
               className="group finance-3d-card border-none bg-white finance-3d-shadow overflow-hidden flex flex-col h-full animate-in slide-in-from-bottom-20 duration-1000"
               style={{ animationDelay: `${index * 150}ms` }}
+              onContextMenu={(e) => e.preventDefault()}
             >
               <div className="relative h-56 w-full overflow-hidden">
                 <Image 
@@ -102,6 +103,7 @@ export default function CourseCatalog() {
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                   data-ai-hint="child education"
+                  draggable={false}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-10">

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -57,7 +56,11 @@ export default function ReviewsSection() {
               <CarouselContent className="-ml-4 md:-ml-6">
                 {reviews.map((review, index) => (
                   <CarouselItem key={review.id} className="pl-4 md:pl-6 basis-full md:basis-1/2 lg:basis-1/3">
-                    <Card className="h-full border-none bg-white finance-3d-shadow rounded-[2.5rem] overflow-hidden p-8 relative group animate-in slide-in-from-bottom-20 duration-1000" style={{ animationDelay: `${index * 100}ms` }}>
+                    <Card 
+                      className="h-full border-none bg-white finance-3d-shadow rounded-[2.5rem] overflow-hidden p-8 relative group animate-in slide-in-from-bottom-20 duration-1000" 
+                      style={{ animationDelay: `${index * 100}ms` }}
+                      onContextMenu={(e) => e.preventDefault()}
+                    >
                       <Quote className="absolute top-6 right-8 w-12 h-12 text-primary/5 group-hover:text-primary/10 transition-colors" />
                       <div className="flex items-center gap-4 mb-6">
                         <div className="relative w-14 h-14 rounded-2xl overflow-hidden finance-3d-shadow-inner border-2 border-white">
@@ -66,6 +69,7 @@ export default function ReviewsSection() {
                             alt={review.userName} 
                             fill 
                             className="object-cover" 
+                            draggable={false}
                           />
                         </div>
                         <div className="flex-1 overflow-hidden">

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -44,6 +43,7 @@ export default function GalleryPage() {
                 key={image.id || index} 
                 className="group border-none bg-white finance-3d-shadow rounded-[2.5rem] overflow-hidden finance-3d-card animate-in slide-in-from-bottom-20 duration-1000"
                 style={{ animationDelay: `${index * 100}ms` }}
+                onContextMenu={(e) => e.preventDefault()}
               >
                 <div className="relative aspect-[4/3] w-full overflow-hidden">
                   <Image
@@ -52,6 +52,7 @@ export default function GalleryPage() {
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                     data-ai-hint={image.imageHint || "school memory"}
+                    draggable={false}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-8">
                     <p className="text-white font-headline font-bold text-xl">{image.description || "Campus Moment"}</p>
