@@ -105,14 +105,12 @@ export default function Footer() {
             <li className="hover:text-accent cursor-pointer">Rise and Lead</li>
             <li className="hover:text-accent cursor-pointer">Little CEO (Premium)</li>
             <li>
-              <a 
-                href={workshopFormUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
+              <Link 
+                href={`/register?url=${encodeURIComponent(workshopFormUrl)}`}
                 className="hover:text-accent cursor-pointer flex items-center gap-2"
               >
                 Offline Workshops <ExternalLink className="w-3 h-3" />
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

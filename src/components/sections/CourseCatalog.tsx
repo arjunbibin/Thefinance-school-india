@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
 
 const DEFAULT_COURSES = [
   {
@@ -21,7 +22,7 @@ const DEFAULT_COURSES = [
     lessons: "13+ Topics",
     rating: 4.8,
     highlights: ["Needs vs Wants", "Banking Basics", "Compounding Magic"],
-    buyLink: "https://financeschool.in/register"
+    buyLink: "https://thefinschool.nurturecrm.in/publicwebform/0dd471d0-33bc-4a23-a83f-7881c4577842"
   },
   {
     id: 'course-2',
@@ -33,7 +34,7 @@ const DEFAULT_COURSES = [
     lessons: "18+ Topics",
     rating: 4.9,
     highlights: ["Public Speaking", "Emotional Intelligence", "Personal Branding"],
-    buyLink: "https://financeschool.in/register"
+    buyLink: "https://thefinschool.nurturecrm.in/publicwebform/0dd471d0-33bc-4a23-a83f-7881c4577842"
   },
   {
     id: 'course-3',
@@ -45,7 +46,7 @@ const DEFAULT_COURSES = [
     lessons: "Full Suite",
     rating: 5.0,
     highlights: ["Business Strategy", "Ethical Leadership", "Practical Case Studies"],
-    buyLink: "https://financeschool.in/register"
+    buyLink: "https://thefinschool.nurturecrm.in/publicwebform/0dd471d0-33bc-4a23-a83f-7881c4577842"
   }
 ];
 
@@ -57,6 +58,7 @@ const CATEGORY_ICON_MAP: Record<string, any> = {
 
 export default function CourseCatalog() {
   const db = useFirestore();
+  const router = useRouter();
   const coursesQuery = useMemoFirebase(() => query(collection(db, 'courses'), orderBy('order', 'asc')), [db]);
   const { data: remoteCourses, isLoading } = useCollection(coursesQuery);
 
@@ -72,7 +74,8 @@ export default function CourseCatalog() {
 
   const handleBuyNow = (link: string) => {
     if (link) {
-      window.open(link, '_blank', 'noopener,noreferrer');
+      // Use internal portal for masking
+      router.push(`/register?url=${encodeURIComponent(link)}`);
     }
   };
 

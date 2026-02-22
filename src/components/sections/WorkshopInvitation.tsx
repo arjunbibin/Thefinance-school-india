@@ -5,9 +5,16 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { School, GraduationCap, ArrowRight, Building2, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function WorkshopInvitation() {
+  const router = useRouter();
   const workshopFormUrl = "https://thefinschool.nurturecrm.in/publicwebform/0dd471d0-33bc-4a23-a83f-7881c4577842";
+
+  const handleInviteClick = () => {
+    // Masked internal portal link
+    router.push(`/register?url=${encodeURIComponent(workshopFormUrl)}`);
+  };
 
   return (
     <section className="max-w-7xl mx-auto px-6 py-12 md:py-24 animate-in fade-in slide-in-from-bottom-10 duration-1000">
@@ -24,11 +31,12 @@ export default function WorkshopInvitation() {
               Invite us for specialized workshops and seminars in your schools, colleges, or universities. We provide expert training tailored to empower students and faculty with real-world financial skills.
             </p>
             <div className="pt-4">
-              <a href={workshopFormUrl} target="_blank" rel="noopener noreferrer" className="inline-block">
-                <Button className="h-16 md:h-20 px-12 md:px-16 rounded-3xl bg-primary text-white font-bold text-xl md:text-2xl finance-3d-shadow hover:scale-110 transition-all flex items-center gap-4 group">
-                  <GraduationCap className="w-8 h-8 group-hover:rotate-12 transition-transform" /> Invite Us Now <ArrowRight className="w-6 h-6" />
-                </Button>
-              </a>
+              <Button 
+                onClick={handleInviteClick}
+                className="h-16 md:h-20 px-12 md:px-16 rounded-3xl bg-primary text-white font-bold text-xl md:text-2xl finance-3d-shadow hover:scale-110 transition-all flex items-center gap-4 group"
+              >
+                <GraduationCap className="w-8 h-8 group-hover:rotate-12 transition-transform" /> Invite Us Now <ArrowRight className="w-6 h-6" />
+              </Button>
             </div>
           </div>
           
