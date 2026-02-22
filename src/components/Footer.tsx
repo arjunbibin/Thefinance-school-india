@@ -8,7 +8,8 @@ import {
   Youtube, 
   MessageCircle, 
   Mail, 
-  ShieldCheck 
+  ShieldCheck,
+  ExternalLink 
 } from 'lucide-react';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -28,6 +29,8 @@ export default function Footer() {
     youtube: branding?.youtubeUrl || "#",
     email: branding?.emailAddress ? `mailto:${branding.emailAddress}` : "mailto:support@financeschool.in"
   };
+
+  const workshopFormUrl = "https://thefinschool.nurturecrm.in/publicwebform/0dd471d0-33bc-4a23-a83f-7881c4577842";
 
   const handleSocialClick = (url: string) => {
     if (url && url !== "#") {
@@ -101,7 +104,16 @@ export default function Footer() {
             <li className="hover:text-accent cursor-pointer">Finance for Life</li>
             <li className="hover:text-accent cursor-pointer">Rise and Lead</li>
             <li className="hover:text-accent cursor-pointer">Little CEO (Premium)</li>
-            <li className="hover:text-accent cursor-pointer">Offline Workshops</li>
+            <li>
+              <a 
+                href={workshopFormUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="hover:text-accent cursor-pointer flex items-center gap-2"
+              >
+                Offline Workshops <ExternalLink className="w-3 h-3" />
+              </a>
+            </li>
           </ul>
         </div>
 

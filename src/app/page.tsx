@@ -8,6 +8,7 @@ import CourseCatalog from '@/components/sections/CourseCatalog';
 import ShowcaseSlideshow from '@/components/sections/ShowcaseSlideshow';
 import ReviewsSection from '@/components/sections/ReviewsSection';
 import VideoShowcase from '@/components/sections/VideoShowcase';
+import WorkshopInvitation from '@/components/sections/WorkshopInvitation';
 import Footer from '@/components/Footer';
 import FinanceIcon3D from '@/components/FinanceIcon3D';
 import { Card } from '@/components/ui/card';
@@ -166,7 +167,10 @@ export default function Home() {
         {/* Reviews Section ("Voices of Success") */}
         <ReviewsSection />
 
-        {/* Attend Quiz CTA - Positioned under Voices of Success */}
+        {/* Workshop Invitation Section - NEW */}
+        <WorkshopInvitation />
+
+        {/* Attend Quiz CTA - Positioned under Voices of Success & Workshops */}
         <section className="max-w-7xl mx-auto px-6 py-12 md:py-24 animate-in fade-in slide-in-from-bottom-10 duration-1000">
           <Card className="p-8 md:p-16 border-none bg-gradient-to-br from-white to-slate-50 finance-3d-shadow rounded-[3rem] text-center relative overflow-hidden">
              <div className="relative z-10 space-y-8">
