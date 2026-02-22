@@ -64,7 +64,9 @@ import {
   MessageCircle,
   PlusCircle,
   RotateCcw,
-  GraduationCap
+  GraduationCap,
+  Star,
+  Quote
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -83,6 +85,7 @@ export default function Dashboard() {
   const teamFileInputRef = useRef<HTMLInputElement>(null);
   const videoFileInputRef = useRef<HTMLInputElement>(null);
   const testimonialVideoFileInputRef = useRef<HTMLInputElement>(null);
+  const reviewFileInputRef = useRef<HTMLInputElement>(null);
   
   const profileRef = useMemoFirebase(() => user ? doc(db, 'userProfiles', user.uid) : null, [db, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
@@ -117,6 +120,9 @@ export default function Dashboard() {
 
   const testimonialVideosQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'testimonialVideos'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
   const { data: testimonialVideoGallery } = useCollection(testimonialVideosQuery);
+
+  const reviewsQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'reviews'), orderBy('createdAt', 'desc')) : null, [db, isAuthorized]);
+  const { data: reviews } = useCollection(reviewsQuery);
 
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
@@ -167,6 +173,9 @@ export default function Dashboard() {
   const [teamForm, setTeamForm] = useState({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
 
+  const [reviewForm, setReviewForm] = useState({ id: '', userName: '', userPhoto: '', content: '', rating: 5 });
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+
   const [newSlide, setNewSlide] = useState({ title: '', description: '', imageUrl: '', order: 0 });
   const [newGalleryImg, setNewGalleryImg] = useState({ description: '', imageUrl: '' });
   const [newVideo, setNewVideo] = useState({ title: '', videoUrl: '', order: 0, isYoutube: false });
@@ -202,6 +211,7 @@ export default function Dashboard() {
       else if (type === 'gallery') setNewGalleryImg(prev => ({ ...prev, imageUrl: previewUrl }));
       else if (type === 'course') setCourseForm(prev => ({ ...prev, imageUrl: previewUrl }));
       else if (type === 'team') setTeamForm(prev => ({ ...prev, imageUrl: previewUrl }));
+      else if (type === 'review') setReviewForm(prev => ({ ...prev, userPhoto: previewUrl }));
       else if (type === 'video') setNewVideo(prev => ({ ...prev, videoUrl: previewUrl, isYoutube: false }));
       else if (type === 'testimonialVideo') setNewTestimonialVideo(prev => ({ ...prev, videoUrl: previewUrl, isYoutube: false }));
     }
@@ -295,6 +305,31 @@ export default function Dashboard() {
       setTeamForm({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
       setEditingMemberId(null);
       setSelectedFiles(prev => ({ ...prev, team: null }));
+      setUploadProgress(null);
+    } catch (err: any) { toast({ variant: "destructive", title: "Upload Failed", description: err.message }); }
+  };
+
+  const handleSaveReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    let finalImageUrl = reviewForm.userPhoto;
+    try {
+      if (selectedFiles['review']) finalImageUrl = await uploadFile(selectedFiles['review'], 'reviews');
+      const data = { 
+        userName: reviewForm.userName, 
+        userPhoto: finalImageUrl, 
+        content: reviewForm.content, 
+        rating: Number(reviewForm.rating) 
+      };
+      if (editingReviewId) {
+        updateDocumentNonBlocking(doc(db, 'reviews', editingReviewId), data);
+        toast({ title: "Testimonial Updated" });
+      } else {
+        addDocumentNonBlocking(collection(db, 'reviews'), { ...data, createdAt: serverTimestamp() });
+        toast({ title: "Testimonial Added" });
+      }
+      setReviewForm({ id: '', userName: '', userPhoto: '', content: '', rating: 5 });
+      setEditingReviewId(null);
+      setSelectedFiles(prev => ({ ...prev, review: null }));
       setUploadProgress(null);
     } catch (err: any) { toast({ variant: "destructive", title: "Upload Failed", description: err.message }); }
   };
@@ -393,6 +428,7 @@ export default function Dashboard() {
             <Tabs defaultValue="testimonials-video" className="w-full">
               <TabsList className="flex flex-wrap h-auto gap-2 bg-slate-100 p-2 rounded-[2rem] mb-10 overflow-x-auto shadow-inner">
                 <TabsTrigger value="testimonials-video" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Testimonial Videos</TabsTrigger>
+                <TabsTrigger value="reviews" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Text Testimonials</TabsTrigger>
                 <TabsTrigger value="videos" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Success Stories</TabsTrigger>
                 <TabsTrigger value="courses" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Academic Courses</TabsTrigger>
                 <TabsTrigger value="team" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Leadership Team</TabsTrigger>
@@ -444,6 +480,53 @@ export default function Dashboard() {
                             {getYoutubeId(v.videoUrl) ? <iframe src={`https://www.youtube.com/embed/${getYoutubeId(v.videoUrl)}`} className="w-full h-full" /> : <video src={v.videoUrl} className="w-full h-full object-cover" />}
                           </div>
                           <Button type="button" variant="destructive" size="sm" className="w-full rounded-lg relative z-30 font-bold" onClick={() => setItemToDelete({ path: 'testimonialVideos', id: v.id })}><Trash2 className="w-3 h-3 mr-2" /> Remove</Button>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="reviews">
+                <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+                  <CardHeader className="bg-primary text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Quote className="w-6 h-6" /> {editingReviewId ? 'Edit' : 'Add'} Text Testimonial (Voices of Success)</CardTitle></CardHeader>
+                  <CardContent className="p-10 space-y-8">
+                    <form onSubmit={handleSaveReview} className="grid md:grid-cols-2 gap-10">
+                      <div className="space-y-4">
+                        <div className="space-y-2"><Label>Student Name</Label><Input value={reviewForm.userName} onChange={e => setReviewForm({...reviewForm, userName: e.target.value})} className="rounded-xl h-12" required /></div>
+                        <div className="space-y-2"><Label>Rating (1-5)</Label><Input type="number" min="1" max="5" value={reviewForm.rating} onChange={e => setReviewForm({...reviewForm, rating: parseInt(e.target.value) || 5})} className="rounded-xl h-12" /></div>
+                        <div className="space-y-2"><Label>Review Content</Label><Textarea value={reviewForm.content} onChange={e => setReviewForm({...reviewForm, content: e.target.value})} className="rounded-xl min-h-[120px]" required /></div>
+                        <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-12" onClick={() => reviewFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {selectedFiles['review'] ? 'Change Photo' : 'Upload Student Photo'}</Button>
+                        <input type="file" ref={reviewFileInputRef} onChange={e => handleFileChange(e, 'review')} accept="image/*" className="hidden" />
+                        <div className="flex gap-4">
+                          <Button type="submit" className="flex-1 h-14 rounded-xl font-bold text-lg" disabled={uploadProgress !== null}>{(editingReviewId ? 'Update' : 'Publish')} Testimonial</Button>
+                          {editingReviewId && <Button type="button" variant="ghost" className="h-14 w-14 p-0 rounded-xl bg-slate-100" onClick={() => {setEditingReviewId(null); setReviewForm({id: '', userName: '', userPhoto: '', content: '', rating: 5});}}><XCircle className="w-6 h-6 text-slate-400" /></Button>}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-center justify-center p-10 border-4 border-slate-50 rounded-[2.5rem] bg-slate-50">
+                        <div className="relative w-32 h-32 rounded-2xl overflow-hidden border-4 border-white finance-3d-shadow bg-white">
+                          {reviewForm.userPhoto ? <Image src={reviewForm.userPhoto} alt="p" fill className="object-cover" /> : <UserSquare className="w-full h-full text-slate-100 p-6" />}
+                        </div>
+                        <div className="mt-6 text-center">
+                          <p className="font-headline font-bold text-xl text-primary">{reviewForm.userName || 'Student Name'}</p>
+                          <div className="flex justify-center mt-2 gap-1">
+                            {[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 ${i < reviewForm.rating ? 'fill-yellow-400 text-yellow-400' : 'text-slate-300'}`} />)}
+                          </div>
+                        </div>
+                      </div>
+                    </form>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-10 border-t">
+                      {reviews?.map(r => (
+                        <div key={r.id} className="p-6 bg-slate-50 rounded-2xl border relative flex flex-col gap-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg overflow-hidden relative border bg-white shadow-sm"><Image src={r.userPhoto || `https://picsum.photos/seed/${r.id}/100/100`} alt="r" fill className="object-cover" /></div>
+                            <p className="font-bold text-sm truncate">{r.userName}</p>
+                          </div>
+                          <p className="text-xs text-muted-foreground line-clamp-3 italic">"{r.content}"</p>
+                          <div className="flex gap-2 relative z-30 mt-auto pt-3 border-t">
+                            <Button type="button" variant="outline" size="sm" className="h-9 flex-1 rounded-lg font-bold" onClick={() => {setEditingReviewId(r.id); setReviewForm({...r})}}><Edit2 className="w-3 h-3 mr-1" /> Edit</Button>
+                            <Button type="button" variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg" onClick={() => setItemToDelete({ path: 'reviews', id: r.id })}><Trash2 className="w-4 h-4" /></Button>
+                          </div>
                         </div>
                       ))}
                     </div>
