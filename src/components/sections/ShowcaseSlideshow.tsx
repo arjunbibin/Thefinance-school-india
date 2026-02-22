@@ -1,9 +1,7 @@
-
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import Autoplay from 'embla-carousel-autoplay';
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Carousel,
@@ -11,6 +9,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from '@/components/ui/carousel';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
@@ -46,9 +45,8 @@ export default function ShowcaseSlideshow() {
   const slidesQuery = useMemoFirebase(() => query(collection(db, 'slides'), orderBy('order', 'asc')), [db]);
   const { data: remoteSlides, isLoading } = useCollection(slidesQuery);
 
-  const plugin = React.useRef(
-    Autoplay({ delay: 4000, stopOnInteraction: false, stopOnMouseEnter: true })
-  );
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
 
   const slides = remoteSlides && remoteSlides.length > 0 ? remoteSlides : DEFAULT_SLIDES;
 
@@ -56,6 +54,35 @@ export default function ShowcaseSlideshow() {
     if (!url) return false;
     return url.match(/\.(mp4|webm|ogg|mov)$/) || url.includes('video');
   };
+
+  // Sync current index with carousel
+  useEffect(() => {
+    if (!api) return;
+    
+    setCurrent(api.selectedScrollSnap());
+    
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
+
+  // Handle dynamic progression
+  useEffect(() => {
+    if (!api || !slides || slides.length <= 1) return;
+
+    const currentSlide = slides[current];
+    const isVideo = isVideoUrl(currentSlide?.imageUrl);
+
+    // If it's an image, set a 4s timer to progress
+    if (!isVideo) {
+      const timer = setTimeout(() => {
+        api.scrollNext();
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+    
+    // If it's a video, progression is handled by the onEnded event of the video element
+  }, [current, api, slides]);
 
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-6 pt-4 md:pt-8 pb-4">
@@ -67,15 +94,15 @@ export default function ShowcaseSlideshow() {
 
       <div className="relative">
         <Carousel
+          setApi={setApi}
           opts={{
             align: "start",
             loop: true,
           }}
-          plugins={[plugin.current]}
           className="w-full"
         >
           <CarouselContent className="-ml-2 md:-ml-4">
-            {slides.map((slide: any) => (
+            {slides.map((slide: any, index: number) => (
               <CarouselItem key={slide.id} className="pl-2 md:pl-4">
                 <Card className="border-none bg-white finance-3d-shadow rounded-[1.5rem] md:rounded-[2rem] overflow-hidden">
                   <CardContent className="p-0 relative aspect-video md:aspect-[21/9]">
@@ -83,25 +110,28 @@ export default function ShowcaseSlideshow() {
                       <video 
                         src={slide.imageUrl} 
                         className="w-full h-full object-cover" 
-                        autoPlay 
-                        loop 
+                        autoPlay={index === current}
+                        loop={false}
                         muted 
                         playsInline 
+                        onEnded={() => api?.scrollNext()}
                       />
                     ) : (
                       <Image
                         src={slide.imageUrl}
-                        alt={slide.title}
+                        alt={slide.title || 'Campus Life'}
                         fill
                         className="object-cover"
                         data-ai-hint={slide.imageHint || 'education'}
-                        priority
+                        priority={index === 0}
                       />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4 md:p-12">
-                      <h3 className="text-lg md:text-5xl font-headline font-bold text-white mb-1 md:mb-4">{slide.title}</h3>
-                      <p className="text-white/80 text-[10px] md:text-xl max-w-2xl leading-tight md:leading-relaxed">{slide.description}</p>
-                    </div>
+                    {(slide.title || slide.description) && (
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4 md:p-12">
+                        {slide.title && <h3 className="text-lg md:text-5xl font-headline font-bold text-white mb-1 md:mb-4">{slide.title}</h3>}
+                        {slide.description && <p className="text-white/80 text-[10px] md:text-xl max-w-2xl leading-tight md:leading-relaxed">{slide.description}</p>}
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </CarouselItem>
