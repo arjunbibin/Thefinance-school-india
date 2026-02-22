@@ -68,11 +68,14 @@ export default function ReviewsSection() {
                             className="object-cover" 
                           />
                         </div>
-                        <div>
-                          <h4 className="font-bold text-primary truncate max-w-[150px]">{review.userName}</h4>
+                        <div className="flex-1 overflow-hidden">
+                          <h4 className="font-bold text-primary truncate">{review.userName}</h4>
+                          <p className="text-[10px] text-accent font-bold uppercase tracking-widest mb-1 truncate">
+                            {review.designation || 'Student'}
+                          </p>
                           <div className="flex items-center gap-1">
                             {[...Array(5)].map((_, i) => (
-                              <Star key={i} className={`w-3 h-3 ${i < (review.rating || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-slate-200'}`} />
+                              <Star key={i} className={`w-2.5 h-2.5 ${i < (review.rating || 0) ? 'fill-yellow-400 text-yellow-400' : 'text-slate-200'}`} />
                             ))}
                           </div>
                         </div>

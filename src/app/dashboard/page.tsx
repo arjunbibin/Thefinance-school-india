@@ -66,7 +66,8 @@ import {
   RotateCcw,
   GraduationCap,
   Star,
-  Quote
+  Quote,
+  Briefcase
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -173,7 +174,7 @@ export default function Dashboard() {
   const [teamForm, setTeamForm] = useState({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
 
-  const [reviewForm, setReviewForm] = useState({ id: '', userName: '', userPhoto: '', content: '', rating: 5 });
+  const [reviewForm, setReviewForm] = useState({ id: '', userName: '', userPhoto: '', designation: 'Student', content: '', rating: 5 });
   const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
 
   const [newSlide, setNewSlide] = useState({ title: '', description: '', imageUrl: '', order: 0 });
@@ -317,6 +318,7 @@ export default function Dashboard() {
       const data = { 
         userName: reviewForm.userName, 
         userPhoto: finalImageUrl, 
+        designation: reviewForm.designation,
         content: reviewForm.content, 
         rating: Number(reviewForm.rating) 
       };
@@ -327,7 +329,7 @@ export default function Dashboard() {
         addDocumentNonBlocking(collection(db, 'reviews'), { ...data, createdAt: serverTimestamp() });
         toast({ title: "Testimonial Added" });
       }
-      setReviewForm({ id: '', userName: '', userPhoto: '', content: '', rating: 5 });
+      setReviewForm({ id: '', userName: '', userPhoto: '', designation: 'Student', content: '', rating: 5 });
       setEditingReviewId(null);
       setSelectedFiles(prev => ({ ...prev, review: null }));
       setUploadProgress(null);
@@ -493,14 +495,29 @@ export default function Dashboard() {
                   <CardContent className="p-10 space-y-8">
                     <form onSubmit={handleSaveReview} className="grid md:grid-cols-2 gap-10">
                       <div className="space-y-4">
-                        <div className="space-y-2"><Label>Student Name</Label><Input value={reviewForm.userName} onChange={e => setReviewForm({...reviewForm, userName: e.target.value})} className="rounded-xl h-12" required /></div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2"><Label>Full Name</Label><Input value={reviewForm.userName} onChange={e => setReviewForm({...reviewForm, userName: e.target.value})} className="rounded-xl h-12" required /></div>
+                          <div className="space-y-2">
+                            <Label>Designation</Label>
+                            <Select value={reviewForm.designation} onValueChange={v => setReviewForm({...reviewForm, designation: v})}>
+                              <SelectTrigger className="rounded-xl h-12"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Student">Student</SelectItem>
+                                <SelectItem value="Parent">Parent</SelectItem>
+                                <SelectItem value="Professional">Professional</SelectItem>
+                                <SelectItem value="Follower">Follower</SelectItem>
+                                <SelectItem value="Entrepreneur">Entrepreneur</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
                         <div className="space-y-2"><Label>Rating (1-5)</Label><Input type="number" min="1" max="5" value={reviewForm.rating} onChange={e => setReviewForm({...reviewForm, rating: parseInt(e.target.value) || 5})} className="rounded-xl h-12" /></div>
                         <div className="space-y-2"><Label>Review Content</Label><Textarea value={reviewForm.content} onChange={e => setReviewForm({...reviewForm, content: e.target.value})} className="rounded-xl min-h-[120px]" required /></div>
-                        <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-12" onClick={() => reviewFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {selectedFiles['review'] ? 'Change Photo' : 'Upload Student Photo'}</Button>
+                        <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-12" onClick={() => reviewFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> {selectedFiles['review'] ? 'Change Photo' : 'Upload Person Photo'}</Button>
                         <input type="file" ref={reviewFileInputRef} onChange={e => handleFileChange(e, 'review')} accept="image/*" className="hidden" />
                         <div className="flex gap-4">
                           <Button type="submit" className="flex-1 h-14 rounded-xl font-bold text-lg" disabled={uploadProgress !== null}>{(editingReviewId ? 'Update' : 'Publish')} Testimonial</Button>
-                          {editingReviewId && <Button type="button" variant="ghost" className="h-14 w-14 p-0 rounded-xl bg-slate-100" onClick={() => {setEditingReviewId(null); setReviewForm({id: '', userName: '', userPhoto: '', content: '', rating: 5});}}><XCircle className="w-6 h-6 text-slate-400" /></Button>}
+                          {editingReviewId && <Button type="button" variant="ghost" className="h-14 w-14 p-0 rounded-xl bg-slate-100" onClick={() => {setEditingReviewId(null); setReviewForm({id: '', userName: '', userPhoto: '', designation: 'Student', content: '', rating: 5});}}><XCircle className="w-6 h-6 text-slate-400" /></Button>}
                         </div>
                       </div>
                       <div className="flex flex-col items-center justify-center p-10 border-4 border-slate-50 rounded-[2.5rem] bg-slate-50">
@@ -508,8 +525,9 @@ export default function Dashboard() {
                           {reviewForm.userPhoto ? <Image src={reviewForm.userPhoto} alt="p" fill className="object-cover" /> : <UserSquare className="w-full h-full text-slate-100 p-6" />}
                         </div>
                         <div className="mt-6 text-center">
-                          <p className="font-headline font-bold text-xl text-primary">{reviewForm.userName || 'Student Name'}</p>
-                          <div className="flex justify-center mt-2 gap-1">
+                          <p className="font-headline font-bold text-xl text-primary">{reviewForm.userName || 'Name'}</p>
+                          <Badge variant="outline" className="mt-1 text-[10px] font-bold uppercase tracking-widest">{reviewForm.designation}</Badge>
+                          <div className="flex justify-center mt-3 gap-1">
                             {[...Array(5)].map((_, i) => <Star key={i} className={`w-4 h-4 ${i < reviewForm.rating ? 'fill-yellow-400 text-yellow-400' : 'text-slate-300'}`} />)}
                           </div>
                         </div>
@@ -520,7 +538,10 @@ export default function Dashboard() {
                         <div key={r.id} className="p-6 bg-slate-50 rounded-2xl border relative flex flex-col gap-3">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg overflow-hidden relative border bg-white shadow-sm"><Image src={r.userPhoto || `https://picsum.photos/seed/${r.id}/100/100`} alt="r" fill className="object-cover" /></div>
-                            <p className="font-bold text-sm truncate">{r.userName}</p>
+                            <div>
+                              <p className="font-bold text-sm truncate">{r.userName}</p>
+                              <p className="text-[10px] text-accent font-bold uppercase tracking-tight">{r.designation || 'Student'}</p>
+                            </div>
                           </div>
                           <p className="text-xs text-muted-foreground line-clamp-3 italic">"{r.content}"</p>
                           <div className="flex gap-2 relative z-30 mt-auto pt-3 border-t">

@@ -38,6 +38,7 @@
         "id": { "type": "string" },
         "userName": { "type": "string" },
         "userPhoto": { "type": "string" },
+        "designation": { "type": "string", "description": "e.g. Student, Parent, Professional" },
         "content": { "type": "string" },
         "rating": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
