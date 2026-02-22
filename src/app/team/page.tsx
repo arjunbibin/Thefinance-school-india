@@ -51,9 +51,12 @@ export default function TeamPage() {
               >
                 <div className={cn(
                   "relative mb-8 p-2 rounded-full finance-3d-shadow transition-all duration-500 group-hover:scale-105 group-hover:-translate-y-2",
-                  member.isFounder ? "animate-float" : ""
+                  member.isFounder ? "animate-float ring-4 ring-accent/20 shadow-[0_0_50px_rgba(14,165,233,0.1)] scale-110" : ""
                 )}>
-                  <div className="relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-white finance-3d-shadow-inner bg-slate-100">
+                  <div className={cn(
+                    "relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 border-white finance-3d-shadow-inner bg-slate-100",
+                    member.isFounder ? "md:w-64 md:h-64" : ""
+                  )}>
                     {member.imageUrl ? (
                       <Image
                         src={member.imageUrl}
@@ -66,21 +69,33 @@ export default function TeamPage() {
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-slate-300"><UserSquare className="w-24 h-24" /></div>
                     )}
-                    <div className="absolute inset-0 border-[6px] border-primary/10 rounded-full pointer-events-none" />
+                    <div className={cn(
+                      "absolute inset-0 border-[6px] rounded-full pointer-events-none",
+                      member.isFounder ? "border-accent/30" : "border-primary/10"
+                    )} />
                   </div>
                   
-                  <div className="absolute -bottom-2 -right-2 bg-white p-3 rounded-2xl finance-3d-shadow border border-slate-100 transform rotate-12 group-hover:rotate-0 transition-transform">
-                    {member.isFounder ? <Star className="w-6 h-6 text-accent" /> : <ShieldCheck className="w-6 h-6 text-accent" />}
+                  <div className={cn(
+                    "absolute -bottom-2 -right-2 bg-white p-3 rounded-2xl finance-3d-shadow border border-slate-100 transform transition-transform",
+                    member.isFounder ? "rotate-0 scale-125 bg-accent text-primary" : "rotate-12 group-hover:rotate-0 text-accent"
+                  )}>
+                    {member.isFounder ? <Star className="w-6 h-6 fill-current" /> : <ShieldCheck className="w-6 h-6" />}
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className="text-2xl font-headline font-bold text-primary group-hover:text-accent transition-colors">{member.name}</h3>
-                  <Badge variant="secondary" className="px-4 py-1 rounded-lg text-xs font-bold uppercase tracking-widest bg-primary/10 text-primary border-none">
+                  <h3 className={cn(
+                    "font-headline font-bold text-primary group-hover:text-accent transition-colors",
+                    member.isFounder ? "text-3xl" : "text-2xl"
+                  )}>{member.name}</h3>
+                  <Badge variant="secondary" className={cn(
+                    "px-4 py-1 rounded-lg text-xs font-bold uppercase tracking-widest border-none",
+                    member.isFounder ? "bg-accent text-primary shadow-sm" : "bg-primary/10 text-primary"
+                  )}>
                     {member.role}
                   </Badge>
                   {member.bio && (
-                    <p className="text-sm text-muted-foreground mt-4 italic max-w-[250px] line-clamp-3">
+                    <p className="text-sm text-muted-foreground mt-4 italic max-w-[280px] line-clamp-3 leading-relaxed">
                       "{member.bio}"
                     </p>
                   )}

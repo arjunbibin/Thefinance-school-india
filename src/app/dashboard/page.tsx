@@ -66,7 +66,8 @@ import {
   GraduationCap,
   Star,
   Quote,
-  Briefcase
+  Briefcase,
+  Crown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -673,28 +674,58 @@ export default function Dashboard() {
 
               <TabsContent value="team">
                 <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
-                  <CardHeader className="bg-accent text-primary p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Users className="w-6 h-6" /> Faculty Management</CardTitle></CardHeader>
+                  <CardHeader className="bg-accent text-primary p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Users className="w-6 h-6" /> Faculty & Leadership Management</CardTitle></CardHeader>
                   <CardContent className="p-10 space-y-8">
                     <form onSubmit={handleSaveTeam} className="grid md:grid-cols-2 gap-10">
                       <div className="space-y-4">
                         <div className="space-y-2"><Label>Full Name</Label><Input value={teamForm.name} onChange={e => setTeamForm({...teamForm, name: e.target.value})} className="rounded-xl h-12" required /></div>
-                        <div className="space-y-2"><Label>Role</Label><Input value={teamForm.role} onChange={e => setTeamForm({...teamForm, role: e.target.value})} className="rounded-xl h-12" required /></div>
-                        <div className="space-y-2"><Label>Bio</Label><Textarea value={teamForm.bio} onChange={e => setTeamForm({...teamForm, bio: e.target.value})} className="rounded-xl h-24" /></div>
-                        <div className="grid grid-cols-2 gap-6 items-center"><div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-xl border"><Switch checked={teamForm.isFounder} onCheckedChange={v => setTeamForm({...teamForm, isFounder: v})} /><Label className="font-bold">Founder</Label></div><div className="space-y-2"><Label>Order</Label><Input type="number" value={teamForm.order} onChange={e => setTeamForm({...teamForm, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div></div>
+                        <div className="space-y-2"><Label>Professional Role (e.g. CEO, GM, etc.)</Label><Input value={teamForm.role} onChange={e => setTeamForm({...teamForm, role: e.target.value})} className="rounded-xl h-12" required /></div>
+                        <div className="space-y-2"><Label>Brief Bio</Label><Textarea value={teamForm.bio} onChange={e => setTeamForm({...teamForm, bio: e.target.value})} className="rounded-xl h-24" /></div>
+                        
+                        <div className="p-4 rounded-2xl border bg-slate-50 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                              <Label className="text-base font-bold flex items-center gap-2"><Crown className="w-4 h-4 text-accent" /> Leadership Status</Label>
+                              <p className="text-xs text-muted-foreground">Mark as Founder for special animations.</p>
+                            </div>
+                            <Switch checked={teamForm.isFounder} onCheckedChange={v => setTeamForm({...teamForm, isFounder: v})} />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider">Sequence Order</Label>
+                            <Input 
+                              type="number" 
+                              value={teamForm.order} 
+                              onChange={e => setTeamForm({...teamForm, order: parseInt(e.target.value) || 0})} 
+                              className="rounded-xl h-10" 
+                              placeholder="1 for CEO, 2 for Co-Founder..."
+                            />
+                            <p className="text-[10px] text-accent italic font-bold">Tip: Use lower numbers (1, 2) to keep leadership at the top.</p>
+                          </div>
+                        </div>
+
                         <Button type="button" variant="outline" className="w-full rounded-xl h-12 border-dashed" onClick={() => teamFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Portrait Upload</Button>
                         <input type="file" ref={teamFileInputRef} onChange={e => handleFileChange(e, 'team')} accept="image/*" className="hidden" />
-                        <Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg" disabled={uploadProgress !== null}>{(editingMemberId ? 'Save' : 'Add to Team')}</Button>
+                        <Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg" disabled={uploadProgress !== null}>{(editingMemberId ? 'Update Profile' : 'Add to Team')}</Button>
                       </div>
                       <div className="flex flex-col items-center justify-center p-10 border-4 border-slate-50 rounded-[2.5rem] bg-slate-50">
-                        <div className="relative w-48 h-48 rounded-full overflow-hidden border-8 border-white bg-white">{teamForm.imageUrl ? <Image src={teamForm.imageUrl} alt="m" fill className="object-cover" /> : <UserSquare className="w-full h-full text-slate-100 p-8" />}</div>
+                        <div className={`relative w-48 h-48 rounded-full overflow-hidden border-8 border-white bg-white finance-3d-shadow ${teamForm.isFounder ? 'animate-float' : ''}`}>
+                          {teamForm.imageUrl ? <Image src={teamForm.imageUrl} alt="m" fill className="object-cover" /> : <UserSquare className="w-full h-full text-slate-100 p-8" />}
+                        </div>
                         <p className="mt-6 font-headline font-bold text-2xl text-primary">{teamForm.name || 'Full Name'}</p>
+                        {teamForm.isFounder && <Badge className="bg-accent text-primary font-bold mt-2 uppercase">Leadership</Badge>}
                       </div>
                     </form>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t">
                       {teamMembers?.map(m => (
                         <div key={m.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col items-center gap-2 border relative">
-                          <div className="w-16 h-16 rounded-full overflow-hidden relative border shadow-md"><Image src={m.imageUrl || `https://picsum.photos/seed/${m.id}/100/100`} alt="m" fill className="object-cover" /></div>
-                          <p className="text-xs font-bold truncate w-full">{m.name}</p>
+                          <div className={`w-16 h-16 rounded-full overflow-hidden relative border shadow-md ${m.isFounder ? 'border-accent' : ''}`}>
+                            <Image src={m.imageUrl || `https://picsum.photos/seed/${m.id}/100/100`} alt="m" fill className="object-cover" />
+                          </div>
+                          <div className="text-center">
+                            <p className="text-xs font-bold truncate w-full">{m.name}</p>
+                            {m.isFounder && <p className="text-[9px] text-accent font-bold uppercase">Founder</p>}
+                          </div>
                           <div className="flex gap-2 w-full relative z-30"><Button type="button" variant="outline" size="sm" className="h-9 flex-1 rounded-lg" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-3 h-3" /></Button><Button type="button" variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg" onClick={() => setItemToDelete({ path: 'team', id: m.id })}><Trash2 className="w-3 h-3" /></Button></div>
                         </div>
                       ))}
@@ -709,8 +740,8 @@ export default function Dashboard() {
                     <CardHeader className="bg-primary text-white p-8"><CardTitle className="flex items-center gap-3"><ImageIcon className="w-5 h-5" /> Slides (Image or Short Video)</CardTitle></CardHeader>
                     <CardContent className="p-8 space-y-6">
                       <form onSubmit={handleSaveSlide} className="space-y-4">
-                        <Input placeholder="Heading" value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl h-12" />
-                        <Input placeholder="Description" value={newSlide.description} onChange={e => setNewSlide({...newSlide, description: e.target.value})} className="rounded-xl h-12" />
+                        <Input placeholder="Heading (Optional)" value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl h-12" />
+                        <Input placeholder="Description (Optional)" value={newSlide.description} onChange={e => setNewSlide({...newSlide, description: e.target.value})} className="rounded-xl h-12" />
                         <Input type="number" placeholder="Order" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" />
                         <Button type="button" variant="outline" className="w-full h-12 border-dashed" onClick={() => slideFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Select Slide Image/GIF/Video</Button>
                         <input type="file" ref={slideFileInputRef} onChange={e => handleFileChange(e, 'slide')} accept="image/*,video/*" className="hidden" />
