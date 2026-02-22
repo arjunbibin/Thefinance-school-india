@@ -111,6 +111,7 @@ export default function VideoShowcase() {
                 disablePictureInPicture
                 disableRemotePlayback
                 playsInline
+                preload="auto"
               />
               
               {/* Control Overlay - Always appears on hover or when paused */}

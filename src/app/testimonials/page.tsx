@@ -63,11 +63,11 @@ export default function TestimonialVideosPage() {
                 >
                   <div className="relative aspect-[9/16] w-full bg-slate-900">
                     {isActive ? (
-                      /* Active Player - Plays directly in grid */
+                      /* Active Player - Plays directly in grid with HD parameters */
                       <div className="w-full h-full">
                         {ytId ? (
                           <iframe
-                            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&controls=1`}
+                            src={`https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&controls=1&vq=hd1080`}
                             className="w-full h-full border-none"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
@@ -79,6 +79,7 @@ export default function TestimonialVideosPage() {
                             controls
                             autoPlay
                             playsInline
+                            preload="auto"
                           />
                         )}
                       </div>
@@ -90,7 +91,11 @@ export default function TestimonialVideosPage() {
                       >
                         {ytId ? (
                           <img 
-                            src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`} 
+                            src={`https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`} 
+                            onError={(e) => {
+                              // Fallback if maxres is not available
+                              (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+                            }}
                             alt={video.title}
                             className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
                           />
@@ -100,6 +105,7 @@ export default function TestimonialVideosPage() {
                             className="w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-opacity"
                             muted
                             playsInline
+                            preload="metadata"
                           />
                         )}
 
