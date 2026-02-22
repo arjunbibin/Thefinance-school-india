@@ -52,6 +52,11 @@ export default function ShowcaseSlideshow() {
 
   const slides = remoteSlides && remoteSlides.length > 0 ? remoteSlides : DEFAULT_SLIDES;
 
+  const isVideoUrl = (url: string) => {
+    if (!url) return false;
+    return url.match(/\.(mp4|webm|ogg|mov)$/) || url.includes('video');
+  };
+
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-6 pt-4 md:pt-8 pb-4">
       <div className="mb-6 text-center px-4">
@@ -74,14 +79,25 @@ export default function ShowcaseSlideshow() {
               <CarouselItem key={slide.id} className="pl-2 md:pl-4">
                 <Card className="border-none bg-white finance-3d-shadow rounded-[1.5rem] md:rounded-[2rem] overflow-hidden">
                   <CardContent className="p-0 relative aspect-video md:aspect-[21/9]">
-                    <Image
-                      src={slide.imageUrl}
-                      alt={slide.title}
-                      fill
-                      className="object-cover"
-                      data-ai-hint={slide.imageHint || 'education'}
-                      priority
-                    />
+                    {isVideoUrl(slide.imageUrl) ? (
+                      <video 
+                        src={slide.imageUrl} 
+                        className="w-full h-full object-cover" 
+                        autoPlay 
+                        loop 
+                        muted 
+                        playsInline 
+                      />
+                    ) : (
+                      <Image
+                        src={slide.imageUrl}
+                        alt={slide.title}
+                        fill
+                        className="object-cover"
+                        data-ai-hint={slide.imageHint || 'education'}
+                        priority
+                      />
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4 md:p-12">
                       <h3 className="text-lg md:text-5xl font-headline font-bold text-white mb-1 md:mb-4">{slide.title}</h3>
                       <p className="text-white/80 text-[10px] md:text-xl max-w-2xl leading-tight md:leading-relaxed">{slide.description}</p>

@@ -196,11 +196,13 @@ export default function Dashboard() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const file = e.target.files?.[0];
     if (file) {
-      if ((type === 'video' || type === 'testimonialVideo') && file.size > 50 * 1024 * 1024) {
+      // Videos size limit (50MB)
+      if ((type === 'video' || type === 'testimonialVideo' || type === 'slide') && file.type.startsWith('video/') && file.size > 50 * 1024 * 1024) {
         toast({ variant: "destructive", title: "File Too Large", description: "Videos are limited to 50MB." });
         return;
       }
-      if (type !== 'video' && type !== 'testimonialVideo' && file.size > 5 * 1024 * 1024) {
+      // Standard image limit
+      if (file.type.startsWith('image/') && file.size > 5 * 1024 * 1024) {
         toast({ variant: "destructive", title: "File Too Large", description: "Images must be smaller than 5MB." });
         return;
       }
@@ -338,7 +340,7 @@ export default function Dashboard() {
 
   const handleSaveSlide = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFiles['slide'] && !newSlide.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
+    if (!selectedFiles['slide'] && !newSlide.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image or GIF/Video is required." });
     try {
       let finalImageUrl = newSlide.imageUrl;
       if (selectedFiles['slide']) finalImageUrl = await uploadFile(selectedFiles['slide'], 'slides');
@@ -404,6 +406,11 @@ export default function Dashboard() {
     const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
     const match = url.match(regExp);
     return (match && match[1].length === 11) ? match[1] : null;
+  };
+
+  const isVideoUrl = (url: string) => {
+    if (!url) return false;
+    return url.match(/\.(mp4|webm|ogg|mov)$/) || url.includes('video');
   };
 
   if (isUserLoading || isProfileLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
@@ -574,7 +581,7 @@ export default function Dashboard() {
                         <div className="space-y-2"><Label>Display Sequence</Label><Input type="number" value={newVideo.order} onChange={e => setNewVideo({...newVideo, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div>
                         <Button type="submit" className="w-full h-14 rounded-xl shadow-lg font-bold text-lg" disabled={uploadProgress !== null}>Publish Success Story</Button>
                       </div>
-                      <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 flex items-center justify-center relative aspect-[16/9] max-h-[250px] mx-auto w-full">
+                      <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 flex items-center justify-center relative aspect-video max-h-[250px] mx-auto w-full">
                         {newVideo.isYoutube && getYoutubeId(newVideo.videoUrl) ? (
                           <iframe src={`https://www.youtube.com/embed/${getYoutubeId(newVideo.videoUrl)}`} className="w-full h-full" />
                         ) : newVideo.videoUrl ? (
@@ -698,20 +705,24 @@ export default function Dashboard() {
               <TabsContent value="assets">
                 <div className="grid md:grid-cols-2 gap-12">
                   <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
-                    <CardHeader className="bg-primary text-white p-8"><CardTitle className="flex items-center gap-3"><ImageIcon className="w-5 h-5" /> Slides</CardTitle></CardHeader>
+                    <CardHeader className="bg-primary text-white p-8"><CardTitle className="flex items-center gap-3"><ImageIcon className="w-5 h-5" /> Slides (Image or Short Video)</CardTitle></CardHeader>
                     <CardContent className="p-8 space-y-6">
                       <form onSubmit={handleSaveSlide} className="space-y-4">
                         <Input placeholder="Heading" value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} className="rounded-xl h-12" required />
                         <Input placeholder="Description" value={newSlide.description} onChange={e => setNewSlide({...newSlide, description: e.target.value})} className="rounded-xl h-12" />
                         <Input type="number" placeholder="Order" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" />
-                        <Button type="button" variant="outline" className="w-full h-12 border-dashed" onClick={() => slideFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Select Slide Image</Button>
-                        <input type="file" ref={slideFileInputRef} onChange={e => handleFileChange(e, 'slide')} accept="image/*" className="hidden" />
+                        <Button type="button" variant="outline" className="w-full h-12 border-dashed" onClick={() => slideFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Select Slide Image/GIF/Video</Button>
+                        <input type="file" ref={slideFileInputRef} onChange={e => handleFileChange(e, 'slide')} accept="image/*,video/*" className="hidden" />
                         <Button type="submit" className="w-full h-14 font-bold rounded-xl" disabled={uploadProgress !== null}>Add to Carousel</Button>
                       </form>
-                      <div className="grid grid-cols-3 gap-3 pt-6 border-t">
+                      <div className="grid grid-cols-2 gap-3 pt-6 border-t">
                         {slides?.map(s => (
                           <div key={s.id} className="relative aspect-video rounded-xl overflow-hidden border shadow-sm group">
-                            <Image src={s.imageUrl} alt="s" fill className="object-cover" />
+                            {isVideoUrl(s.imageUrl) ? (
+                              <video src={s.imageUrl} className="w-full h-full object-cover" autoPlay loop muted playsInline />
+                            ) : (
+                              <Image src={s.imageUrl} alt="s" fill className="object-cover" />
+                            )}
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center"><Button type="button" variant="destructive" size="icon" className="h-8 w-8 z-30" onClick={() => setItemToDelete({ path: 'slides', id: s.id })}><Trash2 className="w-4 h-4" /></Button></div>
                           </div>
                         ))}
