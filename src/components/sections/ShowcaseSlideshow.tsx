@@ -53,19 +53,16 @@ export default function ShowcaseSlideshow() {
 
   const isVideoUrl = (url: string) => {
     if (!url) return false;
-    // Enhanced check for common video extensions and Firebase Storage metadata hints
-    const lowerUrl = url.toLowerCase();
+    const lowerUrl = url.toLowerCase().split('?')[0];
     return (
-      lowerUrl.includes('.mp4') || 
-      lowerUrl.includes('.webm') || 
-      lowerUrl.includes('.ogg') || 
-      lowerUrl.includes('.mov') || 
-      lowerUrl.includes('video/') ||
-      lowerUrl.includes('firebasestorage') && (lowerUrl.includes('alt=media') || lowerUrl.includes('%2fvideo'))
+      lowerUrl.endsWith('.mp4') || 
+      lowerUrl.endsWith('.webm') || 
+      lowerUrl.endsWith('.ogg') || 
+      lowerUrl.endsWith('.mov') ||
+      url.includes('contentType=video')
     );
   };
 
-  // Sync current index with carousel
   useEffect(() => {
     if (!api) return;
     
@@ -76,14 +73,13 @@ export default function ShowcaseSlideshow() {
     });
   }, [api]);
 
-  // Handle video play/pause based on active slide
   useEffect(() => {
     slides.forEach((slide, index) => {
       const video = videoRefs.current[index];
       if (video) {
         if (index === current) {
           video.currentTime = 0;
-          video.play().catch(e => console.warn("Autoplay blocked", e));
+          video.play().catch(() => {});
         } else {
           video.pause();
         }
@@ -91,22 +87,18 @@ export default function ShowcaseSlideshow() {
     });
   }, [current, slides]);
 
-  // Handle dynamic progression
   useEffect(() => {
     if (!api || !slides || slides.length <= 1) return;
 
     const currentSlide = slides[current];
     const isVideo = isVideoUrl(currentSlide?.imageUrl);
 
-    // If it's an image, set a 4s timer to progress
     if (!isVideo) {
       const timer = setTimeout(() => {
         api.scrollNext();
       }, 4000);
       return () => clearTimeout(timer);
     }
-    
-    // For videos, progression is handled by the onEnded event
   }, [current, api, slides]);
 
   return (
@@ -142,9 +134,6 @@ export default function ShowcaseSlideshow() {
                           muted 
                           playsInline 
                           onEnded={() => api?.scrollNext()}
-                          onCanPlay={(e) => {
-                            if (index === current) (e.target as HTMLVideoElement).play().catch(() => {});
-                          }}
                         />
                       ) : (
                         <Image

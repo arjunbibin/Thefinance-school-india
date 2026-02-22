@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -103,7 +102,6 @@ export default function Dashboard() {
     }
   }, [user, isUserLoading, router, profile, isProfileLoading, toast]);
 
-  // DATA FETCHING
   const slidesQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'slides'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
   const { data: slides } = useCollection(slidesQuery);
 
@@ -128,7 +126,6 @@ export default function Dashboard() {
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
 
-  // Dynamic Categories from existing courses
   const uniqueCategories = useMemo(() => {
     const cats = new Set(['Foundational', 'Leadership', 'Premium']);
     courses?.forEach(c => {
@@ -137,7 +134,6 @@ export default function Dashboard() {
     return Array.from(cats);
   }, [courses]);
 
-  // --- STATES ---
   const [brandingForm, setBrandingForm] = useState({ 
     appName: '', 
     logoUrl: '', 
@@ -196,12 +192,10 @@ export default function Dashboard() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Videos size limit (50MB)
       if ((type === 'video' || type === 'testimonialVideo' || type === 'slide') && file.type.startsWith('video/') && file.size > 50 * 1024 * 1024) {
         toast({ variant: "destructive", title: "File Too Large", description: "Videos are limited to 50MB." });
         return;
       }
-      // Standard image limit
       if (file.type.startsWith('image/') && file.size > 5 * 1024 * 1024) {
         toast({ variant: "destructive", title: "File Too Large", description: "Images must be smaller than 5MB." });
         return;
@@ -410,7 +404,14 @@ export default function Dashboard() {
 
   const isVideoUrl = (url: string) => {
     if (!url) return false;
-    return url.match(/\.(mp4|webm|ogg|mov)$/) || url.includes('video');
+    const lowerUrl = url.toLowerCase().split('?')[0];
+    return (
+      lowerUrl.endsWith('.mp4') || 
+      lowerUrl.endsWith('.webm') || 
+      lowerUrl.endsWith('.ogg') || 
+      lowerUrl.endsWith('.mov') ||
+      url.includes('contentType=video')
+    );
   };
 
   if (isUserLoading || isProfileLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
