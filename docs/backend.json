@@ -117,13 +117,17 @@
         "id": { "type": "string" },
         "name": { "type": "string" },
         "role": { "type": "string" },
+        "leadershipType": { 
+          "type": "string", 
+          "enum": ["ceo", "co-founder", "team"],
+          "default": "team"
+        },
         "bio": { "type": "string" },
         "imageUrl": { "type": "string" },
-        "isFounder": { "type": "boolean", "default": false },
         "order": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["name", "role", "order"]
+      "required": ["name", "role", "leadershipType"]
     },
     "Video": {
       "title": "Video",

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -112,7 +113,7 @@ export default function Dashboard() {
   const coursesQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'courses'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
   const { data: courses } = useCollection(coursesQuery);
 
-  const teamQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'team'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
+  const teamQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'team'), orderBy('createdAt', 'desc')) : null, [db, isAuthorized]);
   const { data: teamMembers } = useCollection(teamQuery);
 
   const videoQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'videos'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
@@ -168,7 +169,7 @@ export default function Dashboard() {
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [customCategoryInput, setCustomCategoryInput] = useState('');
 
-  const [teamForm, setTeamForm] = useState({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
+  const [teamForm, setTeamForm] = useState({ id: '', name: '', role: '', bio: '', imageUrl: '', leadershipType: 'team', order: 0 });
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
 
   const [reviewForm, setReviewForm] = useState({ id: '', userName: '', userPhoto: '', designation: 'Student', content: '', rating: 5 });
@@ -292,7 +293,14 @@ export default function Dashboard() {
     let finalImageUrl = teamForm.imageUrl;
     try {
       if (selectedFiles['team']) finalImageUrl = await uploadFile(selectedFiles['team'], 'team');
-      const data = { name: teamForm.name, role: teamForm.role, bio: teamForm.bio, imageUrl: finalImageUrl, isFounder: teamForm.isFounder, order: Number(teamForm.order) };
+      const data = { 
+        name: teamForm.name, 
+        role: teamForm.role, 
+        bio: teamForm.bio, 
+        imageUrl: finalImageUrl, 
+        leadershipType: teamForm.leadershipType, 
+        order: Number(teamForm.order) 
+      };
       if (editingMemberId) {
         updateDocumentNonBlocking(doc(db, 'team', editingMemberId), data);
         toast({ title: "Team Member Updated" });
@@ -300,7 +308,7 @@ export default function Dashboard() {
         addDocumentNonBlocking(collection(db, 'team'), { ...data, createdAt: serverTimestamp() });
         toast({ title: "Team Member Added" });
       }
-      setTeamForm({ id: '', name: '', role: '', bio: '', imageUrl: '', isFounder: false, order: 0 });
+      setTeamForm({ id: '', name: '', role: '', bio: '', imageUrl: '', leadershipType: 'team', order: 0 });
       setEditingMemberId(null);
       setSelectedFiles(prev => ({ ...prev, team: null }));
       setUploadProgress(null);
@@ -683,48 +691,42 @@ export default function Dashboard() {
                         <div className="space-y-2"><Label>Brief Bio</Label><Textarea value={teamForm.bio} onChange={e => setTeamForm({...teamForm, bio: e.target.value})} className="rounded-xl h-24" /></div>
                         
                         <div className="p-4 rounded-2xl border bg-slate-50 space-y-4">
-                          <div className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                              <Label className="text-base font-bold flex items-center gap-2"><Crown className="w-4 h-4 text-accent" /> Leadership Status</Label>
-                              <p className="text-xs text-muted-foreground">Mark as Founder for special animations.</p>
-                            </div>
-                            <Switch checked={teamForm.isFounder} onCheckedChange={v => setTeamForm({...teamForm, isFounder: v})} />
-                          </div>
-                          
                           <div className="space-y-2">
-                            <Label className="text-xs font-bold uppercase tracking-wider">Sequence Order</Label>
-                            <Input 
-                              type="number" 
-                              value={teamForm.order} 
-                              onChange={e => setTeamForm({...teamForm, order: parseInt(e.target.value) || 0})} 
-                              className="rounded-xl h-10" 
-                              placeholder="1 for CEO, 2 for Co-Founder..."
-                            />
-                            <p className="text-[10px] text-accent italic font-bold">Tip: Use lower numbers (1, 2) to keep leadership at the top.</p>
+                            <Label className="text-base font-bold flex items-center gap-2"><Crown className="w-4 h-4 text-accent" /> Leadership Category</Label>
+                            <Select value={teamForm.leadershipType} onValueChange={v => setTeamForm({...teamForm, leadershipType: v})}>
+                              <SelectTrigger className="rounded-xl h-12"><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="ceo">CEO (Position 1)</SelectItem>
+                                <SelectItem value="co-founder">Co-Founder (Position 2)</SelectItem>
+                                <SelectItem value="team">Team Member (Alphabetical Order)</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <p className="text-[10px] text-muted-foreground italic">CEO and Co-Founders are featured with special Golden effects.</p>
                           </div>
                         </div>
 
                         <Button type="button" variant="outline" className="w-full rounded-xl h-12 border-dashed" onClick={() => teamFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Portrait Upload</Button>
                         <input type="file" ref={teamFileInputRef} onChange={e => handleFileChange(e, 'team')} accept="image/*" className="hidden" />
                         <Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg" disabled={uploadProgress !== null}>{(editingMemberId ? 'Update Profile' : 'Add to Team')}</Button>
+                        {editingMemberId && <Button type="button" variant="ghost" className="w-full h-10 rounded-xl" onClick={() => {setEditingMemberId(null); setTeamForm({id: '', name: '', role: '', bio: '', imageUrl: '', leadershipType: 'team', order: 0})}}>Cancel Edit</Button>}
                       </div>
                       <div className="flex flex-col items-center justify-center p-10 border-4 border-slate-50 rounded-[2.5rem] bg-slate-50">
-                        <div className={`relative w-48 h-48 rounded-full overflow-hidden border-8 border-white bg-white finance-3d-shadow ${teamForm.isFounder ? 'animate-float' : ''}`}>
+                        <div className={`relative w-48 h-48 rounded-full overflow-hidden border-8 border-white bg-white finance-3d-shadow ${(teamForm.leadershipType === 'ceo' || teamForm.leadershipType === 'co-founder') ? 'ring-4 ring-yellow-400 animate-float' : ''}`}>
                           {teamForm.imageUrl ? <Image src={teamForm.imageUrl} alt="m" fill className="object-cover" /> : <UserSquare className="w-full h-full text-slate-100 p-8" />}
                         </div>
                         <p className="mt-6 font-headline font-bold text-2xl text-primary">{teamForm.name || 'Full Name'}</p>
-                        {teamForm.isFounder && <Badge className="bg-accent text-primary font-bold mt-2 uppercase">Leadership</Badge>}
+                        <Badge variant="outline" className="mt-2 uppercase tracking-widest">{teamForm.leadershipType}</Badge>
                       </div>
                     </form>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t">
                       {teamMembers?.map(m => (
                         <div key={m.id} className="p-4 bg-slate-50 rounded-2xl flex flex-col items-center gap-2 border relative">
-                          <div className={`w-16 h-16 rounded-full overflow-hidden relative border shadow-md ${m.isFounder ? 'border-accent' : ''}`}>
+                          <div className={`w-16 h-16 rounded-full overflow-hidden relative border shadow-md ${(m.leadershipType === 'ceo' || m.leadershipType === 'co-founder') ? 'ring-2 ring-yellow-400' : ''}`}>
                             <Image src={m.imageUrl || `https://picsum.photos/seed/${m.id}/100/100`} alt="m" fill className="object-cover" />
                           </div>
                           <div className="text-center">
                             <p className="text-xs font-bold truncate w-full">{m.name}</p>
-                            {m.isFounder && <p className="text-[9px] text-accent font-bold uppercase">Founder</p>}
+                            <p className="text-[9px] text-accent font-bold uppercase">{m.leadershipType}</p>
                           </div>
                           <div className="flex gap-2 w-full relative z-30"><Button type="button" variant="outline" size="sm" className="h-9 flex-1 rounded-lg" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-3 h-3" /></Button><Button type="button" variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg" onClick={() => setItemToDelete({ path: 'team', id: m.id })}><Trash2 className="w-3 h-3" /></Button></div>
                         </div>
