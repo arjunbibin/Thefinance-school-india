@@ -47,12 +47,22 @@ export default function ShowcaseSlideshow() {
 
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
+  const videoRefs = useRef<Record<number, HTMLVideoElement | null>>({});
 
   const slides = remoteSlides && remoteSlides.length > 0 ? remoteSlides : DEFAULT_SLIDES;
 
   const isVideoUrl = (url: string) => {
     if (!url) return false;
-    return url.match(/\.(mp4|webm|ogg|mov)$/) || url.includes('video');
+    // Enhanced check for common video extensions and Firebase Storage metadata hints
+    const lowerUrl = url.toLowerCase();
+    return (
+      lowerUrl.includes('.mp4') || 
+      lowerUrl.includes('.webm') || 
+      lowerUrl.includes('.ogg') || 
+      lowerUrl.includes('.mov') || 
+      lowerUrl.includes('video/') ||
+      lowerUrl.includes('firebasestorage') && (lowerUrl.includes('alt=media') || lowerUrl.includes('%2fvideo'))
+    );
   };
 
   // Sync current index with carousel
@@ -65,6 +75,21 @@ export default function ShowcaseSlideshow() {
       setCurrent(api.selectedScrollSnap());
     });
   }, [api]);
+
+  // Handle video play/pause based on active slide
+  useEffect(() => {
+    slides.forEach((slide, index) => {
+      const video = videoRefs.current[index];
+      if (video) {
+        if (index === current) {
+          video.currentTime = 0;
+          video.play().catch(e => console.warn("Autoplay blocked", e));
+        } else {
+          video.pause();
+        }
+      }
+    });
+  }, [current, slides]);
 
   // Handle dynamic progression
   useEffect(() => {
@@ -81,7 +106,7 @@ export default function ShowcaseSlideshow() {
       return () => clearTimeout(timer);
     }
     
-    // If it's a video, progression is handled by the onEnded event of the video element
+    // For videos, progression is handled by the onEnded event
   }, [current, api, slides]);
 
   return (
@@ -102,40 +127,46 @@ export default function ShowcaseSlideshow() {
           className="w-full"
         >
           <CarouselContent className="-ml-2 md:-ml-4">
-            {slides.map((slide: any, index: number) => (
-              <CarouselItem key={slide.id} className="pl-2 md:pl-4">
-                <Card className="border-none bg-white finance-3d-shadow rounded-[1.5rem] md:rounded-[2rem] overflow-hidden">
-                  <CardContent className="p-0 relative aspect-video md:aspect-[21/9]">
-                    {isVideoUrl(slide.imageUrl) ? (
-                      <video 
-                        src={slide.imageUrl} 
-                        className="w-full h-full object-cover" 
-                        autoPlay={index === current}
-                        loop={false}
-                        muted 
-                        playsInline 
-                        onEnded={() => api?.scrollNext()}
-                      />
-                    ) : (
-                      <Image
-                        src={slide.imageUrl}
-                        alt={slide.title || 'Campus Life'}
-                        fill
-                        className="object-cover"
-                        data-ai-hint={slide.imageHint || 'education'}
-                        priority={index === 0}
-                      />
-                    )}
-                    {(slide.title || slide.description) && (
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4 md:p-12">
-                        {slide.title && <h3 className="text-lg md:text-5xl font-headline font-bold text-white mb-1 md:mb-4">{slide.title}</h3>}
-                        {slide.description && <p className="text-white/80 text-[10px] md:text-xl max-w-2xl leading-tight md:leading-relaxed">{slide.description}</p>}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </CarouselItem>
-            ))}
+            {slides.map((slide: any, index: number) => {
+              const isVideo = isVideoUrl(slide.imageUrl);
+              
+              return (
+                <CarouselItem key={slide.id || index} className="pl-2 md:pl-4">
+                  <Card className="border-none bg-white finance-3d-shadow rounded-[1.5rem] md:rounded-[2rem] overflow-hidden">
+                    <CardContent className="p-0 relative aspect-video md:aspect-[21/9] bg-slate-900">
+                      {isVideo ? (
+                        <video 
+                          ref={el => { videoRefs.current[index] = el; }}
+                          src={slide.imageUrl} 
+                          className="w-full h-full object-cover" 
+                          muted 
+                          playsInline 
+                          onEnded={() => api?.scrollNext()}
+                          onCanPlay={(e) => {
+                            if (index === current) (e.target as HTMLVideoElement).play().catch(() => {});
+                          }}
+                        />
+                      ) : (
+                        <Image
+                          src={slide.imageUrl}
+                          alt={slide.title || 'Campus Life'}
+                          fill
+                          className="object-cover"
+                          data-ai-hint={slide.imageHint || 'education'}
+                          priority={index === 0}
+                        />
+                      )}
+                      {(slide.title || slide.description) && (
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4 md:p-12">
+                          {slide.title && <h3 className="text-lg md:text-5xl font-headline font-bold text-white mb-1 md:mb-4">{slide.title}</h3>}
+                          {slide.description && <p className="text-white/80 text-[10px] md:text-xl max-w-2xl leading-tight md:leading-relaxed">{slide.description}</p>}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+              );
+            })}
           </CarouselContent>
           <CarouselPrevious className="hidden xl:flex finance-3d-shadow border-none bg-white hover:bg-accent hover:text-primary transition-all -left-16 h-12 w-12" />
           <CarouselNext className="hidden xl:flex finance-3d-shadow border-none bg-white hover:bg-accent hover:text-primary transition-all -right-16 h-12 w-12" />
