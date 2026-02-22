@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -715,7 +714,6 @@ export default function Dashboard() {
                           {teamForm.imageUrl ? <Image src={teamForm.imageUrl} alt="m" fill className="object-cover" /> : <UserSquare className="w-full h-full text-slate-100 p-8" />}
                         </div>
                         <p className="mt-6 font-headline font-bold text-2xl text-primary">{teamForm.name || 'Full Name'}</p>
-                        <Badge variant="outline" className="mt-2 uppercase tracking-widest">{teamForm.leadershipType}</Badge>
                       </div>
                     </form>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-10 border-t">
@@ -726,7 +724,6 @@ export default function Dashboard() {
                           </div>
                           <div className="text-center">
                             <p className="text-xs font-bold truncate w-full">{m.name}</p>
-                            <p className="text-[9px] text-accent font-bold uppercase">{m.leadershipType}</p>
                           </div>
                           <div className="flex gap-2 w-full relative z-30"><Button type="button" variant="outline" size="sm" className="h-9 flex-1 rounded-lg" onClick={() => {setEditingMemberId(m.id); setTeamForm({...m})}}><Edit2 className="w-3 h-3" /></Button><Button type="button" variant="destructive" size="sm" className="h-9 w-9 p-0 rounded-lg" onClick={() => setItemToDelete({ path: 'team', id: m.id })}><Trash2 className="w-3 h-3" /></Button></div>
                         </div>
