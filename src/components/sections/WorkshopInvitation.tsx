@@ -16,7 +16,7 @@ export default function WorkshopInvitation() {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-24 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+    <section className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
       <Card className="p-6 py-12 md:p-16 lg:p-24 border-none bg-white finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] relative overflow-hidden">
         <div className="grid lg:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="relative z-10 space-y-6 md:space-y-10 text-center lg:text-left">

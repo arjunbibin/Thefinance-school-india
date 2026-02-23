@@ -138,7 +138,7 @@ export default function Home() {
       </section>
 
       {/* Main Content Area */}
-      <div className="relative z-10 space-y-12 pb-12 px-2 md:px-0">
+      <div className="relative z-10 space-y-8 pb-12 px-2 md:px-0">
         <div className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20">
           <CourseCatalog />
         </div>
@@ -169,7 +169,7 @@ export default function Home() {
         <WorkshopInvitation />
 
         {/* Attend Quiz CTA - High Impact Visuals */}
-        <section className="max-w-7xl mx-auto px-4 md:px-6 pt-12 md:pt-20 pb-0 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+        <section className="max-w-7xl mx-auto px-4 md:px-6 py-8 animate-in fade-in slide-in-from-bottom-10 duration-1000">
           <Card className="p-8 py-16 md:p-24 border-none bg-gradient-to-br from-white via-slate-50 to-accent/5 finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] text-center relative overflow-hidden group">
              <div className="relative z-10 space-y-8 md:space-y-12">
                <div className="inline-flex items-center gap-3 px-6 md:px-8 py-2 md:py-3 rounded-full bg-accent/10 text-primary text-[10px] md:text-sm font-bold uppercase tracking-widest finance-3d-shadow-inner border border-accent/20">
@@ -199,7 +199,7 @@ export default function Home() {
 
         <ConnectWithUs />
 
-        <section className="max-w-7xl mx-auto px-4 md:px-6 pt-0 pb-12">
+        <section className="max-w-7xl mx-auto px-4 md:px-6 pt-4 pb-12">
           <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
