@@ -17,25 +17,25 @@ export default function WorkshopInvitation() {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-6 py-12 md:py-24 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-      <Card className="p-8 md:p-16 border-none bg-white finance-3d-shadow rounded-[3rem] relative overflow-hidden">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div className="relative z-10 space-y-8">
-            <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold uppercase tracking-widest finance-3d-shadow-inner">
-              <School className="w-4 h-4 text-primary" /> Institutional Partnership
+    <section className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-24 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+      <Card className="p-6 py-10 md:p-16 border-none bg-white finance-3d-shadow rounded-[2rem] md:rounded-[3rem] relative overflow-hidden">
+        <div className="grid lg:grid-cols-2 gap-10 md:gap-12 items-center">
+          <div className="relative z-10 space-y-6 md:space-y-8 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-4 md:px-6 py-1.5 md:py-2 rounded-full bg-primary/10 text-primary text-[10px] md:text-sm font-bold uppercase tracking-widest finance-3d-shadow-inner mx-auto lg:mx-0">
+              <School className="w-3 h-3 md:w-4 md:h-4 text-primary" /> Institutional Partnership
             </div>
-            <h2 className="text-4xl md:text-6xl font-headline font-bold text-primary tracking-tight">
+            <h2 className="text-2xl md:text-5xl lg:text-6xl font-headline font-bold text-primary tracking-tight leading-tight">
               Bring Financial Literacy to Your <span className="text-accent">Campus</span>
             </h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
+            <p className="text-sm md:text-xl text-muted-foreground leading-relaxed max-w-xl mx-auto lg:mx-0">
               Invite us for specialized workshops and seminars in your schools, colleges, or universities. We provide expert training tailored to empower students and faculty with real-world financial skills.
             </p>
-            <div className="pt-4">
+            <div className="pt-2 md:pt-4 flex justify-center lg:justify-start">
               <Button 
                 onClick={handleInviteClick}
-                className="h-16 md:h-20 px-12 md:px-16 rounded-3xl bg-primary text-white font-bold text-xl md:text-2xl finance-3d-shadow hover:scale-110 transition-all flex items-center gap-4 group"
+                className="h-14 md:h-20 px-8 md:px-16 rounded-2xl md:rounded-3xl bg-primary text-white font-bold text-base md:text-2xl finance-3d-shadow hover:scale-105 transition-all flex items-center gap-3 md:gap-4 group"
               >
-                <GraduationCap className="w-8 h-8 group-hover:rotate-12 transition-transform" /> Invite Us Now <ArrowRight className="w-6 h-6" />
+                <GraduationCap className="w-5 h-5 md:w-8 md:h-8 group-hover:rotate-12 transition-transform" /> Invite Us Now <ArrowRight className="w-4 h-4 md:w-6 md:h-6" />
               </Button>
             </div>
           </div>
@@ -63,7 +63,7 @@ export default function WorkshopInvitation() {
         
         {/* Decorative corner icon */}
         <div className="absolute top-0 right-0 p-8 opacity-5">
-          <Sparkles className="w-40 h-40 text-primary" />
+          <Sparkles className="w-20 md:w-40 h-20 md:h-40 text-primary" />
         </div>
       </Card>
     </section>
