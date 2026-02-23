@@ -9,7 +9,7 @@ import {
   Youtube, 
   MessageCircle, 
   Mail, 
-  ExternalLink,
+  ArrowRight,
   Sparkles
 } from 'lucide-react';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -28,8 +28,7 @@ export default function ConnectWithUs() {
       url: branding?.whatsappUrl, 
       color: 'text-green-500', 
       bgColor: 'bg-green-500/10',
-      hoverGlow: 'hover:shadow-[0_0_30px_rgba(34,197,94,0.3)]',
-      description: 'Instant Support'
+      hoverGlow: 'group-hover/item:shadow-[0_0_30px_rgba(34,197,94,0.6)]',
     },
     { 
       name: 'Instagram', 
@@ -37,8 +36,7 @@ export default function ConnectWithUs() {
       url: branding?.instagramUrl, 
       color: 'text-pink-500', 
       bgColor: 'bg-pink-500/10',
-      hoverGlow: 'hover:shadow-[0_0_30px_rgba(236,72,153,0.3)]',
-      description: 'Daily Updates'
+      hoverGlow: 'group-hover/item:shadow-[0_0_30px_rgba(236,72,153,0.6)]',
     },
     { 
       name: 'Facebook', 
@@ -46,8 +44,7 @@ export default function ConnectWithUs() {
       url: branding?.facebookUrl, 
       color: 'text-blue-600', 
       bgColor: 'bg-blue-600/10',
-      hoverGlow: 'hover:shadow-[0_0_30px_rgba(37,99,235,0.3)]',
-      description: 'Community'
+      hoverGlow: 'group-hover/item:shadow-[0_0_30px_rgba(37,99,235,0.6)]',
     },
     { 
       name: 'YouTube', 
@@ -55,8 +52,7 @@ export default function ConnectWithUs() {
       url: branding?.youtubeUrl, 
       color: 'text-red-600', 
       bgColor: 'bg-red-600/10',
-      hoverGlow: 'hover:shadow-[0_0_30px_rgba(220,38,38,0.3)]',
-      description: 'Video Lessons'
+      hoverGlow: 'group-hover/item:shadow-[0_0_30px_rgba(220,38,38,0.6)]',
     },
     { 
       name: 'Email', 
@@ -64,8 +60,7 @@ export default function ConnectWithUs() {
       url: branding?.emailAddress ? `mailto:${branding.emailAddress}` : null, 
       color: 'text-primary', 
       bgColor: 'bg-primary/10',
-      hoverGlow: 'hover:shadow-[0_0_30px_rgba(79,70,229,0.3)]',
-      description: 'Official Queries'
+      hoverGlow: 'group-hover/item:shadow-[0_0_30px_rgba(79,70,229,0.6)]',
     },
   ];
 
@@ -79,48 +74,59 @@ export default function ConnectWithUs() {
     <section className="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24 animate-in fade-in slide-in-from-bottom-10 duration-1000 relative">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none -z-10" />
       
-      <div className="text-center mb-16 space-y-4">
+      <div className="text-center mb-12 space-y-4">
         <Badge variant="outline" className="text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold flex items-center gap-2 mx-auto w-fit">
           <Sparkles className="w-3 h-3 text-accent animate-pulse" /> Social Network
         </Badge>
-        <h2 className="text-4xl md:text-7xl font-headline font-bold text-primary tracking-tight">Connect With <span className="text-accent italic">Us</span></h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-xl font-medium leading-relaxed">
-          Join our growing community and stay ahead with exclusive financial insights across all platforms.
+        <h2 className="text-4xl md:text-7xl font-headline font-bold text-primary tracking-tight">Stay <span className="text-accent italic">Linked</span></h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-xl font-medium px-4">
+          Join our digital ecosystem for exclusive updates and financial wisdom.
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8">
-        {socialLinks.map((social, index) => (
-          <Card 
-            key={social.name}
-            onClick={() => handleOpen(social.url)}
-            className={cn(
-              "group p-8 md:p-10 border-none bg-white finance-3d-shadow rounded-[2.5rem] flex flex-col items-center text-center gap-6 cursor-pointer transition-all duration-500 animate-float",
-              social.hoverGlow,
-              !social.url && "opacity-50 grayscale cursor-not-allowed pointer-events-none"
-            )}
-            style={{ animationDelay: `${index * 0.5}s`, animationDuration: '4s' }}
-          >
-            <div className={cn(
-              "p-5 md:p-7 rounded-[2rem] transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-inner",
-              social.bgColor,
-              social.color
-            )}>
-              <social.icon className="w-10 h-10 md:w-12 md:h-12" strokeWidth={1.5} />
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-headline font-bold text-primary text-lg md:text-2xl">{social.name}</h4>
-              <p className="text-[10px] md:text-xs text-muted-foreground font-bold uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">
-                {social.description}
-              </p>
-            </div>
-            {social.url && (
-              <div className="mt-2 p-2 bg-slate-50 rounded-full opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-                <ExternalLink className="w-4 h-4 text-primary" />
+      <Card className="p-8 md:p-16 lg:p-20 border-none bg-white finance-3d-shadow rounded-[3rem] md:rounded-[4rem] relative overflow-hidden group">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-y-12 gap-x-6 md:gap-12 items-center justify-items-center relative z-10">
+          {socialLinks.map((social, index) => (
+            <div 
+              key={social.name}
+              onClick={() => handleOpen(social.url)}
+              className={cn(
+                "flex flex-col items-center gap-4 cursor-pointer transition-all duration-300 group/item animate-float",
+                !social.url && "opacity-30 grayscale cursor-not-allowed pointer-events-none"
+              )}
+              style={{ animationDelay: `${index * 0.4}s` }}
+            >
+              <div className={cn(
+                "p-6 md:p-10 rounded-[2rem] lg:rounded-[2.5rem] transition-all duration-500 group-hover/item:scale-115 group-hover/item:rotate-12 shadow-inner relative overflow-hidden",
+                social.bgColor,
+                social.color,
+                social.hoverGlow
+              )}>
+                <div className="absolute inset-0 bg-white/40 opacity-0 group-hover/item:opacity-30 transition-opacity" />
+                <social.icon className="w-10 h-10 md:w-16 md:h-16" strokeWidth={1.2} />
               </div>
-            )}
-          </Card>
-        ))}
+              <div className="text-center">
+                <span className="font-headline font-bold text-primary text-sm md:text-xl block">{social.name}</span>
+                <span className="text-[10px] text-accent font-bold uppercase tracking-[0.2em] opacity-0 group-hover/item:opacity-100 transition-all transform translate-y-2 group-hover/item:translate-y-0">
+                  Connect
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        {/* Dynamic Background Accents */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-[100px] -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-1000" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -ml-20 -mb-20 group-hover:scale-125 transition-transform duration-1000" />
+      </Card>
+      
+      {/* Visual Ticker/Indicator */}
+      <div className="flex justify-center mt-12 md:mt-16">
+        <div className="inline-flex items-center gap-3 px-8 py-3 rounded-full glass-morphism border border-white/40 finance-3d-shadow animate-float">
+          <span className="text-xs md:text-sm font-bold text-primary/70 tracking-tight">Across all platforms @financeschoolindia</span>
+          <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
+          <ArrowRight className="w-4 h-4 text-accent" />
+        </div>
       </div>
     </section>
   );
