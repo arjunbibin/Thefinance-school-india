@@ -86,25 +86,25 @@ export default function TeamPage() {
                   onContextMenu={(e) => e.preventDefault()}
                 >
                   <div className={cn(
-                    "relative mb-10 p-0.5 rounded-full transition-all duration-700",
-                    isCEO ? "scale-110 md:scale-125 z-20" : isCoFounder ? "scale-105 md:scale-115 z-10" : "hover:-translate-y-2"
+                    "relative mb-10 p-1 rounded-full transition-all duration-700",
+                    isCEO ? "scale-110 md:scale-125 z-20" : isCoFounder ? "scale-105 md:scale-115 z-10" : "scale-100"
                   )}>
-                    {/* Metallic Aura Shimmer */}
-                    {isLead && (
-                      <div className={cn(
-                        "absolute inset-0 rounded-full animate-spin-slow opacity-20 blur-xl",
-                        isCEO ? "bg-gradient-to-tr from-yellow-500 via-amber-200 to-yellow-600" : "bg-gradient-to-tr from-slate-400 via-white to-slate-500"
-                      )} />
-                    )}
+                    {/* Metallic Aura Shimmer - Increased opacity for "little more white/glow" effect */}
+                    <div className={cn(
+                      "absolute inset-0 rounded-full animate-spin-slow opacity-40 blur-2xl transition-all duration-500",
+                      isCEO ? "bg-gradient-to-tr from-yellow-500 via-amber-200 to-yellow-600" : 
+                      isCoFounder ? "bg-gradient-to-tr from-slate-400 via-white to-slate-500" : 
+                      "bg-white/10 group-hover:bg-accent/30 group-hover:blur-3xl"
+                    )} />
 
                     <div 
                       className={cn(
-                        "relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-2 bg-slate-900 transition-transform duration-500 group-hover:scale-105 animate-float shadow-2xl",
-                        isCEO ? "border-yellow-400/60 shadow-[0_0_30px_rgba(234,179,8,0.2)]" : 
-                        isCoFounder ? "border-slate-300/60 shadow-[0_0_25px_rgba(203,213,225,0.15)]" : 
-                        "border-white/5 group-hover:border-accent/30 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
+                        "relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 bg-slate-900 transition-all duration-500 group-hover:scale-105 animate-float shadow-2xl",
+                        isCEO ? "border-yellow-400/80 shadow-[0_0_40px_rgba(234,179,8,0.3)]" : 
+                        isCoFounder ? "border-slate-200/80 shadow-[0_0_35px_rgba(255,255,255,0.2)]" : 
+                        "border-white/20 group-hover:border-accent shadow-[0_0_20px_rgba(255,255,255,0.1)]"
                       )}
-                      style={{ animationDelay: `${index * 0.8}s` }}
+                      style={{ animationDelay: `${index * 0.5}s` }}
                     >
                       {member.imageUrl ? (
                         <Image
@@ -119,15 +119,15 @@ export default function TeamPage() {
                         <div className="w-full h-full flex items-center justify-center text-slate-800"><UserSquare className="w-24 h-24 opacity-30" /></div>
                       )}
                       
-                      {/* Reflection Shine */}
-                      <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                      {/* Reflection Shine Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                     </div>
                     
                     <div className={cn(
-                      "absolute -bottom-1 -right-1 p-2.5 rounded-2xl border transition-all duration-500",
-                      isCEO ? "bg-yellow-500 text-primary border-yellow-300 shadow-[0_0_15px_rgba(234,179,8,0.4)] scale-110" : 
-                      isCoFounder ? "bg-slate-300 text-slate-900 border-white/50 shadow-[0_0_10px_rgba(255,255,255,0.2)] scale-100" : 
-                      "bg-white/5 text-accent border-white/5 scale-90 opacity-0 group-hover:opacity-100 group-hover:scale-100"
+                      "absolute -bottom-1 -right-1 p-2.5 rounded-2xl border-2 transition-all duration-500",
+                      isCEO ? "bg-yellow-500 text-primary border-yellow-300 shadow-[0_0_15px_rgba(234,179,8,0.5)] scale-110" : 
+                      isCoFounder ? "bg-slate-200 text-slate-900 border-white shadow-[0_0_15px_rgba(255,255,255,0.3)] scale-100" : 
+                      "bg-white text-primary border-white scale-90 opacity-0 group-hover:opacity-100 group-hover:scale-100"
                     )}>
                       {isCEO ? <Crown className="w-5 h-5 fill-primary" /> : isCoFounder ? <Star className="w-4 h-4 fill-slate-900" /> : <Sparkles className="w-3.5 h-3.5" />}
                     </div>
@@ -143,9 +143,9 @@ export default function TeamPage() {
                     
                     <div className={cn(
                       "inline-flex px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] transition-colors",
-                      isCEO ? "bg-yellow-400/10 text-yellow-500 border border-yellow-400/20" : 
-                      isCoFounder ? "bg-slate-300/10 text-slate-300 border border-slate-300/20" : 
-                      "bg-white/5 text-slate-500 border border-white/5 group-hover:text-accent group-hover:border-accent/20"
+                      isCEO ? "bg-yellow-400/10 text-yellow-500 border border-yellow-400/30" : 
+                      isCoFounder ? "bg-white/10 text-slate-200 border border-white/30" : 
+                      "bg-white/5 text-slate-500 border border-white/10 group-hover:text-accent group-hover:border-accent/40"
                     )}>
                       {member.role}
                     </div>
@@ -175,7 +175,7 @@ export default function TeamPage() {
         }
 
         .stars-layer-1 {
-          background-image: radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)),
+          background-image: radial-gradient(1.5px 1.5px at 20px 30px, #fff, rgba(0,0,0,0)),
                             radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)),
                             radial-gradient(1.5px 1.5px at 50px 160px, #fff, rgba(0,0,0,0)),
                             radial-gradient(1px 1px at 80px 120px, #fff, rgba(0,0,0,0));
@@ -184,7 +184,7 @@ export default function TeamPage() {
 
         .stars-layer-2 {
           background-image: radial-gradient(1px 1px at 100px 150px, #fff, rgba(0,0,0,0)),
-                            radial-gradient(1px 1px at 200px 50px, #fff, rgba(0,0,0,0)),
+                            radial-gradient(1.5px 1.5px at 200px 50px, #fff, rgba(0,0,0,0)),
                             radial-gradient(1px 1px at 300px 250px, #fff, rgba(0,0,0,0));
           background-size: 400px 400px;
         }
@@ -206,9 +206,9 @@ export default function TeamPage() {
           position: absolute;
           top: 50%;
           transform: translateY(-50%);
-          width: 80px;
-          height: 1px;
-          background: linear-gradient(90deg, rgba(255,255,255,0.8), rgba(255,255,255,0));
+          width: 100px;
+          height: 1.5px;
+          background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(255,255,255,0));
         }
 
         @keyframes shooting {
@@ -219,23 +219,23 @@ export default function TeamPage() {
           10% {
             opacity: 1;
           }
-          70% {
+          60% {
             opacity: 1;
           }
           100% {
-            transform: rotate(-135deg) translateX(-1000px);
+            transform: rotate(-135deg) translateX(-1200px);
             opacity: 0;
           }
         }
 
-        .shooting-star-1 { top: 10%; right: 10%; animation: shooting 4s linear infinite; animation-delay: 1s; }
-        .shooting-star-2 { top: 20%; right: 40%; animation: shooting 5s linear infinite; animation-delay: 3s; }
-        .shooting-star-3 { top: 5%; right: 70%; animation: shooting 3s linear infinite; animation-delay: 5s; }
-        .shooting-star-4 { top: 40%; right: 20%; animation: shooting 6s linear infinite; animation-delay: 7s; }
-        .shooting-star-5 { top: 60%; right: 5%; animation: shooting 4.5s linear infinite; animation-delay: 2s; }
-        .shooting-star-6 { top: 15%; right: 15%; animation: shooting 5.5s linear infinite; animation-delay: 4.5s; }
-        .shooting-star-7 { top: 30%; right: 80%; animation: shooting 4s linear infinite; animation-delay: 6s; }
-        .shooting-star-8 { top: 50%; right: 30%; animation: shooting 5s linear infinite; animation-delay: 8s; }
+        .shooting-star-1 { top: 10%; right: 10%; animation: shooting 4.5s linear infinite; animation-delay: 0.5s; }
+        .shooting-star-2 { top: 20%; right: 40%; animation: shooting 5.5s linear infinite; animation-delay: 2.5s; }
+        .shooting-star-3 { top: 5%; right: 70%; animation: shooting 3.5s linear infinite; animation-delay: 4.5s; }
+        .shooting-star-4 { top: 40%; right: 20%; animation: shooting 6.5s linear infinite; animation-delay: 6.5s; }
+        .shooting-star-5 { top: 60%; right: 5%; animation: shooting 4.8s linear infinite; animation-delay: 1.5s; }
+        .shooting-star-6 { top: 15%; right: 15%; animation: shooting 5.8s linear infinite; animation-delay: 3.5s; }
+        .shooting-star-7 { top: 35%; right: 85%; animation: shooting 4.2s linear infinite; animation-delay: 5.5s; }
+        .shooting-star-8 { top: 55%; right: 25%; animation: shooting 5.2s linear infinite; animation-delay: 7.5s; }
       `}</style>
     </div>
   );
