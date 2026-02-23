@@ -9,10 +9,12 @@ import {
   Youtube, 
   MessageCircle, 
   Mail, 
-  ExternalLink
+  ExternalLink,
+  Sparkles
 } from 'lucide-react';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import { cn } from '@/lib/utils';
 
 export default function ConnectWithUs() {
   const db = useFirestore();
@@ -26,6 +28,7 @@ export default function ConnectWithUs() {
       url: branding?.whatsappUrl, 
       color: 'text-green-500', 
       bgColor: 'bg-green-500/10',
+      hoverGlow: 'hover:shadow-[0_0_30px_rgba(34,197,94,0.3)]',
       description: 'Instant Support'
     },
     { 
@@ -34,6 +37,7 @@ export default function ConnectWithUs() {
       url: branding?.instagramUrl, 
       color: 'text-pink-500', 
       bgColor: 'bg-pink-500/10',
+      hoverGlow: 'hover:shadow-[0_0_30px_rgba(236,72,153,0.3)]',
       description: 'Daily Updates'
     },
     { 
@@ -42,6 +46,7 @@ export default function ConnectWithUs() {
       url: branding?.facebookUrl, 
       color: 'text-blue-600', 
       bgColor: 'bg-blue-600/10',
+      hoverGlow: 'hover:shadow-[0_0_30px_rgba(37,99,235,0.3)]',
       description: 'Community'
     },
     { 
@@ -50,6 +55,7 @@ export default function ConnectWithUs() {
       url: branding?.youtubeUrl, 
       color: 'text-red-600', 
       bgColor: 'bg-red-600/10',
+      hoverGlow: 'hover:shadow-[0_0_30px_rgba(220,38,38,0.3)]',
       description: 'Video Lessons'
     },
     { 
@@ -58,6 +64,7 @@ export default function ConnectWithUs() {
       url: branding?.emailAddress ? `mailto:${branding.emailAddress}` : null, 
       color: 'text-primary', 
       bgColor: 'bg-primary/10',
+      hoverGlow: 'hover:shadow-[0_0_30px_rgba(79,70,229,0.3)]',
       description: 'Official Queries'
     },
   ];
@@ -69,30 +76,47 @@ export default function ConnectWithUs() {
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-24 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-      <div className="text-center mb-10 md:mb-16">
-        <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">Social Network</Badge>
-        <h2 className="text-3xl md:text-6xl font-headline font-bold text-primary tracking-tight">Connect With <span className="text-accent">Us</span></h2>
-        <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-sm md:text-lg">Stay updated with financial tips, workshop announcements, and success stories across all platforms.</p>
+    <section className="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24 animate-in fade-in slide-in-from-bottom-10 duration-1000 relative">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-gradient-to-b from-primary/5 to-transparent pointer-events-none -z-10" />
+      
+      <div className="text-center mb-16 space-y-4">
+        <Badge variant="outline" className="text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold flex items-center gap-2 mx-auto w-fit">
+          <Sparkles className="w-3 h-3 text-accent animate-pulse" /> Social Network
+        </Badge>
+        <h2 className="text-4xl md:text-7xl font-headline font-bold text-primary tracking-tight">Connect With <span className="text-accent italic">Us</span></h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-xl font-medium leading-relaxed">
+          Join our growing community and stay ahead with exclusive financial insights across all platforms.
+        </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8">
-        {socialLinks.map((social) => (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8">
+        {socialLinks.map((social, index) => (
           <Card 
             key={social.name}
             onClick={() => handleOpen(social.url)}
-            className={`group p-6 md:p-8 border-none bg-white finance-3d-shadow rounded-[2rem] flex flex-col items-center text-center gap-4 cursor-pointer hover:scale-105 transition-all duration-300 ${!social.url ? 'opacity-50 grayscale cursor-not-allowed pointer-events-none' : ''}`}
+            className={cn(
+              "group p-8 md:p-10 border-none bg-white finance-3d-shadow rounded-[2.5rem] flex flex-col items-center text-center gap-6 cursor-pointer transition-all duration-500 animate-float",
+              social.hoverGlow,
+              !social.url && "opacity-50 grayscale cursor-not-allowed pointer-events-none"
+            )}
+            style={{ animationDelay: `${index * 0.5}s`, animationDuration: '4s' }}
           >
-            <div className={`p-4 md:p-6 rounded-2xl md:rounded-3xl ${social.bgColor} ${social.color} transition-all duration-300 group-hover:scale-110 shadow-inner`}>
-              <social.icon className="w-8 h-8 md:w-10 md:h-10" strokeWidth={1.5} />
+            <div className={cn(
+              "p-5 md:p-7 rounded-[2rem] transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 shadow-inner",
+              social.bgColor,
+              social.color
+            )}>
+              <social.icon className="w-10 h-10 md:w-12 md:h-12" strokeWidth={1.5} />
             </div>
-            <div className="space-y-1">
-              <h4 className="font-headline font-bold text-primary text-base md:text-lg">{social.name}</h4>
-              <p className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-tighter opacity-70">{social.description}</p>
+            <div className="space-y-2">
+              <h4 className="font-headline font-bold text-primary text-lg md:text-2xl">{social.name}</h4>
+              <p className="text-[10px] md:text-xs text-muted-foreground font-bold uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">
+                {social.description}
+              </p>
             </div>
             {social.url && (
-              <div className="mt-2 p-1.5 bg-slate-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">
-                <ExternalLink className="w-3 h-3 text-slate-400" />
+              <div className="mt-2 p-2 bg-slate-50 rounded-full opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
+                <ExternalLink className="w-4 h-4 text-primary" />
               </div>
             )}
           </Card>

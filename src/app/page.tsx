@@ -29,7 +29,8 @@ import {
   Users,
   MessageSquare,
   GraduationCap,
-  Sparkles
+  Sparkles,
+  Trophy
 } from 'lucide-react';
 
 export default function Home() {
@@ -171,27 +172,33 @@ export default function Home() {
         {/* Workshop Invitation Section */}
         <WorkshopInvitation />
 
-        {/* Attend Quiz CTA - Optimized for Mobile */}
-        <section className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-24 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-          <Card className="p-6 py-12 md:p-16 border-none bg-gradient-to-br from-white to-slate-50 finance-3d-shadow rounded-[2rem] md:rounded-[3rem] text-center relative overflow-hidden">
-             <div className="relative z-10 space-y-6 md:space-y-8">
-               <div className="inline-flex items-center gap-2 px-4 md:px-6 py-1.5 md:py-2 rounded-full bg-accent/10 text-primary text-[10px] md:text-sm font-bold uppercase tracking-widest finance-3d-shadow-inner">
-                 <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-accent" /> Skill Assessment
+        {/* Attend Quiz CTA - High Impact Visuals */}
+        <section className="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-24 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+          <Card className="p-8 py-16 md:p-24 border-none bg-gradient-to-br from-white via-slate-50 to-accent/5 finance-3d-shadow rounded-[3rem] md:rounded-[4rem] text-center relative overflow-hidden group">
+             <div className="relative z-10 space-y-8 md:space-y-12">
+               <div className="inline-flex items-center gap-3 px-6 md:px-8 py-2 md:py-3 rounded-full bg-accent/10 text-primary text-[10px] md:text-base font-bold uppercase tracking-widest finance-3d-shadow-inner border border-accent/20">
+                 <Trophy className="w-4 h-4 md:w-6 md:h-6 text-accent animate-bounce" /> Skill Assessment
                </div>
-               <h2 className="text-3xl md:text-5xl lg:text-6xl font-headline font-bold text-primary tracking-tight leading-tight">Ready to Test Your <span className="text-accent">Financial IQ?</span></h2>
-               <p className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                 Put your knowledge to the test! Join our interactive quiz platform to see how well you understand the world of wealth and finance.
+               <h2 className="text-4xl md:text-7xl lg:text-8xl font-headline font-bold text-primary tracking-tighter leading-[0.9]">
+                 Ready to Test Your <br />
+                 <span className="text-accent italic drop-shadow-sm">Financial IQ?</span>
+               </h2>
+               <p className="text-lg md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
+                 Put your knowledge to the ultimate test! Join our elite interactive quiz platform to unlock your full potential in the world of wealth and finance.
                </p>
-               <div className="pt-2 md:pt-4">
+               <div className="pt-4 md:pt-8">
                  <Link href="/quiz">
-                   <Button className="h-14 md:h-20 px-8 md:px-16 rounded-2xl md:rounded-3xl bg-primary text-white font-bold text-lg md:text-2xl finance-3d-shadow hover:scale-105 transition-all flex items-center gap-3 md:gap-4 mx-auto group">
-                     <GraduationCap className="w-6 h-6 md:w-8 md:h-8 group-hover:rotate-12 transition-transform" /> Attend Quiz Now <ArrowRight className="w-4 h-4 md:w-6 md:h-6" />
+                   <Button className="h-16 md:h-24 px-10 md:px-20 rounded-3xl md:rounded-[2rem] bg-primary text-white font-bold text-xl md:text-4xl finance-3d-shadow hover:scale-110 active:scale-95 transition-all flex items-center gap-4 md:gap-8 mx-auto group shadow-[0_20px_40px_rgba(79,70,229,0.3)] border-none">
+                     <GraduationCap className="w-8 h-8 md:w-14 md:h-14 group-hover:rotate-12 transition-transform" /> 
+                     Attend Quiz Now 
+                     <ArrowRight className="w-6 h-6 md:w-10 md:h-10 group-hover:translate-x-3 transition-transform" />
                    </Button>
                  </Link>
                </div>
              </div>
-             <div className="absolute top-0 right-0 w-32 md:w-64 h-32 md:h-64 bg-accent/5 rounded-full blur-3xl -mr-10 -mt-10 md:-mr-20 md:-mt-20" />
-             <div className="absolute bottom-0 left-0 w-32 md:w-64 h-32 md:h-64 bg-primary/5 rounded-full blur-3xl -ml-10 -mb-10 md:-ml-20 md:-mb-20" />
+             {/* Dynamic Glow Elements */}
+             <div className="absolute top-0 right-0 w-64 md:w-[500px] h-64 md:h-[500px] bg-accent/10 rounded-full blur-[100px] -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-1000" />
+             <div className="absolute bottom-0 left-0 w-64 md:w-[500px] h-64 md:h-[500px] bg-primary/10 rounded-full blur-[100px] -ml-20 -mb-20 group-hover:scale-125 transition-transform duration-1000" />
           </Card>
         </section>
 
