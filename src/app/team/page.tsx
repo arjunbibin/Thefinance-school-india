@@ -97,12 +97,15 @@ export default function TeamPage() {
                       )} />
                     )}
 
-                    <div className={cn(
-                      "relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 bg-slate-900 finance-3d-shadow transition-transform duration-500 group-hover:scale-105",
-                      isCEO ? "border-yellow-400 animate-float shadow-[0_0_50px_rgba(234,179,8,0.4)]" : 
-                      isCoFounder ? "border-slate-300 shadow-[0_0_40px_rgba(203,213,225,0.3)]" : 
-                      "border-white/10 group-hover:border-accent/40"
-                    )}>
+                    <div 
+                      className={cn(
+                        "relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 bg-slate-900 finance-3d-shadow transition-transform duration-500 group-hover:scale-105 animate-float",
+                        isCEO ? "border-yellow-400 shadow-[0_0_50px_rgba(234,179,8,0.4)]" : 
+                        isCoFounder ? "border-slate-300 shadow-[0_0_40px_rgba(203,213,225,0.3)]" : 
+                        "border-white/10 group-hover:border-accent/40"
+                      )}
+                      style={{ animationDelay: `${index * 0.8}s` }}
+                    >
                       {member.imageUrl ? (
                         <Image
                           src={member.imageUrl}
