@@ -9,6 +9,7 @@ import ShowcaseSlideshow from '@/components/sections/ShowcaseSlideshow';
 import ReviewsSection from '@/components/sections/ReviewsSection';
 import VideoShowcase from '@/components/sections/VideoShowcase';
 import WorkshopInvitation from '@/components/sections/WorkshopInvitation';
+import ConnectWithUs from '@/components/sections/ConnectWithUs';
 import Footer from '@/components/Footer';
 import FinanceIcon3D from '@/components/FinanceIcon3D';
 import { Card } from '@/components/ui/card';
@@ -193,6 +194,9 @@ export default function Home() {
              <div className="absolute bottom-0 left-0 w-32 md:w-64 h-32 md:h-64 bg-primary/5 rounded-full blur-3xl -ml-10 -mb-10 md:-ml-20 md:-mb-20" />
           </Card>
         </section>
+
+        {/* Connect With Us Section */}
+        <ConnectWithUs />
 
         {/* Course Structure Section */}
         <section className="max-w-7xl mx-auto px-6 py-8 md:py-12">
