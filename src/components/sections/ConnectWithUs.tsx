@@ -9,7 +9,6 @@ import {
   Youtube, 
   MessageCircle, 
   Mail, 
-  ArrowRight,
   Sparkles
 } from 'lucide-react';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -119,15 +118,6 @@ export default function ConnectWithUs() {
         <div className="absolute top-0 right-0 w-64 h-64 bg-accent/10 rounded-full blur-[100px] -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-1000" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -ml-20 -mb-20 group-hover:scale-125 transition-transform duration-1000" />
       </Card>
-      
-      {/* Visual Ticker/Indicator */}
-      <div className="flex justify-center mt-12 md:mt-16">
-        <div className="inline-flex items-center gap-3 px-8 py-3 rounded-full glass-morphism border border-white/40 finance-3d-shadow animate-float">
-          <span className="text-xs md:text-sm font-bold text-primary/70 tracking-tight">Across all platforms @financeschoolindia</span>
-          <div className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-          <ArrowRight className="w-4 h-4 text-accent" />
-        </div>
-      </div>
     </section>
   );
 }
