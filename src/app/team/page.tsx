@@ -44,7 +44,7 @@ export default function TeamPage() {
         <div className="stars-layer-2 absolute inset-0 opacity-20" />
         
         {/* Diagonal Shooting Stars (Top-Right to Bottom-Left) */}
-        {[...Array(6)].map((_, i) => (
+        {[...Array(8)].map((_, i) => (
           <div key={i} className={cn("shooting-star", `shooting-star-${i + 1}`)} />
         ))}
       </div>
@@ -86,23 +86,23 @@ export default function TeamPage() {
                   onContextMenu={(e) => e.preventDefault()}
                 >
                   <div className={cn(
-                    "relative mb-10 p-1 rounded-full transition-all duration-700",
+                    "relative mb-10 p-0.5 rounded-full transition-all duration-700",
                     isCEO ? "scale-110 md:scale-125 z-20" : isCoFounder ? "scale-105 md:scale-115 z-10" : "hover:-translate-y-2"
                   )}>
                     {/* Metallic Aura Shimmer */}
                     {isLead && (
                       <div className={cn(
-                        "absolute inset-0 rounded-full animate-spin-slow opacity-30 blur-2xl",
+                        "absolute inset-0 rounded-full animate-spin-slow opacity-20 blur-xl",
                         isCEO ? "bg-gradient-to-tr from-yellow-500 via-amber-200 to-yellow-600" : "bg-gradient-to-tr from-slate-400 via-white to-slate-500"
                       )} />
                     )}
 
                     <div 
                       className={cn(
-                        "relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-4 bg-slate-900 finance-3d-shadow transition-transform duration-500 group-hover:scale-105 animate-float",
-                        isCEO ? "border-yellow-400 shadow-[0_0_50px_rgba(234,179,8,0.4)]" : 
-                        isCoFounder ? "border-slate-300 shadow-[0_0_40px_rgba(203,213,225,0.3)]" : 
-                        "border-white/10 group-hover:border-accent/40"
+                        "relative w-48 h-48 md:w-56 md:h-56 rounded-full overflow-hidden border-2 bg-slate-900 transition-transform duration-500 group-hover:scale-105 animate-float shadow-2xl",
+                        isCEO ? "border-yellow-400/60 shadow-[0_0_30px_rgba(234,179,8,0.2)]" : 
+                        isCoFounder ? "border-slate-300/60 shadow-[0_0_25px_rgba(203,213,225,0.15)]" : 
+                        "border-white/5 group-hover:border-accent/30 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
                       )}
                       style={{ animationDelay: `${index * 0.8}s` }}
                     >
@@ -116,20 +116,20 @@ export default function TeamPage() {
                           draggable={false}
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-700"><UserSquare className="w-24 h-24 opacity-50" /></div>
+                        <div className="w-full h-full flex items-center justify-center text-slate-800"><UserSquare className="w-24 h-24 opacity-30" /></div>
                       )}
                       
                       {/* Reflection Shine */}
-                      <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                      <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                     </div>
                     
                     <div className={cn(
-                      "absolute -bottom-2 -right-2 p-3 rounded-2xl border transition-all duration-500",
-                      isCEO ? "bg-yellow-400 text-primary border-yellow-200 shadow-[0_0_20px_rgba(234,179,8,0.6)] scale-125" : 
-                      isCoFounder ? "bg-slate-200 text-slate-900 border-white shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-110" : 
-                      "bg-white/10 text-accent border-white/10 scale-90 opacity-0 group-hover:opacity-100 group-hover:scale-100"
+                      "absolute -bottom-1 -right-1 p-2.5 rounded-2xl border transition-all duration-500",
+                      isCEO ? "bg-yellow-500 text-primary border-yellow-300 shadow-[0_0_15px_rgba(234,179,8,0.4)] scale-110" : 
+                      isCoFounder ? "bg-slate-300 text-slate-900 border-white/50 shadow-[0_0_10px_rgba(255,255,255,0.2)] scale-100" : 
+                      "bg-white/5 text-accent border-white/5 scale-90 opacity-0 group-hover:opacity-100 group-hover:scale-100"
                     )}>
-                      {isCEO ? <Crown className="w-6 h-6 fill-primary" /> : isCoFounder ? <Star className="w-5 h-5 fill-slate-900" /> : <Sparkles className="w-4 h-4" />}
+                      {isCEO ? <Crown className="w-5 h-5 fill-primary" /> : isCoFounder ? <Star className="w-4 h-4 fill-slate-900" /> : <Sparkles className="w-3.5 h-3.5" />}
                     </div>
                   </div>
 
@@ -143,15 +143,15 @@ export default function TeamPage() {
                     
                     <div className={cn(
                       "inline-flex px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] transition-colors",
-                      isCEO ? "bg-yellow-400/20 text-yellow-400 border border-yellow-400/30" : 
-                      isCoFounder ? "bg-slate-200/20 text-slate-200 border border-slate-200/30" : 
-                      "bg-white/5 text-slate-400 border border-white/10 group-hover:text-accent group-hover:border-accent/30"
+                      isCEO ? "bg-yellow-400/10 text-yellow-500 border border-yellow-400/20" : 
+                      isCoFounder ? "bg-slate-300/10 text-slate-300 border border-slate-300/20" : 
+                      "bg-white/5 text-slate-500 border border-white/5 group-hover:text-accent group-hover:border-accent/20"
                     )}>
                       {member.role}
                     </div>
 
                     {member.bio && (
-                      <p className="text-sm text-slate-500 mt-4 italic max-w-[280px] line-clamp-3 leading-relaxed transition-colors group-hover:text-slate-400">
+                      <p className="text-sm text-slate-600 mt-4 italic max-w-[280px] line-clamp-3 leading-relaxed transition-colors group-hover:text-slate-400">
                         "{member.bio}"
                       </p>
                     )}
@@ -197,7 +197,6 @@ export default function TeamPage() {
           border-radius: 50%;
           opacity: 0;
           pointer-events: none;
-          /* Rotated to point correctly on its path */
           transform: rotate(-135deg); 
           filter: drop-shadow(0 0 4px #fff);
         }
@@ -235,6 +234,8 @@ export default function TeamPage() {
         .shooting-star-4 { top: 40%; right: 20%; animation: shooting 6s linear infinite; animation-delay: 7s; }
         .shooting-star-5 { top: 60%; right: 5%; animation: shooting 4.5s linear infinite; animation-delay: 2s; }
         .shooting-star-6 { top: 15%; right: 15%; animation: shooting 5.5s linear infinite; animation-delay: 4.5s; }
+        .shooting-star-7 { top: 30%; right: 80%; animation: shooting 4s linear infinite; animation-delay: 6s; }
+        .shooting-star-8 { top: 50%; right: 30%; animation: shooting 5s linear infinite; animation-delay: 8s; }
       `}</style>
     </div>
   );
