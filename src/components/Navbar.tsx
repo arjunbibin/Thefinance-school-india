@@ -35,8 +35,8 @@ export default function Navbar() {
               {appName}
             </span>
             {branding?.showNo1Badge && (
-              <div className="hidden md:flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/20 border border-accent/40 text-[8px] font-bold text-primary animate-pulse">
-                <Trophy className="w-2.5 h-2.5 text-accent" /> No.1
+              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/95 text-white border border-white/20 text-[8px] font-bold shadow-lg animate-pulse">
+                <Trophy className="w-3 h-3 text-accent fill-accent" /> No.1
               </div>
             )}
           </div>

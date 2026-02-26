@@ -805,14 +805,23 @@ export default function Dashboard() {
                         <div className="space-y-2"><Label>Logo URL</Label><Input value={brandingForm.logoUrl} onChange={e => setBrandingForm({...brandingForm, logoUrl: e.target.value})} className="rounded-xl h-12" /></div>
                         
                         <h3 className="font-headline font-bold text-xl text-primary border-b pb-2 pt-4">Impact & Metrics</h3>
-                        <div className="p-4 rounded-2xl bg-slate-50 border space-y-4">
-                          <div className="flex items-center justify-between">
-                            <Label className="flex items-center gap-2 font-bold"><Trophy className="w-4 h-4 text-yellow-500" /> Show No.1 Badge</Label>
+                        <div className="p-6 rounded-3xl bg-slate-50 border space-y-4 finance-3d-shadow-inner">
+                          <div className="flex items-center justify-between bg-white p-4 rounded-2xl border mb-2">
+                            <Label className="flex items-center gap-2 font-bold text-primary"><Trophy className="w-4 h-4 text-yellow-500" /> Show No.1 Badge</Label>
                             <Switch checked={brandingForm.showNo1Badge} onCheckedChange={v => setBrandingForm({...brandingForm, showNo1Badge: v})} />
                           </div>
-                          <div className="space-y-2"><Label>Total Students Enrolled</Label><Input value={brandingForm.statsStudents} onChange={e => setBrandingForm({...brandingForm, statsStudents: e.target.value})} className="rounded-xl h-12" placeholder="e.g. 5000+" /></div>
-                          <div className="space-y-2"><Label>Workshops Conducted</Label><Input value={brandingForm.statsWorkshops} onChange={e => setBrandingForm({...brandingForm, statsWorkshops: e.target.value})} className="rounded-xl h-12" placeholder="e.g. 150+" /></div>
-                          <div className="space-y-2"><Label>Student Testimonials</Label><Input value={brandingForm.statsTestimonials} onChange={e => setBrandingForm({...brandingForm, statsTestimonials: e.target.value})} className="rounded-xl h-12" placeholder="e.g. 200+" /></div>
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 font-semibold"><GraduationCap className="w-4 h-4 text-primary" /> Total Students</Label>
+                            <Input value={brandingForm.statsStudents} onChange={e => setBrandingForm({...brandingForm, statsStudents: e.target.value})} className="rounded-xl h-12" placeholder="e.g. 5000+" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 font-semibold"><School className="w-4 h-4 text-accent" /> Workshops Conducted</Label>
+                            <Input value={brandingForm.statsWorkshops} onChange={e => setBrandingForm({...brandingForm, statsWorkshops: e.target.value})} className="rounded-xl h-12" placeholder="e.g. 150+" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 font-semibold"><MessageSquare className="w-4 h-4 text-primary" /> Testimonials</Label>
+                            <Input value={brandingForm.statsTestimonials} onChange={e => setBrandingForm({...brandingForm, statsTestimonials: e.target.value})} className="rounded-xl h-12" placeholder="e.g. 200+" />
+                          </div>
                         </div>
                       </div>
 

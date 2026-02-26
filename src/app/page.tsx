@@ -112,24 +112,36 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Impact Stats Section */}
-      <section className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            { icon: GraduationCap, label: "Students Enrolled", value: branding?.statsStudents || "5000+", color: "bg-primary/10", textColor: "text-primary" },
-            { icon: School, label: "Workshops Conducted", value: branding?.statsWorkshops || "150+", color: "bg-accent/10", textColor: "text-accent" },
-            { icon: MessageSquare, label: "Success Testimonials", value: branding?.statsTestimonials || "200+", color: "bg-primary/10", textColor: "text-primary" }
-          ].map((stat, i) => (
-            <Card key={i} className="p-8 border-none bg-white finance-3d-shadow rounded-[2rem] flex flex-col items-center text-center gap-4 animate-float" style={{ animationDelay: `${i * 0.5}s` }}>
-              <div className={cn("p-5 rounded-2xl shadow-inner", stat.color, stat.textColor)}>
-                <stat.icon className="w-10 h-10" />
+      {/* Impact Stats Section - Redesigned for Premium Look */}
+      <section className="max-w-7xl mx-auto px-4 md:px-6 mb-12">
+        <div className="relative p-8 md:p-12 lg:p-16 rounded-[3rem] bg-white finance-3d-shadow overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+          
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x border-slate-100">
+            {[
+              { icon: GraduationCap, label: "Students Enrolled", value: branding?.statsStudents || "5000+", color: "text-primary" },
+              { icon: School, label: "Workshops Conducted", value: branding?.statsWorkshops || "150+", color: "text-accent" },
+              { icon: MessageSquare, label: "Success Testimonials", value: branding?.statsTestimonials || "200+", color: "text-primary" }
+            ].map((stat, i) => (
+              <div key={i} className="flex flex-col items-center justify-center p-8 md:p-6 lg:p-10 text-center gap-4 transition-all duration-500 hover:scale-105">
+                <div className={cn("p-4 rounded-[1.5rem] finance-3d-shadow-inner mb-2", stat.color)}>
+                  <stat.icon className="w-8 h-8 md:w-10 md:h-10" strokeWidth={1.5} />
+                </div>
+                <div>
+                  <h3 className="text-3xl md:text-4xl lg:text-5xl font-headline font-bold text-primary tracking-tighter">
+                    {stat.value}
+                  </h3>
+                  <p className="text-muted-foreground font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] mt-2">
+                    {stat.label}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-4xl font-headline font-bold text-primary">{stat.value}</h3>
-                <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest mt-1">{stat.label}</p>
-              </div>
-            </Card>
-          ))}
+            ))}
+          </div>
+          
+          {/* Decorative Corner Glows */}
+          <div className="absolute -top-10 -left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-accent/10 rounded-full blur-3xl" />
         </div>
       </section>
 
