@@ -55,9 +55,9 @@ export default function Home() {
         
         <div className="relative z-10 text-center max-w-5xl animate-in fade-in zoom-in duration-1000">
           {branding?.showNo1Badge && (
-            <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-accent/20 border border-accent/40 finance-3d-shadow mb-10 transition-all hover:scale-105 cursor-default group">
-              <Award className="w-5 h-5 text-accent animate-pulse fill-accent" />
-              <span className="text-[10px] md:text-sm font-bold text-primary tracking-[0.2em] uppercase">India's No.1 Financial Literacy Program</span>
+            <div className="inline-flex items-center gap-3 px-8 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-amber-200 to-yellow-500 border-2 border-white/50 finance-3d-shadow mb-10 transition-all hover:scale-110 cursor-default group animate-bounce">
+              <Trophy className="w-6 h-6 text-primary fill-primary animate-pulse" />
+              <span className="text-xs md:text-base font-black text-primary tracking-widest uppercase">India's No.1 Financial Literacy Program</span>
             </div>
           )}
           {!branding?.showNo1Badge && (
@@ -114,10 +114,10 @@ export default function Home() {
 
       {/* Impact Stats Section - Redesigned for Premium Look */}
       <section className="max-w-7xl mx-auto px-4 md:px-6 mb-12">
-        <div className="relative p-8 md:p-12 lg:p-16 rounded-[3rem] bg-white finance-3d-shadow overflow-hidden group">
+        <div className="relative p-8 md:p-12 lg:p-16 rounded-[3rem] bg-white finance-3d-shadow overflow-hidden group border border-slate-50">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
           
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x border-slate-100">
+          <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100">
             {[
               { icon: GraduationCap, label: "Students Enrolled", value: branding?.statsStudents || "5000+", color: "text-primary" },
               { icon: School, label: "Workshops Conducted", value: branding?.statsWorkshops || "150+", color: "text-accent" },
