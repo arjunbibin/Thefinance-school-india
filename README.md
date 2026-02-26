@@ -20,35 +20,26 @@ A modern, high-performance Edu-Tech platform built with Next.js 15, Firebase, an
 - **Styling**: Tailwind CSS & ShadCN UI
 - **3D Graphics**: Three.js
 
-## Deployment Instructions (via Terminal)
+## Final Deployment Steps (Live on GitHub ✅)
 
-Follow these steps in your terminal to push your code to GitHub and then go live with Firebase App Hosting:
+Your code has been successfully pushed to [GitHub](https://github.com/arjunbibin/Thefinance-school-india). Now, follow these steps to go live:
 
-### 1. Initialize and Commit
-Inside your project folder, run:
-
-```bash
-# If you get "working tree clean", skip to step 2
-git add .
-git commit -m "Initial launch: Finance School India"
-git branch -M main
-```
-
-### 2. Update and Push to GitHub
-Since your remote already exists, run these commands to ensure it points to the correct repository and push:
-
-```bash
-# Update the remote URL
-git remote set-url origin https://github.com/arjunbibin/Thefinance-school-india.git
-
-# Push to GitHub (You may need to provide your GitHub credentials)
-git push -u origin main
-```
-
-### 3. Connect to Firebase App Hosting
+### 1. Connect to Firebase App Hosting
 1. Open the [Firebase Console](https://console.firebase.google.com/).
-2. Select your project.
+2. Select your project: **finance-school-india**.
 3. Navigate to **App Hosting** in the left sidebar.
-4. Click **Get Started** and select your GitHub account.
-5. Choose the `Thefinance-school-india` repository.
+4. Click **Get Started**.
+5. Select your GitHub account and the repository `arjunbibin/Thefinance-school-india`.
 6. Follow the wizard to complete the setup. Firebase will automatically detect the Next.js build and provide you with a live production URL.
+
+### 2. Monitor Build
+Once you connect the repository, Firebase will start a build automatically. You can watch the progress in the Firebase Console under the **App Hosting** tab.
+
+### 3. Future Updates
+Any time you make changes here in the editor, just run these commands in the terminal to update the live site:
+```bash
+git add .
+git commit -m "Update site content"
+git push origin main
+```
+Firebase will automatically detect the new commit and redeploy your site.
