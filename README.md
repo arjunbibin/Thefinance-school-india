@@ -30,7 +30,10 @@ Your code has been successfully pushed to [GitHub](https://github.com/arjunbibin
 3. Navigate to **App Hosting** in the left sidebar.
 4. Click **Get Started**.
 5. Select your GitHub account and the repository `arjunbibin/Thefinance-school-india`.
-6. Follow the wizard to complete the setup. Firebase will automatically detect the Next.js build and provide you with a live production URL.
+6. In **Deployment Settings**:
+   - **Live branch**: Select `main`.
+   - **App root directory**: Use `/`.
+7. Click **Finish**.
 
 ### 2. Monitor Build
 Once you connect the repository, Firebase will start a build automatically. You can watch the progress in the Firebase Console under the **App Hosting** tab.
