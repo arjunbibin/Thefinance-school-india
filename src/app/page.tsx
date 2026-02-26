@@ -111,7 +111,7 @@ export default function Home() {
         <div className="relative p-8 md:p-12 lg:p-16 rounded-[3rem] bg-white finance-3d-shadow overflow-hidden group border border-slate-50 flex flex-col items-center">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
           
-          {/* Moved India's No.1 Badge Here */}
+          {/* India's No.1 Badge */}
           {branding?.showNo1Badge && (
             <div className="relative z-10 inline-flex items-center gap-3 px-8 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-amber-200 to-yellow-500 border-2 border-white/50 finance-3d-shadow mb-12 transition-all hover:scale-110 cursor-default group animate-bounce">
               <Trophy className="w-6 h-6 text-primary fill-primary animate-pulse" />
@@ -239,7 +239,7 @@ export default function Home() {
                  <Link href="/quiz">
                    <Button className="h-16 md:h-20 lg:h-24 px-8 md:px-12 lg:px-20 rounded-2xl lg:rounded-[2rem] bg-primary text-white font-bold text-lg md:text-xl lg:text-4xl finance-3d-shadow hover:scale-105 active:scale-95 transition-all flex items-center gap-4 md:gap-8 mx-auto group shadow-[0_20px_40px_rgba(79,70,229,0.3)] border-none">
                      <GraduationCap className="w-6 h-6 md:w-10 lg:w-14 lg:h-14 group-hover:rotate-12 transition-transform" /> 
-                     Attend Quiz Now 
+                     Attend Quiz 
                      <ArrowRight className="w-5 h-5 md:w-8 lg:w-10 lg:h-10 group-hover:translate-x-3 transition-transform" />
                    </Button>
                  </Link>

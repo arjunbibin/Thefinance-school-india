@@ -70,7 +70,9 @@ import {
   Briefcase,
   Crown,
   Trophy,
-  Activity
+  Activity,
+  School,
+  MessageSquare
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
