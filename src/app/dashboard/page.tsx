@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -67,7 +68,9 @@ import {
   Star,
   Quote,
   Briefcase,
-  Crown
+  Crown,
+  Trophy,
+  Activity
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -144,7 +147,11 @@ export default function Dashboard() {
     instagramUrl: '',
     youtubeUrl: '',
     emailAddress: '',
-    quizUrl: ''
+    quizUrl: '',
+    statsStudents: '',
+    statsWorkshops: '',
+    statsTestimonials: '',
+    showNo1Badge: false
   });
 
   useEffect(() => { 
@@ -158,7 +165,11 @@ export default function Dashboard() {
         instagramUrl: branding.instagramUrl || '',
         youtubeUrl: branding.youtubeUrl || '',
         emailAddress: branding.emailAddress || '',
-        quizUrl: branding.quizUrl || ''
+        quizUrl: branding.quizUrl || '',
+        statsStudents: branding.statsStudents || '',
+        statsWorkshops: branding.statsWorkshops || '',
+        statsTestimonials: branding.statsTestimonials || '',
+        showNo1Badge: branding.showNo1Badge || false
       }); 
     }
   }, [branding]);
@@ -793,16 +804,15 @@ export default function Dashboard() {
                         <div className="space-y-2"><Label>Brand Tagline</Label><Input value={brandingForm.tagline} onChange={e => setBrandingForm({...brandingForm, tagline: e.target.value})} className="rounded-xl h-12" /></div>
                         <div className="space-y-2"><Label>Logo URL</Label><Input value={brandingForm.logoUrl} onChange={e => setBrandingForm({...brandingForm, logoUrl: e.target.value})} className="rounded-xl h-12" /></div>
                         
-                        <h3 className="font-headline font-bold text-xl text-primary border-b pb-2 pt-4">Internal Links</h3>
-                        <div className="space-y-2">
-                          <Label className="flex items-center gap-2 text-accent font-bold"><GraduationCap className="w-4 h-4" /> Quiz Portal URL</Label>
-                          <Input 
-                            value={brandingForm.quizUrl} 
-                            onChange={e => setBrandingForm({...brandingForm, quizUrl: e.target.value})} 
-                            className="rounded-xl h-12 border-accent/50 focus:border-accent" 
-                            placeholder="https://quiz.financeschool.in/..." 
-                          />
-                          <p className="text-[10px] text-muted-foreground italic">Link users to the embedded quiz portal.</p>
+                        <h3 className="font-headline font-bold text-xl text-primary border-b pb-2 pt-4">Impact & Metrics</h3>
+                        <div className="p-4 rounded-2xl bg-slate-50 border space-y-4">
+                          <div className="flex items-center justify-between">
+                            <Label className="flex items-center gap-2 font-bold"><Trophy className="w-4 h-4 text-yellow-500" /> Show No.1 Badge</Label>
+                            <Switch checked={brandingForm.showNo1Badge} onCheckedChange={v => setBrandingForm({...brandingForm, showNo1Badge: v})} />
+                          </div>
+                          <div className="space-y-2"><Label>Total Students Enrolled</Label><Input value={brandingForm.statsStudents} onChange={e => setBrandingForm({...brandingForm, statsStudents: e.target.value})} className="rounded-xl h-12" placeholder="e.g. 5000+" /></div>
+                          <div className="space-y-2"><Label>Workshops Conducted</Label><Input value={brandingForm.statsWorkshops} onChange={e => setBrandingForm({...brandingForm, statsWorkshops: e.target.value})} className="rounded-xl h-12" placeholder="e.g. 150+" /></div>
+                          <div className="space-y-2"><Label>Student Testimonials</Label><Input value={brandingForm.statsTestimonials} onChange={e => setBrandingForm({...brandingForm, statsTestimonials: e.target.value})} className="rounded-xl h-12" placeholder="e.g. 200+" /></div>
                         </div>
                       </div>
 
@@ -827,6 +837,15 @@ export default function Dashboard() {
                         <div className="space-y-2">
                           <Label className="flex items-center gap-2"><Mail className="w-4 h-4" /> Support Email</Label>
                           <Input value={brandingForm.emailAddress} onChange={e => setBrandingForm({...brandingForm, emailAddress: e.target.value})} className="rounded-xl h-12" placeholder="support@..." />
+                        </div>
+                        <div className="space-y-2 pt-4">
+                          <Label className="flex items-center gap-2 text-accent font-bold"><GraduationCap className="w-4 h-4" /> Quiz Portal URL</Label>
+                          <Input 
+                            value={brandingForm.quizUrl} 
+                            onChange={e => setBrandingForm({...brandingForm, quizUrl: e.target.value})} 
+                            className="rounded-xl h-12 border-accent/50 focus:border-accent" 
+                            placeholder="https://quiz.financeschool.in/..." 
+                          />
                         </div>
                       </div>
                       

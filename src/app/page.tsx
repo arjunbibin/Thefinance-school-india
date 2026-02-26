@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -15,6 +16,8 @@ import FinanceIcon3D from '@/components/FinanceIcon3D';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import { 
   Globe, 
   Layers, 
@@ -31,10 +34,17 @@ import {
   MessageSquare,
   GraduationCap,
   Sparkles,
-  Trophy
+  Trophy,
+  School,
+  TrendingUp,
+  Award
 } from 'lucide-react';
 
 export default function Home() {
+  const db = useFirestore();
+  const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
+  const { data: branding } = useDoc(brandingRef);
+
   return (
     <div className="relative min-h-screen overflow-x-hidden selection:bg-accent selection:text-primary text-foreground">
       <Navbar />
@@ -44,10 +54,18 @@ export default function Home() {
         <ThreeHero />
         
         <div className="relative z-10 text-center max-w-5xl animate-in fade-in zoom-in duration-1000">
-          <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full glass-morphism mb-10 border border-white/40 finance-3d-shadow transition-all hover:scale-105 cursor-pointer group">
-            <Zap className="w-5 h-5 text-accent animate-pulse fill-accent" />
-            <span className="text-[10px] md:text-sm font-bold text-primary tracking-[0.2em] uppercase">The Future of Financial Literacy</span>
-          </div>
+          {branding?.showNo1Badge && (
+            <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full bg-accent/20 border border-accent/40 finance-3d-shadow mb-10 transition-all hover:scale-105 cursor-default group">
+              <Award className="w-5 h-5 text-accent animate-pulse fill-accent" />
+              <span className="text-[10px] md:text-sm font-bold text-primary tracking-[0.2em] uppercase">India's No.1 Financial Literacy Program</span>
+            </div>
+          )}
+          {!branding?.showNo1Badge && (
+            <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full glass-morphism mb-10 border border-white/40 finance-3d-shadow transition-all hover:scale-105 cursor-pointer group">
+              <Zap className="w-5 h-5 text-accent animate-pulse fill-accent" />
+              <span className="text-[10px] md:text-sm font-bold text-primary tracking-[0.2em] uppercase">The Future of Financial Literacy</span>
+            </div>
+          )}
           
           <h1 className="text-4xl md:text-7xl lg:text-9xl font-headline font-bold text-primary mb-8 leading-[1] tracking-tighter">
             Let's Deal with <br />
@@ -94,8 +112,29 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Impact Stats Section */}
+      <section className="max-w-7xl mx-auto px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[
+            { icon: GraduationCap, label: "Students Enrolled", value: branding?.statsStudents || "5000+", color: "bg-primary/10", textColor: "text-primary" },
+            { icon: School, label: "Workshops Conducted", value: branding?.statsWorkshops || "150+", color: "bg-accent/10", textColor: "text-accent" },
+            { icon: MessageSquare, label: "Success Testimonials", value: branding?.statsTestimonials || "200+", color: "bg-primary/10", textColor: "text-primary" }
+          ].map((stat, i) => (
+            <Card key={i} className="p-8 border-none bg-white finance-3d-shadow rounded-[2rem] flex flex-col items-center text-center gap-4 animate-float" style={{ animationDelay: `${i * 0.5}s` }}>
+              <div className={cn("p-5 rounded-2xl shadow-inner", stat.color, stat.textColor)}>
+                <stat.icon className="w-10 h-10" />
+              </div>
+              <div>
+                <h3 className="text-4xl font-headline font-bold text-primary">{stat.value}</h3>
+                <p className="text-muted-foreground font-bold text-xs uppercase tracking-widest mt-1">{stat.label}</p>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {/* Vision & Mission Section */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24">
+      <section className="max-w-7xl mx-auto px-4 md:px-6 py-12">
         <div className="grid lg:grid-cols-2 gap-10 md:gap-16">
           <Card className="p-8 md:p-12 border-none bg-white finance-3d-shadow rounded-[2.5rem] md:rounded-[3rem] relative overflow-hidden group">
             <div className="relative z-10 space-y-6">
@@ -170,7 +209,7 @@ export default function Home() {
 
         {/* Attend Quiz CTA - High Impact Visuals */}
         <section className="max-w-7xl mx-auto px-4 md:px-6 py-8 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-          <Card className="p-8 py-16 md:p-24 border-none bg-gradient-to-br from-white via-slate-50 to-accent/5 finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] text-center relative overflow-hidden group">
+          <Card className="p-8 py-12 md:p-24 border-none bg-gradient-to-br from-white via-slate-50 to-accent/5 finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] text-center relative overflow-hidden group">
              <div className="relative z-10 space-y-8 md:space-y-12">
                <div className="inline-flex items-center gap-3 px-6 md:px-8 py-2 md:py-3 rounded-full bg-accent/10 text-primary text-[10px] md:text-sm font-bold uppercase tracking-widest finance-3d-shadow-inner border border-accent/20">
                  <Trophy className="w-4 h-4 md:w-6 md:h-6 text-accent animate-bounce" /> Skill Assessment

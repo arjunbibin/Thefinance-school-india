@@ -58,7 +58,11 @@
         "instagramUrl": { "type": "string", "format": "uri" },
         "youtubeUrl": { "type": "string", "format": "uri" },
         "emailAddress": { "type": "string", "format": "email" },
-        "quizUrl": { "type": "string", "format": "uri" }
+        "quizUrl": { "type": "string", "format": "uri" },
+        "statsStudents": { "type": "string" },
+        "statsWorkshops": { "type": "string" },
+        "statsTestimonials": { "type": "string" },
+        "showNo1Badge": { "type": "boolean" }
       }
     },
     "Slide": {

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import { Trophy } from 'lucide-react';
 
 export default function Navbar() {
   const db = useFirestore();
@@ -29,9 +30,16 @@ export default function Navbar() {
           />
         </div>
         <div className="flex flex-col">
-          <span className="text-lg md:text-3xl lg:text-4xl font-headline font-bold text-primary tracking-tighter leading-none">
-            {appName}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-lg md:text-3xl lg:text-4xl font-headline font-bold text-primary tracking-tighter leading-none">
+              {appName}
+            </span>
+            {branding?.showNo1Badge && (
+              <div className="hidden md:flex items-center gap-1 px-2 py-0.5 rounded-full bg-accent/20 border border-accent/40 text-[8px] font-bold text-primary animate-pulse">
+                <Trophy className="w-2.5 h-2.5 text-accent" /> No.1
+              </div>
+            )}
+          </div>
           <span className="text-[8px] md:text-xs lg:text-sm font-bold text-accent uppercase tracking-widest mt-1 opacity-80">
             {tagline}
           </span>
