@@ -23,7 +23,7 @@ service cloud.firestore {
 
     // --- COLLECTION RULES ---
 
-    // Branding & Global Config
+    // Branding & Global Config - Publicly readable, admin writable
     match /config/branding {
       allow get: if true;
       allow write: if isAdmin();
