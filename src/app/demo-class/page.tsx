@@ -17,7 +17,10 @@ export default function DemoClassPage() {
   const router = useRouter();
   
   const demoClassRef = useMemoFirebase(() => doc(db, 'system_settings', 'demo_class'), [db]);
-  const { data: demoClass, isLoading } = useDoc(demoClassRef);
+  const { data: demoClass, isLoading: isDemoLoading } = useDoc(demoClassRef);
+
+  const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
+  const { data: branding, isLoading: isBrandingLoading } = useDoc(brandingRef);
 
   const getYoutubeId = (url: string) => {
     if (!url) return null;
@@ -38,7 +41,7 @@ export default function DemoClassPage() {
     );
   };
 
-  if (isLoading) {
+  if (isDemoLoading || isBrandingLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <Navbar />
@@ -67,6 +70,7 @@ export default function DemoClassPage() {
 
   const ytId = getYoutubeId(demoClass.videoUrl);
   const isDirectVideo = isVideoUrl(demoClass.videoUrl);
+  const whatsappUrl = branding?.whatsappUrl || 'https://wa.me/financeschoolindia';
 
   return (
     <div className="min-h-screen bg-background flex flex-col overflow-x-hidden">
@@ -119,7 +123,7 @@ export default function DemoClassPage() {
             </div>
           )}
 
-          {/* Call to Action Sections - Now under the video/description */}
+          {/* Call to Action Sections */}
           <div className="grid md:grid-cols-2 gap-8 pt-8">
             <Card className="p-8 md:p-10 border-none bg-primary text-white finance-3d-shadow rounded-[2.5rem] relative overflow-hidden group">
               <div className="relative z-10 space-y-6">
@@ -165,7 +169,7 @@ export default function DemoClassPage() {
               <Button 
                 variant="outline" 
                 className="w-full h-14 rounded-xl border-2 border-accent text-primary font-bold text-lg hover:bg-accent/5 transition-all shadow-md"
-                onClick={() => window.open('https://wa.me/financeschoolindia', '_blank')}
+                onClick={() => window.open(whatsappUrl, '_blank')}
               >
                 Chat With Us
               </Button>
