@@ -1,204 +1,83 @@
-
 {
   "entities": {
-    "UserProfile": {
-      "title": "UserProfile",
+    "DemoClass": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DemoClass",
       "type": "object",
-      "description": "Represents a staff member or admin profile.",
+      "description": "Represents a single demo class offered by FinanceVerse 3D, including its video content and administrative control.",
       "properties": {
-        "id": { "type": "string" },
-        "firstName": { "type": "string" },
-        "lastName": { "type": "string" },
-        "email": { "type": "string", "format": "email" },
-        "role": { 
-          "type": "string", 
-          "enum": [
-            "admin", 
-            "content_head", 
-            "student_specialist", 
-            "accounts_head", 
-            "general_manager", 
-            "tech_head", 
-            "operations_head", 
-            "strategy_manager",
-            "user"
-          ],
-          "default": "user"
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the DemoClass entity."
         },
-        "registrationDate": { "type": "string", "format": "date-time" },
-        "activeSessionId": { "type": "string" }
-      },
-      "required": ["id", "email", "role"]
-    },
-    "Review": {
-      "title": "Review",
-      "type": "object",
-      "description": "A review or feedback message curated by admin.",
-      "properties": {
-        "id": { "type": "string" },
-        "userName": { "type": "string" },
-        "userPhoto": { "type": "string" },
-        "designation": { "type": "string", "description": "e.g. Student, Parent, Professional" },
-        "content": { "type": "string" },
-        "rating": { "type": "number" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userName", "content", "createdAt"]
-    },
-    "AppConfig": {
-      "title": "AppConfig",
-      "type": "object",
-      "description": "Global application configuration for branding.",
-      "properties": {
-        "appName": { "type": "string" },
-        "logoUrl": { "type": "string" },
-        "tagline": { "type": "string" },
-        "whatsappUrl": { "type": "string", "format": "uri" },
-        "facebookUrl": { "type": "string", "format": "uri" },
-        "instagramUrl": { "type": "string", "format": "uri" },
-        "youtubeUrl": { "type": "string", "format": "uri" },
-        "emailAddress": { "type": "string", "format": "email" },
-        "quizUrl": { "type": "string", "format": "uri" },
-        "statsStudents": { "type": "string" },
-        "statsWorkshops": { "type": "string" },
-        "statsTestimonials": { "type": "string" },
-        "showNo1Badge": { "type": "boolean" }
-      }
-    },
-    "Slide": {
-      "title": "Slide",
-      "type": "object",
-      "description": "A slide for the homepage slideshow.",
-      "properties": {
-        "id": { "type": "string" },
-        "title": { "type": "string" },
-        "description": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "imageHint": { "type": "string" },
-        "order": { "type": "number" }
-      },
-      "required": ["imageUrl", "order"]
-    },
-    "GalleryImage": {
-      "title": "GalleryImage",
-      "type": "object",
-      "description": "An image for the school memories gallery.",
-      "properties": {
-        "id": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "description": { "type": "string" },
-        "imageHint": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["imageUrl", "createdAt"]
-    },
-    "Course": {
-      "title": "Course",
-      "type": "object",
-      "description": "A school course or program.",
-      "properties": {
-        "id": { "type": "string" },
-        "title": { "type": "string" },
-        "subtitle": { "type": "string" },
-        "description": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "imageHint": { "type": "string" },
-        "category": { "type": "string" },
-        "rating": { "type": "number" },
-        "lessons": { "type": "string" },
-        "highlights": { "type": "array", "items": { "type": "string" } },
-        "buyLink": { "type": "string", "format": "uri" },
-        "order": { "type": "number" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["title", "category", "order"]
-    },
-    "TeamMember": {
-      "title": "TeamMember",
-      "type": "object",
-      "description": "A member of the school staff or leadership team.",
-      "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
-        "role": { "type": "string" },
-        "leadershipType": { 
-          "type": "string", 
-          "enum": ["ceo", "co-founder", "team"],
-          "default": "team"
+        "title": {
+          "type": "string",
+          "description": "The title of the demo class, displayed to users."
         },
-        "bio": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "order": { "type": "number" },
-        "createdAt": { "type": "string", "format": "date-time" }
+        "description": {
+          "type": "string",
+          "description": "A detailed text description to be displayed under the demo class video."
+        },
+        "videoUrl": {
+          "type": "string",
+          "description": "The URL of the demo class video, which can be a YouTube private link or an MP4 file URL.",
+          "format": "uri"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "A flag indicating whether the 'Attend Demo Class' section should be visible and accessible to users. (Managed by admin panel)"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "The timestamp indicating when the demo class information was last updated.",
+          "format": "date-time"
+        }
       },
-      "required": ["name", "role", "leadershipType"]
-    },
-    "Video": {
-      "title": "Video",
-      "type": "object",
-      "description": "A video clip for the school showcase (Success Stories).",
-      "properties": {
-        "id": { "type": "string" },
-        "title": { "type": "string" },
-        "videoUrl": { "type": "string" },
-        "order": { "type": "number" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["videoUrl", "order"]
-    },
-    "TestimonialVideo": {
-      "title": "TestimonialVideo",
-      "type": "object",
-      "description": "A vertical video for the testimonials gallery.",
-      "properties": {
-        "id": { "type": "string" },
-        "title": { "type": "string" },
-        "videoUrl": { "type": "string" },
-        "order": { "type": "number" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["videoUrl", "order"]
+      "required": [
+        "id",
+        "title",
+        "description",
+        "videoUrl",
+        "isActive"
+      ]
     }
   },
   "auth": {
-    "providers": ["password", "google.com"]
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "/userProfiles/{userId}": {
-      "schema": "UserProfile",
-      "description": "User profile data."
-    },
-    "/reviews/{reviewId}": {
-      "schema": "Review",
-      "description": "Feedback and reviews curated by users."
-    },
-    "/config/branding": {
-      "schema": "AppConfig",
-      "description": "Global branding configuration."
-    },
-    "/slides/{slideId}": {
-      "schema": "Slide",
-      "description": "Homepage slideshow configuration."
-    },
-    "/gallery/{imageId}": {
-      "schema": "GalleryImage",
-      "description": "Images for the school memories gallery."
-    },
-    "/courses/{courseId}": {
-      "schema": "Course",
-      "description": "Academic courses and programs."
-    },
-    "/team/{memberId}": {
-      "schema": "TeamMember",
-      "description": "School staff and leadership team data."
-    },
-    "/videos/{videoId}": {
-      "schema": "Video",
-      "description": "Videos for the school showcase (Success Stories)."
-    },
-    "/testimonialVideos/{videoId}": {
-      "schema": "TestimonialVideo",
-      "description": "Videos for the testimonials page."
-    }
+    "structure": [
+      {
+        "path": "/system_settings/demo_class_config/main",
+        "definition": {
+          "entityName": "DemoClass",
+          "schema": {
+            "$ref": "#/backend/entities/DemoClass"
+          },
+          "description": "The single document containing the global DemoClass configuration. It includes the video URL, description, and an 'isActive' flag to enable or disable the demo section globally. Accessible by all users if 'isActive' is true, and editable only by administrators.",
+          "params": []
+        }
+      },
+      {
+        "path": "/system_roles/admin_users/{adminUserId}",
+        "definition": {
+          "entityName": "adminUser",
+          "schema": {
+            "$ref": "#/backend/entities/AdminUser"
+          },
+          "description": "Collection representing admin roles. The existence of a document at this path signifies admin privileges for the corresponding user ID. Used for Database Access Control (DBAC) to secure admin-only operations, such as managing the DemoClass configuration. No denormalized authorization fields are needed as the document's existence itself serves as the authorization context.",
+          "params": [
+            {
+              "name": "adminUserId",
+              "description": "The unique Firebase Authentication User ID (UID) of the administrator."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure for the new 'Attend Demo Class' feature prioritizes security, scalability, and debuggability following the core design principles. \n\n**Authorization Independence via Denormalization:** The DemoClass entity is designed as a single document at `/system_settings/demo_class_config/main`. Its access control relies on its intrinsic `isActive` field for general user read access and a separate, flat `system_roles/admin_users` collection for administrative write access. This structure explicitly avoids hierarchical authorization dependencies; the `DemoClass` document does not rely on any parent document's attributes for its security rules, and admin access is determined by a direct check against the `admin_users` collection, not by 'getting' or inspecting the `DemoClass` document itself. This enables atomic updates and simplifies rule debugging.\n\n**QAPs (Rules are not Filters):** To meet the Query-Able Paths principle for `list` operations, the DemoClass is intentionally stored as a single document rather than a collection. Users will perform a direct `get()` operation on `/system_settings/demo_class_config/main`. The security rule will then evaluate `resource.data.isActive == true` for read access. This avoids any scenario where users would `list` a collection of demo classes and require rules to filter by `isActive`, which is inefficient and insecure (rules are not filters). For admin operations, a direct `get()` to check `admin_users/{uid}` also inherently satisfies QAPs.\n\n**Structural Segregation:** The single `DemoClass` document lives under `/system_settings`, clearly separating it as a global configuration item from user-specific data or other application features. Admin roles are segregated into a dedicated `/system_roles/admin_users` collection, ensuring that documents with different security postures (global configuration vs. user-specific roles) reside in distinct, homogeneously secured collections. This simplifies security rules greatly as each path template has a clear, consistent security requirement.\n\n**Access Modeling and Data Clarity:** The `isActive` boolean field in the `DemoClass` schema explicitly models its visibility state, making it clear whether the demo section should be shown. Admin roles are implemented using the 'Existence over Content' DBAC pattern: the presence of a document in `/system_roles/admin_users/{uid}` grants admin permissions. Naming conventions like `system_settings`, `demo_class_config`, `system_roles`, and `admin_users` are chosen for clarity and predictability."
   }
 }
