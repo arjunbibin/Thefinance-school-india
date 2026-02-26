@@ -109,14 +109,16 @@ export default function DemoClassPage() {
             </Card>
 
             {/* Description Section */}
-            <div className="p-8 md:p-12 bg-white finance-3d-shadow rounded-[2.5rem] md:rounded-[3.5rem] border border-white/20">
-              <h3 className="text-2xl md:text-3xl font-headline font-bold text-primary mb-6 flex items-center gap-3">
-                <BookOpen className="w-6 h-6 text-accent" /> About This Session
-              </h3>
-              <div className="prose prose-slate max-w-none text-muted-foreground text-lg leading-relaxed whitespace-pre-wrap">
-                {demoClass.description || "No description provided for this demo class."}
+            {demoClass.description && (
+              <div className="p-8 md:p-12 bg-white finance-3d-shadow rounded-[2.5rem] md:rounded-[3.5rem] border border-white/20">
+                <h3 className="text-2xl md:text-3xl font-headline font-bold text-primary mb-6 flex items-center gap-3">
+                  <BookOpen className="w-6 h-6 text-accent" /> About This Session
+                </h3>
+                <div className="prose prose-slate max-w-none text-muted-foreground text-lg leading-relaxed whitespace-pre-wrap">
+                  {demoClass.description}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div className="lg:col-span-4 space-y-8 animate-in slide-in-from-right-10 duration-1000">

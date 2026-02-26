@@ -540,7 +540,7 @@ export default function Dashboard() {
                         
                         <div className="space-y-2">
                           <Label>Display Title</Label>
-                          <Input value={demoClassForm.title} onChange={e => setDemoClassForm({...demoClassForm, title: e.target.value})} className="rounded-xl h-12" placeholder="e.g. Join Our Free Demo Class" />
+                          <Input value={demoClassForm.title} onChange={e => setDemoClassForm({...demoClassForm, title: e.target.value})} className="rounded-xl h-12" placeholder="e.g. Join Our Free Demo Class" required />
                         </div>
 
                         <div className="p-4 bg-slate-50 rounded-2xl border space-y-4">
@@ -566,7 +566,7 @@ export default function Dashboard() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label>Description</Label>
+                          <Label>Description (Optional)</Label>
                           <Textarea value={demoClassForm.description} onChange={e => setDemoClassForm({...demoClassForm, description: e.target.value})} className="rounded-xl min-h-[150px]" placeholder="Explain what users will learn in this demo..." />
                         </div>
 

@@ -37,7 +37,6 @@
       "required": [
         "id",
         "title",
-        "description",
         "videoUrl",
         "isActive"
       ]
