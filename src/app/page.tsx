@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -40,6 +39,7 @@ import {
   Award,
   PlayCircle
 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function Home() {
   const db = useFirestore();
@@ -48,6 +48,20 @@ export default function Home() {
 
   const demoClassRef = useMemoFirebase(() => doc(db, 'system_settings', 'demo_class'), [db]);
   const { data: demoClass } = useDoc(demoClassRef);
+
+  const getYoutubeId = (url: string) => {
+    if (!url) return null;
+    const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[1].length === 11) ? match[1] : null;
+  };
+
+  const getYoutubeThumb = (url: string) => {
+    const id = getYoutubeId(url);
+    return id ? `https://img.youtube.com/vi/${id}/maxresdefault.jpg` : null;
+  };
+
+  const demoThumb = demoClass?.videoUrl ? getYoutubeThumb(demoClass.videoUrl) : null;
 
   return (
     <div className="relative min-h-screen overflow-x-hidden selection:bg-accent selection:text-primary text-foreground">
@@ -214,14 +228,21 @@ export default function Home() {
                   </Button>
                 </Link>
               </div>
-              <div className="relative aspect-video rounded-3xl overflow-hidden border-4 border-white/10 finance-3d-shadow group-hover:scale-105 transition-transform duration-700">
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <div className="w-20 h-20 bg-accent text-primary rounded-full flex items-center justify-center shadow-2xl animate-float">
-                    <PlayCircle className="w-10 h-10 fill-primary" />
+              <Link href="/demo-class" className="block">
+                <div className="relative aspect-video rounded-3xl overflow-hidden border-4 border-white/10 finance-3d-shadow group-hover:scale-105 transition-transform duration-700 cursor-pointer">
+                  {demoThumb ? (
+                    <Image src={demoThumb} alt="Demo Thumbnail" fill className="object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+                  ) : (
+                    <div className="absolute inset-0 bg-slate-800" />
+                  )}
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <div className="w-20 h-20 bg-accent text-primary rounded-full flex items-center justify-center shadow-2xl animate-float">
+                      <PlayCircle className="w-10 h-10 fill-primary" />
+                    </div>
                   </div>
+                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-accent/20" />
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-accent/20" />
-              </div>
+              </Link>
             </div>
             {/* Background Orbs */}
             <div className="absolute -top-24 -right-24 w-96 h-96 bg-accent/10 rounded-full blur-[100px]" />
