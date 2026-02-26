@@ -73,7 +73,8 @@ import {
   Activity,
   School,
   MessageSquare,
-  Presentation
+  Presentation,
+  Link2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -797,6 +798,19 @@ export default function Dashboard() {
                           <div className="space-y-2"><Label>Lesson Count</Label><Input value={courseForm.lessons} onChange={e => setCourseForm({...courseForm, lessons: e.target.value})} className="rounded-xl h-12" /></div>
                         </div>
                         <div className="space-y-2"><Label>Highlights (Separate by commas)</Label><Input value={courseForm.highlights} onChange={e => setCourseForm({...courseForm, highlights: e.target.value})} className="rounded-xl h-12" placeholder="Topic 1, Topic 2, etc." /></div>
+                        
+                        {/* New Buy/Registration Link Field */}
+                        <div className="space-y-2">
+                          <Label className="flex items-center gap-2"><Link2 className="w-4 h-4 text-accent" /> Registration / Buy URL</Label>
+                          <Input 
+                            value={courseForm.buyLink} 
+                            onChange={e => setCourseForm({...courseForm, buyLink: e.target.value})} 
+                            className="rounded-xl h-12 border-accent/20 focus:border-accent" 
+                            placeholder="https://form-link-or-payment-page.com" 
+                          />
+                          <p className="text-[10px] text-muted-foreground italic">This link will open in the enrollment portal when students click "Buy Now".</p>
+                        </div>
+
                         <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Rating</Label><Input type="number" step="0.1" value={courseForm.rating} onChange={e => setCourseForm({...courseForm, rating: parseFloat(e.target.value) || 0})} className="rounded-xl h-12" /></div><div className="space-y-2"><Label>Order</Label><Input type="number" value={courseForm.order} onChange={e => setCourseForm({...courseForm, order: parseInt(e.target.value) || 0})} className="rounded-xl h-12" /></div></div>
                         <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-12" onClick={() => courseFileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" /> Upload Course Banner</Button>
                         <input type="file" ref={courseFileInputRef} onChange={e => handleFileChange(e, 'course')} accept="image/*" className="hidden" />
