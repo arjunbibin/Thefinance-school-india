@@ -90,7 +90,7 @@ export default function DemoClassPage() {
           <Card className="relative aspect-video w-full overflow-hidden border-none bg-black finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] group">
             {ytId ? (
               <iframe
-                src={`https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0&vq=hd1080`}
+                src={`https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0&iv_load_policy=3&vq=hd1080`}
                 className="w-full h-full border-none"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
