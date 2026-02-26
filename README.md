@@ -23,10 +23,7 @@ A modern, high-performance Edu-Tech platform built with Next.js 15, Firebase, an
 
 To host this project on GitHub and go live with Firebase App Hosting, follow these steps in your terminal:
 
-### 1. Prepare GitHub
-1. Go to [GitHub](https://github.com/new) and create a new repository named `finance-school-india`. **Do not** initialize it with a README or License.
-
-### 2. Run these commands in your terminal
+### 1. Prepare Git locally
 Inside your project folder, execute the following:
 
 ```bash
@@ -41,9 +38,14 @@ git commit -m "Initial launch: Finance School India with Admin Portal"
 
 # Set the branch to main
 git branch -M main
+```
 
-# Link to your GitHub repo (Replace YOUR_USERNAME with your actual GitHub username)
-git remote add origin https://github.com/YOUR_USERNAME/finance-school-india.git
+### 2. Push to GitHub
+Replace `YOUR_USERNAME` with your actual GitHub username in the command below:
+
+```bash
+# Link to your GitHub repo
+git remote add origin https://github.com/YOUR_USERNAME/Thefinance-school-india.git
 
 # Push to GitHub
 git push -u origin main
@@ -54,7 +56,7 @@ git push -u origin main
 2. Select your project.
 3. Navigate to **App Hosting** in the left sidebar.
 4. Click **Get Started** and select your GitHub account.
-5. Choose the `finance-school-india` repository you just pushed.
+5. Choose the `Thefinance-school-india` repository you just pushed.
 6. Follow the wizard to complete the setup. Firebase will automatically detect the Next.js build and provide you with a production URL.
 
 ## Security Note
