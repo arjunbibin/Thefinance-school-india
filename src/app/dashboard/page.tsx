@@ -577,7 +577,7 @@ export default function Dashboard() {
                         <Label className="font-bold">Player Preview</Label>
                         <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 flex items-center justify-center relative aspect-video w-full finance-3d-shadow">
                           {demoClassForm.isYoutube && getYoutubeId(demoClassForm.videoUrl) ? (
-                            <iframe src={`https://www.youtube.com/embed/${getYoutubeId(demoClassForm.videoUrl)}`} className="w-full h-full" />
+                            <iframe src={`https://www.youtube.com/embed/${getYoutubeId(demoClassForm.videoUrl)}?rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1`} className="w-full h-full" />
                           ) : demoClassForm.videoUrl && isVideoUrl(demoClassForm.videoUrl) ? (
                             <video key={demoClassForm.videoUrl} src={demoClassForm.videoUrl} className="w-full h-full object-cover" controls />
                           ) : (
@@ -620,7 +620,7 @@ export default function Dashboard() {
                       </div>
                       <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 flex items-center justify-center relative aspect-[9/16] max-h-[350px] mx-auto w-full">
                         {newTestimonialVideo.isYoutube && getYoutubeId(newTestimonialVideo.videoUrl) ? (
-                          <iframe src={`https://www.youtube.com/embed/${getYoutubeId(newTestimonialVideo.videoUrl)}`} className="w-full h-full" />
+                          <iframe src={`https://www.youtube.com/embed/${getYoutubeId(newTestimonialVideo.videoUrl)}?rel=0&modestbranding=1&iv_load_policy=3&showinfo=0`} className="w-full h-full" />
                         ) : newTestimonialVideo.videoUrl ? (
                           <video key={newTestimonialVideo.videoUrl} src={newTestimonialVideo.videoUrl} className="w-full h-full object-cover" controls />
                         ) : (
@@ -633,7 +633,7 @@ export default function Dashboard() {
                         <div key={v.id} className="p-4 bg-slate-50 rounded-2xl relative border">
                           <p className="font-bold text-[10px] truncate mb-2">{v.title || 'Untitled Testimonial'}</p>
                           <div className="aspect-[9/16] rounded-lg overflow-hidden bg-black mb-3">
-                            {getYoutubeId(v.videoUrl) ? <iframe src={`https://www.youtube.com/embed/${getYoutubeId(v.videoUrl)}`} className="w-full h-full" /> : <video src={v.videoUrl} className="w-full h-full object-cover" />}
+                            {getYoutubeId(v.videoUrl) ? <iframe src={`https://www.youtube.com/embed/${getYoutubeId(v.videoUrl)}?rel=0&modestbranding=1&iv_load_policy=3`} className="w-full h-full" /> : <video src={v.videoUrl} className="w-full h-full object-cover" />}
                           </div>
                           <Button type="button" variant="destructive" size="sm" className="w-full rounded-lg relative z-30 font-bold" onClick={() => setItemToDelete({ path: 'testimonialVideos', id: v.id })}><Trash2 className="w-3 h-3 mr-2" /> Remove</Button>
                         </div>
@@ -730,7 +730,7 @@ export default function Dashboard() {
                       </div>
                       <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 flex items-center justify-center relative aspect-video max-h-[250px] mx-auto w-full">
                         {newVideo.isYoutube && getYoutubeId(newVideo.videoUrl) ? (
-                          <iframe src={`https://www.youtube.com/embed/${getYoutubeId(newVideo.videoUrl)}`} className="w-full h-full" />
+                          <iframe src={`https://www.youtube.com/embed/${getYoutubeId(newVideo.videoUrl)}?rel=0&modestbranding=1&iv_load_policy=3&showinfo=0`} className="w-full h-full" />
                         ) : newVideo.videoUrl ? (
                           <video key={newVideo.videoUrl} src={newVideo.videoUrl} className="w-full h-full object-cover" controls />
                         ) : (
@@ -743,7 +743,7 @@ export default function Dashboard() {
                         <div key={v.id} className="p-4 bg-slate-50 rounded-2xl relative border">
                           <p className="font-bold text-[10px] truncate mb-2">{v.title || 'Untitled Story'}</p>
                           <div className="aspect-video rounded-lg overflow-hidden bg-black mb-3">
-                            {getYoutubeId(v.videoUrl) ? <iframe src={`https://www.youtube.com/embed/${getYoutubeId(v.videoUrl)}`} className="w-full h-full" /> : <video src={v.videoUrl} className="w-full h-full object-cover" />}
+                            {getYoutubeId(v.videoUrl) ? <iframe src={`https://www.youtube.com/embed/${getYoutubeId(v.videoUrl)}?rel=0&modestbranding=1&iv_load_policy=3`} className="w-full h-full" /> : <video src={v.videoUrl} className="w-full h-full object-cover" />}
                           </div>
                           <Button type="button" variant="destructive" size="sm" className="w-full rounded-lg relative z-30 font-bold" onClick={() => setItemToDelete({ path: 'videos', id: v.id })}><Trash2 className="w-3 h-3 mr-2" /> Remove</Button>
                         </div>
