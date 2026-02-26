@@ -41,7 +41,7 @@ git branch -M main
 ```
 
 ### 2. Push to GitHub
-Run these commands to link and upload your code:
+Run these commands to link and upload your code (ensure you have created the repo `Thefinance-school-india` on GitHub first):
 
 ```bash
 # Link to your GitHub repo
