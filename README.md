@@ -1,3 +1,4 @@
+
 # The Finance School India
 
 A modern, high-performance Edu-Tech platform built with Next.js 15, Firebase, and Three.js.
@@ -23,31 +24,24 @@ A modern, high-performance Edu-Tech platform built with Next.js 15, Firebase, an
 
 Follow these steps in your terminal to push your code to GitHub and then go live with Firebase App Hosting:
 
-### 1. Initialize Git locally
+### 1. Initialize and Commit
 Inside your project folder, run:
 
 ```bash
-# Initialize git
-git init
-
-# Add all files
+# If you get "working tree clean", skip to step 2
 git add .
-
-# Create the first commit
 git commit -m "Initial launch: Finance School India"
-
-# Set the branch to main
 git branch -M main
 ```
 
-### 2. Push to GitHub
-Run these commands to link and upload your code to your repository:
+### 2. Update and Push to GitHub
+Since your remote already exists, run these commands to ensure it points to the correct repository and push:
 
 ```bash
-# Link to your GitHub repo
-git remote add origin https://github.com/arjunbibin/Thefinance-school-india.git
+# Update the remote URL
+git remote set-url origin https://github.com/arjunbibin/Thefinance-school-india.git
 
-# Push to GitHub
+# Push to GitHub (You may need to provide your GitHub credentials)
 git push -u origin main
 ```
 
