@@ -72,7 +72,7 @@ export default function DemoClassPage() {
     <div className="min-h-screen bg-background flex flex-col overflow-x-hidden">
       <Navbar />
       
-      <main className="flex-grow max-w-7xl mx-auto px-6 py-24 w-full">
+      <main className="flex-grow max-w-5xl mx-auto px-6 py-24 w-full">
         <div className="mb-16 text-center animate-in fade-in slide-in-from-top-10 duration-1000">
           <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">The Experience</Badge>
           <h1 className="text-4xl md:text-7xl font-headline font-bold text-primary tracking-tight">{demoClass.title || "The Demo Class"}</h1>
@@ -81,52 +81,50 @@ export default function DemoClassPage() {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-12 gap-12 items-start">
-          <div className="lg:col-span-8 space-y-10 animate-in slide-in-from-left-10 duration-1000">
-            {/* Main Video Player */}
-            <Card className="relative aspect-video w-full overflow-hidden border-none bg-black finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] group">
-              {ytId ? (
-                <iframe
-                  src={`https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0&vq=hd1080`}
-                  className="w-full h-full border-none"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : isDirectVideo ? (
-                <video
-                  src={demoClass.videoUrl}
-                  className="w-full h-full object-cover"
-                  controls
-                  autoPlay
-                  playsInline
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-white/40 space-y-4">
-                  <PlayCircle className="w-20 h-20 opacity-20" />
-                  <p className="font-bold">Video format not recognized or link is invalid.</p>
-                </div>
-              )}
-            </Card>
-
-            {/* Description Section */}
-            {demoClass.description && (
-              <div className="p-8 md:p-12 bg-white finance-3d-shadow rounded-[2.5rem] md:rounded-[3.5rem] border border-white/20">
-                <h3 className="text-2xl md:text-3xl font-headline font-bold text-primary mb-6 flex items-center gap-3">
-                  <BookOpen className="w-6 h-6 text-accent" /> About This Session
-                </h3>
-                <div className="prose prose-slate max-w-none text-muted-foreground text-lg leading-relaxed whitespace-pre-wrap">
-                  {demoClass.description}
-                </div>
+        <div className="space-y-12 animate-in slide-in-from-bottom-10 duration-1000">
+          {/* Main Video Player */}
+          <Card className="relative aspect-video w-full overflow-hidden border-none bg-black finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] group">
+            {ytId ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${ytId}?autoplay=1&modestbranding=1&rel=0&vq=hd1080`}
+                className="w-full h-full border-none"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : isDirectVideo ? (
+              <video
+                src={demoClass.videoUrl}
+                className="w-full h-full object-cover"
+                controls
+                autoPlay
+                playsInline
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-white/40 space-y-4">
+                <PlayCircle className="w-20 h-20 opacity-20" />
+                <p className="font-bold">Video format not recognized or link is invalid.</p>
               </div>
             )}
-          </div>
+          </Card>
 
-          <div className="lg:col-span-4 space-y-8 animate-in slide-in-from-right-10 duration-1000">
-            {/* Call to Action Sidebar */}
+          {/* Description Section */}
+          {demoClass.description && (
+            <div className="p-8 md:p-12 bg-white finance-3d-shadow rounded-[2.5rem] md:rounded-[3.5rem] border border-white/20">
+              <h3 className="text-2xl md:text-3xl font-headline font-bold text-primary mb-6 flex items-center gap-3">
+                <BookOpen className="w-6 h-6 text-accent" /> About This Session
+              </h3>
+              <div className="prose prose-slate max-w-none text-muted-foreground text-lg leading-relaxed whitespace-pre-wrap">
+                {demoClass.description}
+              </div>
+            </div>
+          )}
+
+          {/* Call to Action Sections - Now under the video/description */}
+          <div className="grid md:grid-cols-2 gap-8 pt-8">
             <Card className="p-8 md:p-10 border-none bg-primary text-white finance-3d-shadow rounded-[2.5rem] relative overflow-hidden group">
-              <div className="relative z-10 space-y-8">
+              <div className="relative z-10 space-y-6">
                 <h3 className="text-3xl font-headline font-bold leading-tight">Ready to start your journey?</h3>
-                <p className="opacity-80 text-lg">If you liked this session, our comprehensive programs offer even more value.</p>
+                <p className="opacity-80 text-lg">If you liked this session, our programs offer even more value.</p>
                 
                 <div className="space-y-4">
                   <Button 
@@ -147,11 +145,7 @@ export default function DemoClassPage() {
                 <div className="pt-6 border-t border-white/10">
                   <p className="text-xs font-bold uppercase tracking-widest opacity-60 mb-4">What's Next?</p>
                   <div className="space-y-3">
-                    {[
-                      "Guided Roadmap to Wealth",
-                      "Interactive Live Workshops",
-                      "Dedicated Mentor Access"
-                    ].map((item, i) => (
+                    {["Guided Roadmap", "Live Workshops", "Mentor Access"].map((item, i) => (
                       <div key={i} className="flex items-center gap-3 text-sm">
                         <CheckCircle2 className="w-4 h-4 text-accent" /> {item}
                       </div>
@@ -162,15 +156,15 @@ export default function DemoClassPage() {
               <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
             </Card>
 
-            <Card className="p-8 border-none bg-white finance-3d-shadow rounded-[2.5rem] text-center space-y-4">
-              <div className="w-16 h-16 bg-accent/10 text-accent rounded-2xl flex items-center justify-center mx-auto mb-2">
-                <MessageSquare className="w-8 h-8" />
+            <Card className="p-8 border-none bg-white finance-3d-shadow rounded-[2.5rem] flex flex-col justify-center text-center space-y-6">
+              <div className="w-20 h-20 bg-accent/10 text-accent rounded-3xl flex items-center justify-center mx-auto mb-2 finance-3d-shadow-inner">
+                <MessageSquare className="w-10 h-10" />
               </div>
-              <h4 className="font-headline font-bold text-primary text-xl">Have Questions?</h4>
-              <p className="text-muted-foreground text-sm">Connect with our learning consultants directly on WhatsApp for guidance.</p>
+              <h4 className="font-headline font-bold text-primary text-2xl">Have Questions?</h4>
+              <p className="text-muted-foreground text-base max-w-xs mx-auto">Connect with our learning consultants directly on WhatsApp for personal guidance.</p>
               <Button 
                 variant="outline" 
-                className="w-full h-12 rounded-xl border-accent text-primary font-bold hover:bg-accent/5"
+                className="w-full h-14 rounded-xl border-2 border-accent text-primary font-bold text-lg hover:bg-accent/5 transition-all shadow-md"
                 onClick={() => window.open('https://wa.me/financeschoolindia', '_blank')}
               >
                 Chat With Us
