@@ -37,13 +37,17 @@ import {
   Trophy,
   School,
   TrendingUp,
-  Award
+  Award,
+  PlayCircle
 } from 'lucide-react';
 
 export default function Home() {
   const db = useFirestore();
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
+
+  const demoClassRef = useMemoFirebase(() => doc(db, 'system_settings', 'demo_class'), [db]);
+  const { data: demoClass } = useDoc(demoClassRef);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden selection:bg-accent selection:text-primary text-foreground">
@@ -75,7 +79,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center px-6">
             <Link href="/quiz" className="w-full sm:w-auto">
               <Button className="h-14 md:h-16 px-8 md:px-12 rounded-2xl bg-accent text-primary font-bold text-lg md:text-xl finance-3d-shadow hover:scale-105 transition-transform flex items-center gap-3 w-full animate-pulse border-none">
-                <GraduationCap className="w-6 h-6" /> Attend Quiz Now
+                <GraduationCap className="w-6 h-6" /> Attend Quiz
               </Button>
             </Link>
             <Link href="#courses" className="w-full sm:w-auto">
@@ -106,7 +110,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Impact Stats Section - Redesigned for Premium Look */}
+      {/* Impact Stats Section */}
       <section className="max-w-7xl mx-auto px-4 md:px-6 mb-12">
         <div className="relative p-8 md:p-12 lg:p-16 rounded-[3rem] bg-white finance-3d-shadow overflow-hidden group border border-slate-50 flex flex-col items-center">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
@@ -141,7 +145,6 @@ export default function Home() {
             ))}
           </div>
           
-          {/* Decorative Corner Glows */}
           <div className="absolute -top-10 -left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
           <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-accent/10 rounded-full blur-3xl" />
         </div>
@@ -190,9 +193,46 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Demo Class Section - Conditional */}
+      {demoClass?.isActive && (
+        <section className="max-w-7xl mx-auto px-4 md:px-6 py-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+          <Card className="relative overflow-hidden border-none bg-slate-900 text-white p-8 md:p-16 rounded-[2.5rem] md:rounded-[4rem] finance-3d-shadow group">
+            <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+              <div className="space-y-8">
+                <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-accent/20 text-accent border border-accent/20 text-[10px] md:text-xs font-bold uppercase tracking-widest">
+                  <PlayCircle className="w-4 h-4 animate-pulse" /> Exclusive Preview
+                </div>
+                <h2 className="text-4xl md:text-6xl font-headline font-bold tracking-tight">
+                  {demoClass.title || "Experience Our Demo Class"}
+                </h2>
+                <p className="text-lg md:text-xl text-slate-300 leading-relaxed max-w-xl">
+                  Get a firsthand look at how we transform financial education into an interactive, 3D journey. Watch our sample workshop highlights now.
+                </p>
+                <Link href="/demo-class">
+                  <Button className="h-16 px-10 rounded-2xl bg-white text-primary font-bold text-lg hover:scale-105 transition-transform flex items-center gap-3 group/btn">
+                    Attend Demo Class <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-2 transition-transform" />
+                  </Button>
+                </Link>
+              </div>
+              <div className="relative aspect-video rounded-3xl overflow-hidden border-4 border-white/10 finance-3d-shadow group-hover:scale-105 transition-transform duration-700">
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                  <div className="w-20 h-20 bg-accent text-primary rounded-full flex items-center justify-center shadow-2xl animate-float">
+                    <PlayCircle className="w-10 h-10 fill-primary" />
+                  </div>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-accent/20" />
+              </div>
+            </div>
+            {/* Background Orbs */}
+            <div className="absolute -top-24 -right-24 w-96 h-96 bg-accent/10 rounded-full blur-[100px]" />
+            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-[100px]" />
+          </Card>
+        </section>
+      )}
+
       {/* Main Content Area */}
       <div className="relative z-10 space-y-8 pb-12 px-2 md:px-0">
-        <div className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20">
+        <div id="courses" className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20">
           <CourseCatalog />
         </div>
 
@@ -221,7 +261,7 @@ export default function Home() {
         <ReviewsSection />
         <WorkshopInvitation />
 
-        {/* Attend Quiz CTA - High Impact Visuals */}
+        {/* Attend Quiz CTA */}
         <section className="max-w-7xl mx-auto px-4 md:px-6 py-8 animate-in fade-in slide-in-from-bottom-10 duration-1000">
           <Card className="p-8 py-12 md:p-24 border-none bg-gradient-to-br from-white via-slate-50 to-accent/5 finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] text-center relative overflow-hidden group">
              <div className="relative z-10 space-y-8 md:space-y-12">

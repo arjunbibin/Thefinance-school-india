@@ -72,7 +72,8 @@ import {
   Trophy,
   Activity,
   School,
-  MessageSquare
+  MessageSquare,
+  Presentation
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -131,6 +132,27 @@ export default function Dashboard() {
 
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
+
+  const demoClassRef = useMemoFirebase(() => doc(db, 'system_settings', 'demo_class'), [db]);
+  const { data: demoClass } = useDoc(demoClassRef);
+
+  const [demoClassForm, setDemoClassForm] = useState({
+    title: '',
+    description: '',
+    videoUrl: '',
+    isActive: false
+  });
+
+  useEffect(() => {
+    if (demoClass) {
+      setDemoClassForm({
+        title: demoClass.title || '',
+        description: demoClass.description || '',
+        videoUrl: demoClass.videoUrl || '',
+        isActive: demoClass.isActive || false
+      });
+    }
+  }, [demoClass]);
 
   const uniqueCategories = useMemo(() => {
     const cats = new Set(['Foundational', 'Leadership', 'Premium']);
@@ -254,6 +276,14 @@ export default function Dashboard() {
     if (brandingRef) {
       setDocumentNonBlocking(brandingRef, brandingForm, { merge: true });
       toast({ title: "Configuration Updated" });
+    }
+  };
+
+  const handleSaveDemoClass = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (demoClassRef) {
+      setDocumentNonBlocking(demoClassRef, { ...demoClassForm, id: 'demo_class', lastUpdated: new Date().toISOString() }, { merge: true });
+      toast({ title: "Demo Class Settings Saved" });
     }
   };
 
@@ -464,6 +494,7 @@ export default function Dashboard() {
                 <TabsTrigger value="courses" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Academic Courses</TabsTrigger>
                 <TabsTrigger value="team" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Leadership Team</TabsTrigger>
                 <TabsTrigger value="assets" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Slides & Gallery</TabsTrigger>
+                <TabsTrigger value="demo-class" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Demo Class</TabsTrigger>
                 <TabsTrigger value="branding" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Configuration</TabsTrigger>
               </TabsList>
 
@@ -473,6 +504,38 @@ export default function Dashboard() {
                   <Progress value={uploadProgress} className="h-3 bg-white/20" />
                 </Card>
               )}
+
+              <TabsContent value="demo-class">
+                <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
+                  <CardHeader className="bg-primary text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Presentation className="w-6 h-6" /> Demo Class Management</CardTitle></CardHeader>
+                  <CardContent className="p-10">
+                    <form onSubmit={handleSaveDemoClass} className="space-y-6 max-w-2xl">
+                      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border mb-6">
+                        <Label className="font-bold text-primary flex items-center gap-2"><Activity className="w-4 h-4" /> Enable Demo Class Section</Label>
+                        <Switch checked={demoClassForm.isActive} onCheckedChange={v => setDemoClassForm({...demoClassForm, isActive: v})} />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label>Display Title</Label>
+                        <Input value={demoClassForm.title} onChange={e => setDemoClassForm({...demoClassForm, title: e.target.value})} className="rounded-xl h-12" placeholder="e.g. Join Our Free Demo Class" />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Video URL (YouTube or MP4)</Label>
+                        <Input value={demoClassForm.videoUrl} onChange={e => setDemoClassForm({...demoClassForm, videoUrl: e.target.value})} className="rounded-xl h-12" placeholder="https://..." />
+                        <p className="text-[10px] text-muted-foreground italic">Supports private YouTube links and direct MP4/Mov links.</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Description</Label>
+                        <Textarea value={demoClassForm.description} onChange={e => setDemoClassForm({...demoClassForm, description: e.target.value})} className="rounded-xl min-h-[150px]" placeholder="Explain what users will learn in this demo..." />
+                      </div>
+
+                      <Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg">Save Demo Settings</Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
               <TabsContent value="testimonials-video">
                 <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">

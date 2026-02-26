@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "DemoClass": {
@@ -51,24 +52,24 @@
   "firestore": {
     "structure": [
       {
-        "path": "/system_settings/demo_class_config/main",
+        "path": "/system_settings/demo_class",
         "definition": {
           "entityName": "DemoClass",
           "schema": {
             "$ref": "#/backend/entities/DemoClass"
           },
-          "description": "The single document containing the global DemoClass configuration. It includes the video URL, description, and an 'isActive' flag to enable or disable the demo section globally. Accessible by all users if 'isActive' is true, and editable only by administrators.",
+          "description": "The single document containing the global DemoClass configuration.",
           "params": []
         }
       },
       {
-        "path": "/system_roles/admin_users/{adminUserId}",
+        "path": "/admin_users/{adminUserId}",
         "definition": {
           "entityName": "adminUser",
           "schema": {
             "$ref": "#/backend/entities/AdminUser"
           },
-          "description": "Collection representing admin roles. The existence of a document at this path signifies admin privileges for the corresponding user ID. Used for Database Access Control (DBAC) to secure admin-only operations, such as managing the DemoClass configuration. No denormalized authorization fields are needed as the document's existence itself serves as the authorization context.",
+          "description": "Collection representing admin roles.",
           "params": [
             {
               "name": "adminUserId",
@@ -78,6 +79,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure for the new 'Attend Demo Class' feature prioritizes security, scalability, and debuggability following the core design principles. \n\n**Authorization Independence via Denormalization:** The DemoClass entity is designed as a single document at `/system_settings/demo_class_config/main`. Its access control relies on its intrinsic `isActive` field for general user read access and a separate, flat `system_roles/admin_users` collection for administrative write access. This structure explicitly avoids hierarchical authorization dependencies; the `DemoClass` document does not rely on any parent document's attributes for its security rules, and admin access is determined by a direct check against the `admin_users` collection, not by 'getting' or inspecting the `DemoClass` document itself. This enables atomic updates and simplifies rule debugging.\n\n**QAPs (Rules are not Filters):** To meet the Query-Able Paths principle for `list` operations, the DemoClass is intentionally stored as a single document rather than a collection. Users will perform a direct `get()` operation on `/system_settings/demo_class_config/main`. The security rule will then evaluate `resource.data.isActive == true` for read access. This avoids any scenario where users would `list` a collection of demo classes and require rules to filter by `isActive`, which is inefficient and insecure (rules are not filters). For admin operations, a direct `get()` to check `admin_users/{uid}` also inherently satisfies QAPs.\n\n**Structural Segregation:** The single `DemoClass` document lives under `/system_settings`, clearly separating it as a global configuration item from user-specific data or other application features. Admin roles are segregated into a dedicated `/system_roles/admin_users` collection, ensuring that documents with different security postures (global configuration vs. user-specific roles) reside in distinct, homogeneously secured collections. This simplifies security rules greatly as each path template has a clear, consistent security requirement.\n\n**Access Modeling and Data Clarity:** The `isActive` boolean field in the `DemoClass` schema explicitly models its visibility state, making it clear whether the demo section should be shown. Admin roles are implemented using the 'Existence over Content' DBAC pattern: the presence of a document in `/system_roles/admin_users/{uid}` grants admin permissions. Naming conventions like `system_settings`, `demo_class_config`, `system_roles`, and `admin_users` are chosen for clarity and predictability."
+    "reasoning": "Fixed path segments to satisfy DocumentReference requirements (even count)."
   }
 }

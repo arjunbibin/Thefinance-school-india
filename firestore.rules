@@ -1,110 +1,87 @@
-rules_version = '2';
 
-/**
- * FIRESTORE SECURITY RULES: FinanceVerse 3D - Prototyping Phase
- *
- * Core Philosophy:
- * This ruleset implements a robust, role-based authorization model designed for a 
- * professional educational platform. It prioritizes administrative control over 
- * global configurations while allowing flexible public access to content based 
- * on operational status (e.g., the 'isActive' flag).
- *
- * Data Structure:
- * 1. /system_settings: Global configuration documents (e.g., Demo Class settings).
- * 2. /system_roles: A dedicated tree for Database Access Control (DBAC). 
- *    The existence of a document at /system_roles/admin_users/{uid} determines administrative status.
- *
- * Key Security Decisions:
- * - Admin-Only Writes: All system-level configurations and role assignments are 
- *   restricted to users whose UID exists in the admin_users collection.
- * - Dynamic Visibility: Access to the Demo Class configuration for non-admin users 
- *   is gated by an 'isActive' boolean field, allowing admins to toggle the feature 
- *   without redeploying code or rules.
- * - Existence over Content: Admin privileges are granted by the presence of a document 
- *   at a specific path, a performant pattern that avoids complex field-level checks.
- *
- * Denormalization for Authorization:
- * To maintain high performance and simplicity, administrative roles are stored in a 
- * flat, top-level collection (/system_roles/admin_users). This allows any rule in 
- * the system to verify admin status using a single, efficient `exists()` check.
- */
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
     // --- GLOBAL HELPER FUNCTIONS ---
 
-    /**
-     * @description Basic check to see if the request comes from a signed-in user.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * @description Checks if the authenticated user has administrative privileges.
-     * Relies on the "Existence over Content" pattern in the system_roles collection.
-     */
     function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/system_roles/admin_users/$(request.auth.uid));
+      return isSignedIn() && (
+        exists(/databases/$(database)/documents/admin_users/$(request.auth.uid)) ||
+        get(/databases/$(database)/documents/userProfiles/$(request.auth.uid)).data.role == 'admin'
+      );
     }
 
-    /**
-     * @description Checks if the authenticated user matches the provided userId.
-     */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /**
-     * @description Combines admin check with existence check for destructive operations.
-     */
-    function isAdminAndExists() {
-      return isAdmin() && resource != null;
-    }
-
     // --- COLLECTION RULES ---
 
-    /**
-     * @description Controls access to the global administrative roles list.
-     * @path /system_roles/admin_users/{adminUserId}
-     * @allow (get): A user checking their own administrative status.
-     * @deny (list): A non-admin user attempting to list all administrators.
-     * @principle Restricts role management and visibility to existing administrators.
-     */
-    match /system_roles/admin_users/{adminUserId} {
-      allow get: if isSignedIn() && (isOwner(adminUserId) || isAdmin());
-      allow list: if isAdmin();
-      allow create: if isAdmin();
-      allow update: if isAdmin() && resource != null;
-      allow delete: if isAdminAndExists();
+    // Branding & Global Config
+    match /config/branding {
+      allow get: if true;
+      allow write: if isAdmin();
     }
 
-    /**
-     * @description Controls access to the global Demo Class configuration singleton.
-     * @path /system_settings/demo_class_config/main
-     * @allow (get): Any user (including anonymous) if the 'isActive' flag is true.
-     * @allow (update): An admin updating the YouTube video link or description.
-     * @deny (get): A non-admin user trying to access the video link when the section is disabled.
-     * @principle Uses an internal status flag to control public read access while restricting writes to admins.
-     */
-    match /system_settings/demo_class_config/main {
-      
-      // Read access: Admins always have access. Users have access only if isActive is true.
-      // Note: We check resource.data.isActive for the status.
-      allow get: if isAdmin() || (resource.data != null && resource.data.isActive == true);
-      
-      // List access: Not applicable for a singleton doc, restricted to admin for safety.
+    match /admin_users/{adminUserId} {
+      allow get: if isSignedIn() && (isOwner(adminUserId) || isAdmin());
       allow list: if isAdmin();
+      allow write: if isAdmin();
+    }
 
-      // Write access: Only administrators can create, update, or delete the configuration.
-      allow create: if isAdmin() && request.resource.data.id == "main";
-      allow update: if isAdmin() && resource != null && request.resource.data.id == resource.data.id;
-      allow delete: if isAdminAndExists();
+    match /system_settings/demo_class {
+      allow get: if true;
+      allow write: if isAdmin();
+    }
+
+    // Existing App Collections
+    match /userProfiles/{userId} {
+      allow get: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow write: if isSignedIn() && (isOwner(userId) || isAdmin());
+    }
+
+    match /slides/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /gallery/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /courses/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /team/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /videos/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /testimonialVideos/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /reviews/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // --- DEFAULT DENY ---
-    // Explicitly deny all other access not covered by the match blocks above.
     match /{path=**} {
       allow read, write: if false;
     }
