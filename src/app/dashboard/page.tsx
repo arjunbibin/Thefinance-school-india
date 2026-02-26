@@ -93,6 +93,7 @@ export default function Dashboard() {
   const videoFileInputRef = useRef<HTMLInputElement>(null);
   const testimonialVideoFileInputRef = useRef<HTMLInputElement>(null);
   const reviewFileInputRef = useRef<HTMLInputElement>(null);
+  const demoVideoFileInputRef = useRef<HTMLInputElement>(null);
   
   const profileRef = useMemoFirebase(() => user ? doc(db, 'userProfiles', user.uid) : null, [db, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
@@ -140,8 +141,16 @@ export default function Dashboard() {
     title: '',
     description: '',
     videoUrl: '',
-    isActive: false
+    isActive: false,
+    isYoutube: true
   });
+
+  const getYoutubeId = (url: string) => {
+    if (!url) return null;
+    const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[1].length === 11) ? match[1] : null;
+  };
 
   useEffect(() => {
     if (demoClass) {
@@ -149,7 +158,8 @@ export default function Dashboard() {
         title: demoClass.title || '',
         description: demoClass.description || '',
         videoUrl: demoClass.videoUrl || '',
-        isActive: demoClass.isActive || false
+        isActive: demoClass.isActive || false,
+        isYoutube: !!getYoutubeId(demoClass.videoUrl)
       });
     }
   }, [demoClass]);
@@ -228,7 +238,7 @@ export default function Dashboard() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const file = e.target.files?.[0];
     if (file) {
-      if ((type === 'video' || type === 'testimonialVideo' || type === 'slide') && file.type.startsWith('video/') && file.size > 50 * 1024 * 1024) {
+      if ((type === 'video' || type === 'testimonialVideo' || type === 'slide' || type === 'demo-video') && file.type.startsWith('video/') && file.size > 50 * 1024 * 1024) {
         toast({ variant: "destructive", title: "File Too Large", description: "Videos are limited to 50MB." });
         return;
       }
@@ -247,6 +257,7 @@ export default function Dashboard() {
       else if (type === 'review') setReviewForm(prev => ({ ...prev, userPhoto: previewUrl }));
       else if (type === 'video') setNewVideo(prev => ({ ...prev, videoUrl: previewUrl, isYoutube: false }));
       else if (type === 'testimonialVideo') setNewTestimonialVideo(prev => ({ ...prev, videoUrl: previewUrl, isYoutube: false }));
+      else if (type === 'demo-video') setDemoClassForm(prev => ({ ...prev, videoUrl: previewUrl, isYoutube: false }));
     }
   };
 
@@ -279,11 +290,29 @@ export default function Dashboard() {
     }
   };
 
-  const handleSaveDemoClass = (e: React.FormEvent) => {
+  const handleSaveDemoClass = async (e: React.FormEvent) => {
     e.preventDefault();
     if (demoClassRef) {
-      setDocumentNonBlocking(demoClassRef, { ...demoClassForm, id: 'demo_class', lastUpdated: new Date().toISOString() }, { merge: true });
-      toast({ title: "Demo Class Settings Saved" });
+      let finalVideoUrl = demoClassForm.videoUrl;
+      try {
+        if (!demoClassForm.isYoutube && selectedFiles['demo-video']) {
+          finalVideoUrl = await uploadFile(selectedFiles['demo-video'], 'demo_class');
+        }
+        setDocumentNonBlocking(demoClassRef, { 
+          title: demoClassForm.title,
+          description: demoClassForm.description,
+          videoUrl: finalVideoUrl,
+          isActive: demoClassForm.isActive,
+          id: 'demo_class', 
+          lastUpdated: new Date().toISOString() 
+        }, { merge: true });
+        
+        setUploadProgress(null);
+        setSelectedFiles(prev => ({ ...prev, 'demo-video': null }));
+        toast({ title: "Demo Class Settings Saved" });
+      } catch (err: any) {
+        toast({ variant: "destructive", title: "Upload Failed", description: err.message });
+      }
     }
   };
 
@@ -446,13 +475,6 @@ export default function Dashboard() {
     setItemToDelete(null);
   };
 
-  const getYoutubeId = (url: string) => {
-    if (!url) return null;
-    const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[1].length === 11) ? match[1] : null;
-  };
-
   const isVideoUrl = (url: string) => {
     if (!url) return false;
     const lowerUrl = url.toLowerCase().split('?')[0];
@@ -509,29 +531,69 @@ export default function Dashboard() {
                 <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
                   <CardHeader className="bg-primary text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Presentation className="w-6 h-6" /> Demo Class Management</CardTitle></CardHeader>
                   <CardContent className="p-10">
-                    <form onSubmit={handleSaveDemoClass} className="space-y-6 max-w-2xl">
-                      <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border mb-6">
-                        <Label className="font-bold text-primary flex items-center gap-2"><Activity className="w-4 h-4" /> Enable Demo Class Section</Label>
-                        <Switch checked={demoClassForm.isActive} onCheckedChange={v => setDemoClassForm({...demoClassForm, isActive: v})} />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label>Display Title</Label>
-                        <Input value={demoClassForm.title} onChange={e => setDemoClassForm({...demoClassForm, title: e.target.value})} className="rounded-xl h-12" placeholder="e.g. Join Our Free Demo Class" />
+                    <form onSubmit={handleSaveDemoClass} className="grid md:grid-cols-2 gap-10">
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border mb-6">
+                          <Label className="font-bold text-primary flex items-center gap-2"><Activity className="w-4 h-4" /> Enable Demo Class Section</Label>
+                          <Switch checked={demoClassForm.isActive} onCheckedChange={v => setDemoClassForm({...demoClassForm, isActive: v})} />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label>Display Title</Label>
+                          <Input value={demoClassForm.title} onChange={e => setDemoClassForm({...demoClassForm, title: e.target.value})} className="rounded-xl h-12" placeholder="e.g. Join Our Free Demo Class" />
+                        </div>
+
+                        <div className="p-4 bg-slate-50 rounded-2xl border space-y-4">
+                          <div className="flex items-center space-x-3 bg-white p-3 rounded-xl border">
+                            <Switch checked={demoClassForm.isYoutube} onCheckedChange={v => setDemoClassForm({...demoClassForm, isYoutube: v, videoUrl: ''})} />
+                            <Label className="font-bold">Use YouTube Link</Label>
+                          </div>
+
+                          {demoClassForm.isYoutube ? (
+                            <div className="space-y-2">
+                              <Label>YouTube URL</Label>
+                              <Input value={demoClassForm.videoUrl} onChange={e => setDemoClassForm({...demoClassForm, videoUrl: e.target.value})} className="rounded-xl h-12" placeholder="https://www.youtube.com/watch?v=..." />
+                            </div>
+                          ) : (
+                            <div className="space-y-4">
+                              <Label>Upload Video File</Label>
+                              <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-14 bg-white" onClick={() => demoVideoFileInputRef.current?.click()}>
+                                <Upload className="w-4 h-4 mr-2" /> {selectedFiles['demo-video'] ? 'Change File' : 'Select Video (max 50MB)'}
+                              </Button>
+                              <input type="file" ref={demoVideoFileInputRef} onChange={e => handleFileChange(e, 'demo-video')} accept="video/*" className="hidden" />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label>Description</Label>
+                          <Textarea value={demoClassForm.description} onChange={e => setDemoClassForm({...demoClassForm, description: e.target.value})} className="rounded-xl min-h-[150px]" placeholder="Explain what users will learn in this demo..." />
+                        </div>
+
+                        <Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg" disabled={uploadProgress !== null}>Save Demo Settings</Button>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label>Video URL (YouTube or MP4)</Label>
-                        <Input value={demoClassForm.videoUrl} onChange={e => setDemoClassForm({...demoClassForm, videoUrl: e.target.value})} className="rounded-xl h-12" placeholder="https://..." />
-                        <p className="text-[10px] text-muted-foreground italic">Supports private YouTube links and direct MP4/Mov links.</p>
+                      <div className="space-y-4">
+                        <Label className="font-bold">Player Preview</Label>
+                        <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 flex items-center justify-center relative aspect-video w-full finance-3d-shadow">
+                          {demoClassForm.isYoutube && getYoutubeId(demoClassForm.videoUrl) ? (
+                            <iframe src={`https://www.youtube.com/embed/${getYoutubeId(demoClassForm.videoUrl)}`} className="w-full h-full" />
+                          ) : demoClassForm.videoUrl && isVideoUrl(demoClassForm.videoUrl) ? (
+                            <video key={demoClassForm.videoUrl} src={demoClassForm.videoUrl} className="w-full h-full object-cover" controls />
+                          ) : (
+                            <div className="text-white/20 flex flex-col items-center gap-2"><Play className="w-12 h-12 opacity-20" /><p className="text-sm font-bold">No Content Loaded</p></div>
+                          )}
+                        </div>
+                        <div className="p-6 bg-slate-50 rounded-2xl border">
+                          <h4 className="font-headline font-bold text-primary mb-2">Instructions</h4>
+                          <ul className="text-xs text-muted-foreground space-y-2 list-disc pl-4">
+                            <li>YouTube links allow for high-speed streaming across devices.</li>
+                            <li>Direct uploads are processed securely via Firebase Storage.</li>
+                            <li>Maximum file size for direct uploads is 50MB.</li>
+                            <li>Changes appear instantly on the /demo-class page once saved.</li>
+                          </ul>
+                        </div>
                       </div>
-
-                      <div className="space-y-2">
-                        <Label>Description</Label>
-                        <Textarea value={demoClassForm.description} onChange={e => setDemoClassForm({...demoClassForm, description: e.target.value})} className="rounded-xl min-h-[150px]" placeholder="Explain what users will learn in this demo..." />
-                      </div>
-
-                      <Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg">Save Demo Settings</Button>
                     </form>
                   </CardContent>
                 </Card>
