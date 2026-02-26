@@ -41,11 +41,11 @@ git branch -M main
 ```
 
 ### 2. Push to GitHub
-Replace `YOUR_USERNAME` with your actual GitHub username in the command below:
+Run these commands to link and upload your code:
 
 ```bash
 # Link to your GitHub repo
-git remote add origin https://github.com/YOUR_USERNAME/Thefinance-school-india.git
+git remote add origin https://github.com/arjunbibin/Thefinance-school-india.git
 
 # Push to GitHub
 git push -u origin main
