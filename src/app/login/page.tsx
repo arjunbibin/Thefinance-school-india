@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -14,7 +13,11 @@ import { useToast } from '@/hooks/use-toast';
 import { ShieldCheck, Lock } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 
-const PRIMARY_ADMIN_UID = '3Vq3NnyBQVgwKcqdPIqSOof8glx1';
+// Whitelist of primary administrative UIDs
+const ADMIN_UIDS = [
+  '3Vq3NnyBQVgwKcqdPIqSOof8glx1',
+  '8htKp86EXpdDIvUdj4GDR1faAMR2'
+];
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -27,7 +30,9 @@ export default function LoginPage() {
 
   // Force logout on mount to ensure fresh credentials every time
   useEffect(() => {
-    signOut(auth);
+    if (auth) {
+      signOut(auth);
+    }
   }, [auth]);
 
   const validateAndSyncProfile = async (user: any) => {
@@ -37,14 +42,15 @@ export default function LoginPage() {
     // Generate a new session ID for single-session enforcement
     const activeSessionId = crypto.randomUUID();
 
-    if (user.uid === PRIMARY_ADMIN_UID) {
+    // Check if the user is in the primary admin whitelist
+    if (ADMIN_UIDS.includes(user.uid)) {
       const adminData = {
         id: user.uid,
         email: user.email,
         firstName: user.displayName?.split(' ')[0] || 'Primary',
         lastName: user.displayName?.split(' ').slice(1).join(' ') || 'Admin',
         role: 'admin',
-        activeSessionId, // Save the new session ID
+        activeSessionId,
         registrationDate: docSnap.exists() ? docSnap.data().registrationDate : new Date().toISOString()
       };
       await setDoc(docRef, adminData, { merge: true });
@@ -52,16 +58,17 @@ export default function LoginPage() {
       return true;
     }
 
+    // Check if the user has an existing staff/admin role assigned via Firestore
     if (docSnap.exists()) {
       const role = docSnap.data().role;
       if (role && role !== 'user') {
-        // Sync activeSessionId for authorized staff
         await setDoc(docRef, { activeSessionId }, { merge: true });
         localStorage.setItem('activeSessionId', activeSessionId);
         return true;
       }
     }
     
+    // If not authorized, sign out and show error
     await signOut(auth);
     toast({ 
       variant: "destructive", 
