@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -43,7 +44,7 @@ export default function TestimonialVideosPage() {
       
       <main className="flex-grow pt-24 pb-32 max-w-7xl mx-auto px-6 w-full">
         <div className="mb-12 flex items-center gap-4 animate-in fade-in duration-700">
-          <Link href="/#testimonials">
+          <Link href="/#memories">
             <Button variant="ghost" className="rounded-xl flex items-center gap-2 font-bold hover:bg-white/50">
               <ChevronLeft className="w-5 h-5" /> Back to Home
             </Button>
