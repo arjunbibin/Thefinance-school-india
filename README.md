@@ -25,11 +25,19 @@ If you are currently on the "Create an ID for your backend" screen:
 2. Run `npm install`.
 3. Start the dev server: `npm run dev`.
 
-### Maintenance
-To update your live site, simply push changes to GitHub:
-```bash
-git add .
-git commit -m "Update site content"
-git push origin main
-```
-Firebase App Hosting will automatically detect the push and redeploy.
+### Maintenance & Updates
+Whenever you want to update your live website after making changes in the editor:
+
+1. **Commit your changes**:
+   ```bash
+   git add .
+   git commit -m "Update site content and layout stability"
+   ```
+
+2. **Push to GitHub**:
+   ```bash
+   git push origin main
+   ```
+
+3. **Automatic Deployment**:
+   Firebase App Hosting will automatically detect the push to your `main` branch, rebuild the application, and update your live URL within a few minutes. You can monitor the build progress in the Firebase Console under the **App Hosting** tab.
