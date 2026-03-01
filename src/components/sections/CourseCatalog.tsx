@@ -1,3 +1,4 @@
+
 "use client"
 
 import React from 'react';
@@ -66,7 +67,7 @@ export default function CourseCatalog() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-20">
+      <div className="flex justify-center py-20 min-h-[500px]">
          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -74,13 +75,12 @@ export default function CourseCatalog() {
 
   const handleBuyNow = (link: string) => {
     if (link) {
-      // Use internal portal for masking
       router.push(`/register?url=${encodeURIComponent(link)}`);
     }
   };
 
   return (
-    <section id="courses" className="py-12 md:py-16 px-6 max-w-7xl mx-auto relative overflow-hidden">
+    <section className="py-12 md:py-16 px-6 max-w-7xl mx-auto relative overflow-hidden min-h-[600px]">
       <div className="absolute top-1/4 -right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
       
       <div className="mb-12 text-center animate-in fade-in slide-in-from-top-10 duration-1000">

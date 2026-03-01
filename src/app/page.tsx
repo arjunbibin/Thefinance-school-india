@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -125,7 +126,7 @@ export default function Home() {
       </section>
 
       {/* Impact Stats Section */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 mb-12">
+      <section id="impact" className="max-w-7xl mx-auto px-4 md:px-6 mb-12 scroll-mt-32">
         <div className="relative p-8 md:p-12 lg:p-16 rounded-[3rem] bg-white finance-3d-shadow overflow-hidden group border border-slate-50 flex flex-col items-center">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
           
@@ -165,7 +166,7 @@ export default function Home() {
       </section>
 
       {/* Vision & Mission Section */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-12">
+      <section id="vision" className="max-w-7xl mx-auto px-4 md:px-6 py-12 scroll-mt-32">
         <div className="grid lg:grid-cols-2 gap-10 md:gap-16">
           <Card className="p-8 md:p-12 border-none bg-white finance-3d-shadow rounded-[2.5rem] md:rounded-[3rem] relative overflow-hidden group">
             <div className="relative z-10 space-y-6">
@@ -209,7 +210,7 @@ export default function Home() {
 
       {/* Demo Class Section - Conditional */}
       {demoClass?.isActive && (
-        <section className="max-w-7xl mx-auto px-4 md:px-6 py-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+        <section id="demo" className="max-w-7xl mx-auto px-4 md:px-6 py-12 scroll-mt-32 animate-in fade-in slide-in-from-bottom-10 duration-1000">
           <Card className="relative overflow-hidden border-none bg-slate-900 text-white p-8 md:p-16 rounded-[2.5rem] md:rounded-[4rem] finance-3d-shadow group">
             <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-8">
@@ -253,11 +254,11 @@ export default function Home() {
 
       {/* Main Content Area */}
       <div className="relative z-10 space-y-8 pb-12 px-2 md:px-0">
-        <div id="courses" className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20">
+        <div id="courses" className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20 scroll-mt-32">
           <CourseCatalog />
         </div>
 
-        <div className="space-y-8">
+        <div id="memories" className="space-y-8 scroll-mt-32">
           <ShowcaseSlideshow />
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-5 duration-700 px-6">
             <Link href="/gallery" className="w-full md:w-auto">
@@ -278,12 +279,20 @@ export default function Home() {
           </div>
         </div>
 
-        <VideoShowcase />
-        <ReviewsSection />
-        <WorkshopInvitation />
+        <div id="video-showcase" className="scroll-mt-32">
+          <VideoShowcase />
+        </div>
+        
+        <div id="testimonials" className="scroll-mt-32">
+          <ReviewsSection />
+        </div>
+
+        <div id="workshops" className="scroll-mt-32">
+          <WorkshopInvitation />
+        </div>
 
         {/* Attend Quiz CTA */}
-        <section className="max-w-7xl mx-auto px-4 md:px-6 py-8 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+        <section id="quiz-cta" className="max-w-7xl mx-auto px-4 md:px-6 py-8 scroll-mt-32 animate-in fade-in slide-in-from-bottom-10 duration-1000">
           <Card className="p-8 py-12 md:p-24 border-none bg-gradient-to-br from-white via-slate-50 to-accent/5 finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] text-center relative overflow-hidden group">
              <div className="relative z-10 space-y-8 md:space-y-12">
                <div className="inline-flex items-center gap-3 px-6 md:px-8 py-2 md:py-3 rounded-full bg-accent/10 text-primary text-[10px] md:text-sm font-bold uppercase tracking-widest finance-3d-shadow-inner border border-accent/20">
@@ -313,7 +322,7 @@ export default function Home() {
 
         <ConnectWithUs />
 
-        <section className="max-w-7xl mx-auto px-4 md:px-6 pt-4 pb-12">
+        <section id="structure" className="max-w-7xl mx-auto px-4 md:px-6 pt-4 pb-12 scroll-mt-32">
           <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
             <div className="space-y-8">
               <div className="space-y-4">

@@ -1,14 +1,17 @@
+
 'use client';
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
-import { UserSquare, Star, Crown, Sparkles } from 'lucide-react';
+import { UserSquare, Star, Crown, Sparkles, ChevronLeft } from 'lucide-react';
 
 const FALLBACK_TEAM = [
   { id: "ceo", name: "Arjun Bibin", role: "CEO & Founder", bio: "Passionate about empowering the next generation with financial wisdom.", leadershipType: "ceo" },
@@ -42,7 +45,7 @@ export default function TeamPage() {
         <div className="stars-layer-1 absolute inset-0 opacity-40" />
         <div className="stars-layer-2 absolute inset-0 opacity-30" />
         
-        {/* Diagonal Shooting Stars (Top-Right to Bottom-Left) */}
+        {/* Diagonal Shooting Stars */}
         {[...Array(10)].map((_, i) => (
           <div key={i} className={cn("shooting-star", `shooting-star-${i + 1}`)} />
         ))}
@@ -51,6 +54,14 @@ export default function TeamPage() {
       <Navbar />
       
       <main className="relative z-10 flex-grow max-w-7xl mx-auto px-6 py-24 w-full">
+        <div className="mb-12 flex items-center gap-4 animate-in fade-in duration-700">
+          <Link href="/#memories">
+            <Button variant="ghost" className="text-white hover:bg-white/10 rounded-xl flex items-center gap-2 font-bold">
+              <ChevronLeft className="w-5 h-5" /> Back to Home
+            </Button>
+          </Link>
+        </div>
+
         <div className="mb-24 text-center animate-in fade-in slide-in-from-top-10 duration-1000">
           <Badge variant="outline" className="mb-6 text-accent border-accent/20 px-8 py-2 finance-3d-shadow-inner bg-white/5 uppercase tracking-[0.3em] font-bold backdrop-blur-md">
             The Leadership
@@ -64,7 +75,7 @@ export default function TeamPage() {
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center py-20">
+          <div className="flex justify-center py-20 min-h-[400px]">
             <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
@@ -88,7 +99,6 @@ export default function TeamPage() {
                     "relative mb-10 p-1 rounded-full transition-all duration-700",
                     isCEO ? "scale-110 md:scale-125 z-20" : isCoFounder ? "scale-105 md:scale-115 z-10" : "scale-100"
                   )}>
-                    {/* Metallic Aura Shimmer */}
                     <div className={cn(
                       "absolute inset-0 rounded-full animate-spin-slow opacity-50 blur-2xl transition-all duration-500",
                       isCEO ? "bg-gradient-to-tr from-yellow-500 via-amber-200 to-yellow-600" : 
@@ -117,8 +127,6 @@ export default function TeamPage() {
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-slate-800"><UserSquare className="w-24 h-24 opacity-30" /></div>
                       )}
-                      
-                      <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                     </div>
                     
                     <div className={cn(

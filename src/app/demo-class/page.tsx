@@ -4,12 +4,13 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import Link from 'next/link';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlayCircle, ArrowRight, CheckCircle2, MessageSquare, BookOpen, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { PlayCircle, ArrowRight, CheckCircle2, MessageSquare, BookOpen, ThumbsUp, ThumbsDown, ChevronLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function DemoClassPage() {
@@ -77,6 +78,14 @@ export default function DemoClassPage() {
       <Navbar />
       
       <main className="flex-grow max-w-5xl mx-auto px-6 py-24 w-full">
+        <div className="mb-12 flex items-center gap-4 animate-in fade-in duration-700">
+          <Link href="/#demo">
+            <Button variant="ghost" className="rounded-xl flex items-center gap-2 font-bold hover:bg-white/50">
+              <ChevronLeft className="w-5 h-5" /> Back to Home
+            </Button>
+          </Link>
+        </div>
+
         <div className="mb-16 text-center animate-in fade-in slide-in-from-top-10 duration-1000">
           <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">The Experience</Badge>
           <h1 className="text-4xl md:text-7xl font-headline font-bold text-primary tracking-tight">{demoClass.title || "The Demo Class"}</h1>
@@ -86,7 +95,6 @@ export default function DemoClassPage() {
         </div>
 
         <div className="space-y-12 animate-in slide-in-from-bottom-10 duration-1000">
-          {/* Main Video Player */}
           <Card className="relative aspect-video w-full overflow-hidden border-none bg-black finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] group">
             {ytId ? (
               <iframe
@@ -111,7 +119,6 @@ export default function DemoClassPage() {
             )}
           </Card>
 
-          {/* Description Section */}
           {demoClass.description && (
             <div className="p-8 md:p-12 bg-white finance-3d-shadow rounded-[2.5rem] md:rounded-[3.5rem] border border-white/20">
               <h3 className="text-2xl md:text-3xl font-headline font-bold text-primary mb-6 flex items-center gap-3">
@@ -123,7 +130,6 @@ export default function DemoClassPage() {
             </div>
           )}
 
-          {/* Call to Action Sections */}
           <div className="grid md:grid-cols-2 gap-8 pt-8">
             <Card className="p-8 md:p-10 border-none bg-primary text-white finance-3d-shadow rounded-[2.5rem] relative overflow-hidden group">
               <div className="relative z-10 space-y-6">
@@ -145,19 +151,7 @@ export default function DemoClassPage() {
                     <ThumbsDown className="w-6 h-6" /> Not Interested
                   </Button>
                 </div>
-
-                <div className="pt-6 border-t border-white/10">
-                  <p className="text-xs font-bold uppercase tracking-widest opacity-60 mb-4">What's Next?</p>
-                  <div className="space-y-3">
-                    {["Guided Roadmap", "Live Workshops", "Mentor Access"].map((item, i) => (
-                      <div key={i} className="flex items-center gap-3 text-sm">
-                        <CheckCircle2 className="w-4 h-4 text-accent" /> {item}
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
-              <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
             </Card>
 
             <Card className="p-8 border-none bg-white finance-3d-shadow rounded-[2.5rem] flex flex-col justify-center text-center space-y-6">

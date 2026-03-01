@@ -1,14 +1,18 @@
+
 'use client';
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
+import { ChevronLeft } from 'lucide-react';
 
 export default function GalleryPage() {
   const db = useFirestore();
@@ -26,6 +30,14 @@ export default function GalleryPage() {
       <Navbar />
       
       <main className="max-w-7xl mx-auto px-6 py-24">
+        <div className="mb-12 flex items-center gap-4">
+          <Link href="/#memories">
+            <Button variant="ghost" className="rounded-xl flex items-center gap-2 font-bold hover:bg-white/50">
+              <ChevronLeft className="w-5 h-5" /> Back to Home
+            </Button>
+          </Link>
+        </div>
+
         <div className="mb-16 text-center animate-in fade-in slide-in-from-top-10 duration-1000">
           <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">The School Memories</Badge>
           <h1 className="text-4xl md:text-6xl font-headline font-bold text-primary tracking-tight">Experience Our <span className="text-accent">Journey</span></h1>
@@ -33,7 +45,7 @@ export default function GalleryPage() {
         </div>
 
         {isLoading ? (
-          <div className="flex justify-center py-20">
+          <div className="flex justify-center py-20 min-h-[400px]">
              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
