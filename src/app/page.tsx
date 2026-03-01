@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -126,7 +125,7 @@ export default function Home() {
       </section>
 
       {/* Impact Stats Section */}
-      <section id="impact" className="max-w-7xl mx-auto px-4 md:px-6 mb-12 scroll-mt-32">
+      <section id="impact" className="max-w-7xl mx-auto px-4 md:px-6 mb-12 scroll-mt-32 min-h-[400px]">
         <div className="relative p-8 md:p-12 lg:p-16 rounded-[3rem] bg-white finance-3d-shadow overflow-hidden group border border-slate-50 flex flex-col items-center">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
           
@@ -210,7 +209,7 @@ export default function Home() {
 
       {/* Demo Class Section - Conditional */}
       {demoClass?.isActive && (
-        <section id="demo" className="max-w-7xl mx-auto px-4 md:px-6 py-12 scroll-mt-32 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+        <section id="demo" className="max-w-7xl mx-auto px-4 md:px-6 py-12 scroll-mt-32 animate-in fade-in slide-in-from-bottom-10 duration-1000 min-h-[500px]">
           <Card className="relative overflow-hidden border-none bg-slate-900 text-white p-8 md:p-16 rounded-[2.5rem] md:rounded-[4rem] finance-3d-shadow group">
             <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-8">
@@ -254,11 +253,11 @@ export default function Home() {
 
       {/* Main Content Area */}
       <div className="relative z-10 space-y-8 pb-12 px-2 md:px-0">
-        <div id="courses" className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20 scroll-mt-32">
+        <div id="courses" className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20 scroll-mt-32 min-h-[600px]">
           <CourseCatalog />
         </div>
 
-        <div id="memories" className="space-y-8 scroll-mt-32">
+        <div id="memories" className="space-y-8 scroll-mt-32 min-h-[600px]">
           <ShowcaseSlideshow />
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-5 duration-700 px-6">
             <Link href="/gallery" className="w-full md:w-auto">
@@ -279,11 +278,11 @@ export default function Home() {
           </div>
         </div>
 
-        <div id="video-showcase" className="scroll-mt-32">
+        <div id="video-showcase" className="scroll-mt-32 min-h-[500px]">
           <VideoShowcase />
         </div>
         
-        <div id="testimonials" className="scroll-mt-32">
+        <div id="testimonials" className="scroll-mt-32 min-h-[600px]">
           <ReviewsSection />
         </div>
 

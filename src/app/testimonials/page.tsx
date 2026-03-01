@@ -1,14 +1,15 @@
-
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Badge } from '@/components/ui/badge';
-import { Play } from 'lucide-react';
+import { Play, ChevronLeft } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export default function TestimonialVideosPage() {
   const db = useFirestore();
@@ -41,6 +42,14 @@ export default function TestimonialVideosPage() {
       <Navbar />
       
       <main className="flex-grow pt-24 pb-32 max-w-7xl mx-auto px-6 w-full">
+        <div className="mb-12 flex items-center gap-4 animate-in fade-in duration-700">
+          <Link href="/#testimonials">
+            <Button variant="ghost" className="rounded-xl flex items-center gap-2 font-bold hover:bg-white/50">
+              <ChevronLeft className="w-5 h-5" /> Back to Home
+            </Button>
+          </Link>
+        </div>
+
         <div className="mb-16 text-center animate-in fade-in slide-in-from-top-10 duration-1000">
           <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">The Success Vault</Badge>
           <h1 className="text-4xl md:text-7xl font-headline font-bold text-primary tracking-tight">Student <span className="text-accent">Success</span></h1>
