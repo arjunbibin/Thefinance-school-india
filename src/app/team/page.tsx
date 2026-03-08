@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -36,15 +37,10 @@ export default function TeamPage() {
 
   return (
     <div className="min-h-screen bg-[#020617] flex flex-col overflow-x-hidden relative">
-      {/* Cinematic Star Background */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/15 via-transparent to-transparent opacity-60" />
-        
-        {/* Twinkling Star Layers */}
         <div className="stars-layer-1 absolute inset-0 opacity-40" />
         <div className="stars-layer-2 absolute inset-0 opacity-30" />
-        
-        {/* Diagonal Shooting Stars */}
         {[...Array(10)].map((_, i) => (
           <div key={i} className={cn("shooting-star", `shooting-star-${i + 1}`)} />
         ))}
@@ -54,7 +50,7 @@ export default function TeamPage() {
       
       <main className="relative z-10 flex-grow max-w-7xl mx-auto px-6 py-24 w-full">
         <div className="mb-12 flex items-center gap-4 animate-in fade-in duration-700">
-          <Link href="/#memories">
+          <Link href="/#memories-section">
             <Button variant="ghost" className="text-white hover:bg-white/10 rounded-xl flex items-center gap-2 font-bold">
               <ChevronLeft className="w-5 h-5" /> Back to Home
             </Button>

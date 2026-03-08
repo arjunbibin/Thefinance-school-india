@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState } from 'react';
@@ -43,7 +44,7 @@ export default function TestimonialVideosPage() {
       
       <main className="flex-grow pt-24 pb-32 max-w-7xl mx-auto px-6 w-full">
         <div className="mb-12 flex items-center gap-4 animate-in fade-in duration-700">
-          <Link href="/#memories">
+          <Link href="/#memories-section">
             <Button variant="ghost" className="rounded-xl flex items-center gap-2 font-bold hover:bg-white/50">
               <ChevronLeft className="w-5 h-5" /> Back to Home
             </Button>
@@ -72,7 +73,6 @@ export default function TestimonialVideosPage() {
                 >
                   <div className="relative aspect-[9/16] w-full bg-slate-900">
                     {isActive ? (
-                      /* Active Player - Plays directly in grid with HD parameters */
                       <div className="w-full h-full">
                         {ytId ? (
                           <iframe
@@ -93,7 +93,6 @@ export default function TestimonialVideosPage() {
                         )}
                       </div>
                     ) : (
-                      /* Thumbnail / Play Button Overlay */
                       <div 
                         className="w-full h-full cursor-pointer relative"
                         onClick={() => setActiveVideoId(video.id)}
@@ -102,7 +101,6 @@ export default function TestimonialVideosPage() {
                           <img 
                             src={`https://img.youtube.com/vi/${ytId}/maxresdefault.jpg`} 
                             onError={(e) => {
-                              // Fallback if maxres is not available
                               (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
                             }}
                             alt={video.title}

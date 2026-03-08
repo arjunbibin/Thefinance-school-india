@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Carousel,
   CarouselContent,
@@ -75,6 +76,7 @@ export default function ShowcaseSlideshow() {
   }, [api]);
 
   useEffect(() => {
+    if (!slides) return;
     slides.forEach((slide, index) => {
       const video = videoRefs.current[index];
       if (video) {
@@ -103,7 +105,7 @@ export default function ShowcaseSlideshow() {
   }, [current, api, slides]);
 
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-6 pt-4 md:pt-8 pb-4 min-h-[400px]">
+    <section id="memories-section" className="max-w-7xl mx-auto px-4 md:px-6 pt-4 md:pt-8 pb-4 min-h-[400px]">
       <div className="mb-6 text-center px-4">
         <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-4 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest text-[10px] md:text-xs font-bold">Campus Life</Badge>
         <h2 className="text-3xl md:text-5xl font-headline font-bold text-primary tracking-tight">Experience <span className="text-accent">The School</span></h2>
@@ -111,61 +113,65 @@ export default function ShowcaseSlideshow() {
       </div>
 
       <div className="relative">
-        <Carousel
-          setApi={setApi}
-          opts={{
-            align: "start",
-            loop: true,
-          }}
-          className="w-full"
-        >
-          <CarouselContent className="-ml-2 md:-ml-4">
-            {slides.map((slide: any, index: number) => {
-              const isVideo = isVideoUrl(slide.imageUrl);
-              
-              return (
-                <CarouselItem key={slide.id || index} className="pl-2 md:pl-4">
-                  <Card 
-                    className="border-none bg-white finance-3d-shadow rounded-[1.5rem] md:rounded-[2rem] overflow-hidden"
-                    onContextMenu={(e) => e.preventDefault()}
-                  >
-                    <CardContent className="p-0 relative aspect-video md:aspect-[21/9] bg-slate-900">
-                      {isVideo ? (
-                        <video 
-                          ref={el => { videoRefs.current[index] = el; }}
-                          src={slide.imageUrl} 
-                          className="w-full h-full object-cover" 
-                          muted 
-                          playsInline 
-                          onEnded={() => api?.scrollNext()}
-                          controlsList="nodownload"
-                        />
-                      ) : (
-                        <Image
-                          src={slide.imageUrl}
-                          alt={slide.title || 'Campus Life'}
-                          fill
-                          className="object-cover"
-                          data-ai-hint={slide.imageHint || 'education'}
-                          priority={index === 0}
-                          draggable={false}
-                        />
-                      )}
-                      {(slide.title || slide.description) && (
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4 md:p-12">
-                          {slide.title && <h3 className="text-lg md:text-5xl font-headline font-bold text-white mb-1 md:mb-4">{slide.title}</h3>}
-                          {slide.description && <p className="text-white/80 text-[10px] md:text-xl max-w-2xl leading-tight md:leading-relaxed">{slide.description}</p>}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-              );
-            })}
-          </CarouselContent>
-          <CarouselPrevious className="hidden xl:flex finance-3d-shadow border-none bg-white hover:bg-accent hover:text-primary transition-all -left-16 h-12 w-12" />
-          <CarouselNext className="hidden xl:flex finance-3d-shadow border-none bg-white hover:bg-accent hover:text-primary transition-all -right-16 h-12 w-12" />
-        </Carousel>
+        {isLoading ? (
+          <Skeleton className="w-full aspect-video md:aspect-[21/9] rounded-[1.5rem] md:rounded-[2rem] finance-3d-shadow" />
+        ) : (
+          <Carousel
+            setApi={setApi}
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {slides.map((slide: any, index: number) => {
+                const isVideo = isVideoUrl(slide.imageUrl);
+                
+                return (
+                  <CarouselItem key={slide.id || index} className="pl-2 md:pl-4">
+                    <Card 
+                      className="border-none bg-white finance-3d-shadow rounded-[1.5rem] md:rounded-[2rem] overflow-hidden"
+                      onContextMenu={(e) => e.preventDefault()}
+                    >
+                      <CardContent className="p-0 relative aspect-video md:aspect-[21/9] bg-slate-900">
+                        {isVideo ? (
+                          <video 
+                            ref={el => { videoRefs.current[index] = el; }}
+                            src={slide.imageUrl} 
+                            className="w-full h-full object-cover" 
+                            muted 
+                            playsInline 
+                            onEnded={() => api?.scrollNext()}
+                            controlsList="nodownload"
+                          />
+                        ) : (
+                          <Image
+                            src={slide.imageUrl}
+                            alt={slide.title || 'Campus Life'}
+                            fill
+                            className="object-cover"
+                            data-ai-hint={slide.imageHint || 'education'}
+                            priority={index === 0}
+                            draggable={false}
+                          />
+                        )}
+                        {(slide.title || slide.description) && (
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-end p-4 md:p-12">
+                            {slide.title && <h3 className="text-lg md:text-5xl font-headline font-bold text-white mb-1 md:mb-4">{slide.title}</h3>}
+                            {slide.description && <p className="text-white/80 text-[10px] md:text-xl max-w-2xl leading-tight md:leading-relaxed">{slide.description}</p>}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            <CarouselPrevious className="hidden xl:flex finance-3d-shadow border-none bg-white hover:bg-accent hover:text-primary transition-all -left-16 h-12 w-12" />
+            <CarouselNext className="hidden xl:flex finance-3d-shadow border-none bg-white hover:bg-accent hover:text-primary transition-all -right-16 h-12 w-12" />
+          </Carousel>
+        )}
       </div>
     </section>
   );

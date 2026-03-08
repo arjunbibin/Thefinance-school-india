@@ -6,6 +6,7 @@ import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Play, Pause } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -36,7 +37,6 @@ export default function VideoShowcase() {
               setIsPlaying(true);
             })
             .catch(() => {
-              // Playback was interrupted or blocked
               setIsPlaying(false);
             });
         }
@@ -49,7 +49,6 @@ export default function VideoShowcase() {
       const nextIndex = (currentIndex + 1) % videos.length;
       setCurrentIndex(nextIndex);
     } else if (videos && videos.length === 1) {
-      // Replay if only one video
       if (videoRef.current) {
         videoRef.current.currentTime = 0;
         const playPromise = videoRef.current.play();
@@ -62,7 +61,6 @@ export default function VideoShowcase() {
     }
   };
 
-  // Effect to automatically play the next video when currentIndex changes
   useEffect(() => {
     if (isPlaying && videoRef.current) {
       const playPromise = videoRef.current.play();
@@ -76,16 +74,21 @@ export default function VideoShowcase() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-20">
-         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
+      <section className="py-24 px-6 max-w-7xl mx-auto min-h-[600px]">
+        <div className="text-center mb-16">
+          <Skeleton className="h-6 w-32 mx-auto mb-4" />
+          <Skeleton className="h-12 w-3/4 mx-auto mb-4" />
+          <Skeleton className="h-4 w-1/2 mx-auto" />
+        </div>
+        <Skeleton className="aspect-video w-full max-w-5xl mx-auto rounded-[2.5rem] finance-3d-shadow" />
+      </section>
     );
   }
 
   if (!videos || videos.length === 0) return null;
 
   return (
-    <section className="py-24 px-6 max-w-7xl mx-auto relative overflow-hidden">
+    <section id="showcase-section" className="py-24 px-6 max-w-7xl mx-auto relative overflow-hidden scroll-mt-24 min-h-[600px]">
       <div className="text-center mb-16 animate-in fade-in slide-in-from-top-10 duration-1000">
         <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">Showcase</Badge>
         <h2 className="text-4xl md:text-6xl font-headline font-bold text-primary tracking-tight">Our <span className="text-accent">Success Stories</span> in Action</h2>
@@ -93,7 +96,6 @@ export default function VideoShowcase() {
       </div>
 
       <div className="max-w-5xl mx-auto">
-        {/* Main Video Player */}
         <Card className="relative aspect-video w-full overflow-hidden border-none bg-black finance-3d-shadow rounded-[2.5rem] group cursor-pointer">
           {activeVideo && (
             <>
@@ -105,7 +107,6 @@ export default function VideoShowcase() {
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
                 onClick={togglePlay}
-                // Security Attributes
                 controlsList="nodownload"
                 onContextMenu={(e) => e.preventDefault()}
                 disablePictureInPicture
@@ -114,7 +115,6 @@ export default function VideoShowcase() {
                 preload="auto"
               />
               
-              {/* Control Overlay - Always appears on hover or when paused */}
               <div className={cn(
                 "absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] transition-all duration-300 pointer-events-none",
                 isPlaying ? "opacity-0 group-hover:opacity-100 bg-black/20" : "opacity-100"
@@ -134,7 +134,6 @@ export default function VideoShowcase() {
                 </button>
               </div>
 
-              {/* Info Overlay */}
               <div className={cn(
                 "absolute bottom-8 left-8 right-8 flex items-end justify-between pointer-events-none transition-opacity duration-500",
                 isPlaying ? "opacity-0 group-hover:opacity-100" : "opacity-100"

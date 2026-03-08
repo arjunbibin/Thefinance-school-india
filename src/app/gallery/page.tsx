@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -16,11 +17,9 @@ import { ChevronLeft } from 'lucide-react';
 export default function GalleryPage() {
   const db = useFirestore();
   
-  // Fetch dynamic gallery images ordered by creation time (latest first)
   const galleryQuery = useMemoFirebase(() => query(collection(db, 'gallery'), orderBy('createdAt', 'desc')), [db]);
   const { data: remoteImages, isLoading } = useCollection(galleryQuery);
 
-  // Fallback to placeholders if no images are uploaded yet
   const defaultImages = PlaceHolderImages.filter(img => img.id.startsWith('gallery-') || img.id.startsWith('slide-'));
   const galleryImages = remoteImages && remoteImages.length > 0 ? remoteImages : defaultImages;
 
@@ -30,7 +29,7 @@ export default function GalleryPage() {
       
       <main className="max-w-7xl mx-auto px-6 py-24">
         <div className="mb-12 flex items-center gap-4">
-          <Link href="/#memories">
+          <Link href="/#memories-section">
             <Button variant="ghost" className="rounded-xl flex items-center gap-2 font-bold hover:bg-white/50">
               <ChevronLeft className="w-5 h-5" /> Back to Home
             </Button>
