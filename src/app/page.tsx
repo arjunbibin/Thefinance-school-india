@@ -36,7 +36,9 @@ import {
   GraduationCap,
   Trophy,
   School,
-  PlayCircle
+  PlayCircle,
+  Smartphone,
+  Apple
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -302,6 +304,48 @@ export default function Home() {
         <div id="workshops" className="scroll-mt-32 min-h-[400px]">
           <WorkshopInvitation />
         </div>
+
+        {/* App Download Section */}
+        {!isBrandingLoading && branding?.showAppDownload && (
+          <section id="download" className="max-w-7xl mx-auto px-4 md:px-6 py-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+            <Card className="p-10 md:p-24 border-none bg-primary text-white finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] text-center relative overflow-hidden group">
+              <div className="relative z-10 space-y-8 md:space-y-12">
+                <div className="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-white/10 text-white text-[10px] md:text-sm font-bold uppercase tracking-widest finance-3d-shadow-inner border border-white/20">
+                  <Smartphone className="w-4 h-4 md:w-6 md:h-6 text-accent animate-pulse" /> Mobile Learning
+                </div>
+                <h2 className="text-3xl md:text-6xl lg:text-8xl font-headline font-bold tracking-tighter leading-tight md:leading-[0.9]">
+                  Access Wealth on <br />
+                  <span className="text-accent italic drop-shadow-sm">The Go</span>
+                </h2>
+                <p className="text-base md:text-2xl text-primary-foreground/80 max-w-3xl mx-auto leading-relaxed font-medium">
+                  Take the academy with you. Download our official app for a seamless learning experience across all your devices.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8">
+                  {branding?.playStoreUrl && (
+                    <Button 
+                      onClick={() => window.open(branding.playStoreUrl, '_blank')}
+                      className="h-16 md:h-20 px-8 md:px-12 rounded-2xl bg-white text-primary font-bold text-lg md:text-xl finance-3d-shadow hover:scale-105 active:scale-95 transition-all flex items-center gap-4 group/play shadow-[0_20px_40px_rgba(0,0,0,0.2)] border-none"
+                    >
+                      <Smartphone className="w-6 h-6 md:w-8 group-hover/play:rotate-12 transition-transform" /> 
+                      Google Play
+                    </Button>
+                  )}
+                  {branding?.appStoreUrl && (
+                    <Button 
+                      onClick={() => window.open(branding.appStoreUrl, '_blank')}
+                      className="h-16 md:h-20 px-8 md:px-12 rounded-2xl bg-white text-primary font-bold text-lg md:text-xl finance-3d-shadow hover:scale-105 active:scale-95 transition-all flex items-center gap-4 group/apple shadow-[0_20px_40px_rgba(0,0,0,0.2)] border-none"
+                    >
+                      <Apple className="w-6 h-6 md:w-8 group-hover/apple:-rotate-12 transition-transform" /> 
+                      App Store
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <div className="absolute top-0 right-0 w-64 md:w-[500px] h-64 md:h-[500px] bg-white/5 rounded-full blur-[100px] -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-1000" />
+              <div className="absolute bottom-0 left-0 w-64 md:w-[500px] h-64 md:h-[500px] bg-accent/10 rounded-full blur-[100px] -ml-20 -mb-20 group-hover:scale-125 transition-transform duration-1000" />
+            </Card>
+          </section>
+        )}
 
         {/* Attend Quiz CTA */}
         <section id="quiz-cta" className="max-w-7xl mx-auto px-4 md:px-6 py-8 scroll-mt-32 animate-in fade-in slide-in-from-bottom-10 duration-1000 min-h-[400px]">

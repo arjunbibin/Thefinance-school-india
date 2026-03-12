@@ -9,7 +9,9 @@ import {
   MessageCircle, 
   Mail, 
   ShieldCheck,
-  ExternalLink 
+  ExternalLink,
+  Smartphone,
+  Apple 
 } from 'lucide-react';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -96,6 +98,30 @@ export default function Footer() {
               <Mail className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Mobile App Quick Links */}
+          {branding?.showAppDownload && (
+            <div className="mt-8 flex gap-4">
+              {branding?.playStoreUrl && (
+                <button 
+                  onClick={() => window.open(branding.playStoreUrl, '_blank')}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
+                >
+                  <Smartphone className="w-4 h-4 text-accent" />
+                  <span className="text-xs font-bold">Android App</span>
+                </button>
+              )}
+              {branding?.appStoreUrl && (
+                <button 
+                  onClick={() => window.open(branding.appStoreUrl, '_blank')}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
+                >
+                  <Apple className="w-4 h-4 text-white" />
+                  <span className="text-xs font-bold">iOS App</span>
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div>

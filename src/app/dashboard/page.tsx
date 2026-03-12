@@ -75,7 +75,9 @@ import {
   School,
   MessageSquare,
   Presentation,
-  Link2
+  Link2,
+  Smartphone,
+  Apple
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -187,7 +189,10 @@ export default function Dashboard() {
     statsStudents: '',
     statsWorkshops: '',
     statsTestimonials: '',
-    showNo1Badge: false
+    showNo1Badge: false,
+    showAppDownload: false,
+    playStoreUrl: '',
+    appStoreUrl: ''
   });
 
   useEffect(() => { 
@@ -205,7 +210,10 @@ export default function Dashboard() {
         statsStudents: branding.statsStudents || '',
         statsWorkshops: branding.statsWorkshops || '',
         statsTestimonials: branding.statsTestimonials || '',
-        showNo1Badge: branding.showNo1Badge || false
+        showNo1Badge: branding.showNo1Badge || false,
+        showAppDownload: branding.showAppDownload || false,
+        playStoreUrl: branding.playStoreUrl || '',
+        appStoreUrl: branding.appStoreUrl || ''
       }); 
     }
   }, [branding]);
@@ -1001,6 +1009,22 @@ export default function Dashboard() {
                             className="rounded-xl h-12 border-accent/50 focus:border-accent" 
                             placeholder="https://quiz.financeschool.in/..." 
                           />
+                        </div>
+
+                        <h3 className="font-headline font-bold text-xl text-primary border-b pb-2 pt-4">App Presence</h3>
+                        <div className="p-6 rounded-3xl bg-slate-50 border space-y-4 finance-3d-shadow-inner">
+                          <div className="flex items-center justify-between bg-white p-4 rounded-2xl border mb-2">
+                            <Label className="flex items-center gap-2 font-bold text-primary"><Smartphone className="w-4 h-4 text-accent" /> Enable App Section</Label>
+                            <Switch checked={brandingForm.showAppDownload} onCheckedChange={v => setBrandingForm({...brandingForm, showAppDownload: v})} />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 font-semibold"><Smartphone className="w-4 h-4" /> Google Play Store URL</Label>
+                            <Input value={brandingForm.playStoreUrl} onChange={e => setBrandingForm({...brandingForm, playStoreUrl: e.target.value})} className="rounded-xl h-12" placeholder="https://play.google.com/store/..." />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 font-semibold"><Apple className="w-4 h-4" /> Apple App Store URL</Label>
+                            <Input value={brandingForm.appStoreUrl} onChange={e => setBrandingForm({...brandingForm, appStoreUrl: e.target.value})} className="rounded-xl h-12" placeholder="https://apps.apple.com/..." />
+                          </div>
                         </div>
                       </div>
                       
