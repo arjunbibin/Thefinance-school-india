@@ -144,13 +144,14 @@ export default function DemoClassPage() {
                       <ThumbsUp className="w-6 h-6" /> I am Interested
                     </Button>
                   </Link>
-                  <Button 
-                    onClick={() => router.push('/#demo')}
-                    variant="outline"
-                    className="w-full h-16 rounded-2xl border-white/30 bg-white/10 text-white font-bold text-xl hover:bg-white/20 transition-all flex items-center justify-center gap-3"
-                  >
-                    <ThumbsDown className="w-6 h-6" /> Not Interested
-                  </Button>
+                  <Link href="/#testimonials" className="w-full">
+                    <Button 
+                      variant="outline"
+                      className="w-full h-16 rounded-2xl border-white/30 bg-white/10 text-white font-bold text-xl hover:bg-white/20 transition-all flex items-center justify-center gap-3"
+                    >
+                      <ThumbsDown className="w-6 h-6" /> Not Interested
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </Card>
