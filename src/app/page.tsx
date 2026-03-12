@@ -193,7 +193,7 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-headline font-bold">Practical <span className="text-accent">Empowerment</span></h2>
               <ul className="space-y-4">
                 {[
-                  "To provide practical financial education through interactive workshops.",
+                  "To provide practical financial education through live interactive sessions and videos.",
                   "To teach individuals how to manage income effectively.",
                   "To empower people to escape from scams and debt traps.",
                   "To develop ethical wealth creation habits."
@@ -330,7 +330,7 @@ export default function Home() {
               <div className="space-y-4">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-primary">Course Structure & <span className="text-accent">Support</span></h2>
                 <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  Our programs combine live interaction with practical workshops and dedicated mentorship.
+                  Our programs combine live interaction with pre-recorded videos and dedicated mentorship.
                 </p>
               </div>
 
@@ -338,7 +338,7 @@ export default function Home() {
                 {[
                   { icon: Clock, title: "9-Month Journey", desc: "Comprehensive curriculum that can be fast-tracked for accelerated learners.", color: "bg-primary/10" },
                   { icon: Calendar, title: "Flexible Schedule", desc: "Weekly 1-hour live online classes on weekends and public holidays.", color: "bg-accent/10" },
-                  { icon: Video, title: "Hybrid Learning", desc: "A mix of Online interactive sessions and Offline practical workshops.", color: "bg-primary/10" }
+                  { icon: Video, title: "Online Learning", desc: "A mix of live online interactive sessions and comprehensive pre-recorded video modules.", color: "bg-primary/10" }
                 ].map((item, i) => (
                   <Card key={i} className="p-5 md:p-6 border-none finance-3d-shadow flex items-start gap-4 bg-white rounded-2xl">
                     <div className={cn("p-3 rounded-xl text-primary", item.color)}><item.icon className="w-5 h-5 md:w-6 md:h-6" /></div>
