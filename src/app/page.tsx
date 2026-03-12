@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -16,6 +15,7 @@ import FinanceIcon3D from '@/components/FinanceIcon3D';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -49,10 +49,10 @@ const ThreeHero = dynamic(() => import('@/components/ThreeHero'), {
 export default function Home() {
   const db = useFirestore();
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
-  const { data: branding } = useDoc(brandingRef);
+  const { data: branding, isLoading: isBrandingLoading } = useDoc(brandingRef);
 
   const demoClassRef = useMemoFirebase(() => doc(db, 'system_settings', 'demo_class'), [db]);
-  const { data: demoClass } = useDoc(demoClassRef);
+  const { data: demoClass, isLoading: isDemoLoading } = useDoc(demoClassRef);
 
   const getYoutubeId = (url: string) => {
     if (!url) return null;
@@ -77,7 +77,7 @@ export default function Home() {
         <ThreeHero />
         
         <div className="relative z-10 text-center max-w-5xl animate-in fade-in zoom-in duration-1000">
-          {!branding?.showNo1Badge && (
+          {!isBrandingLoading && !branding?.showNo1Badge && (
             <div className="inline-flex items-center gap-3 px-6 py-2.5 rounded-full glass-morphism mb-10 border border-white/40 finance-3d-shadow transition-all hover:scale-105 cursor-pointer group">
               <Zap className="w-5 h-5 text-accent animate-pulse fill-accent" />
               <span className="text-[10px] md:text-sm font-bold text-primary tracking-[0.2em] uppercase">The Future of Financial Literacy</span>
@@ -131,42 +131,46 @@ export default function Home() {
 
       {/* Impact Stats Section */}
       <section id="impact" className="max-w-7xl mx-auto px-4 md:px-6 mb-12 scroll-mt-32 min-h-[400px]">
-        <div className="relative p-8 md:p-12 lg:p-16 rounded-[3rem] bg-white finance-3d-shadow overflow-hidden group border border-slate-50 flex flex-col items-center">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
-          
-          {/* India's No.1 Badge */}
-          {branding?.showNo1Badge && (
-            <div className="relative z-10 inline-flex items-center gap-3 px-8 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-amber-200 to-yellow-500 border-2 border-white/50 finance-3d-shadow mb-12 transition-all hover:scale-110 cursor-default group animate-bounce">
-              <Trophy className="w-6 h-6 text-primary fill-primary animate-pulse" />
-              <span className="text-xs md:text-base font-black text-primary tracking-widest uppercase">India's No.1 Financial Literacy Program</span>
-            </div>
-          )}
-
-          <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 w-full">
-            {[
-              { icon: GraduationCap, label: "Students Enrolled", value: branding?.statsStudents || "5000+", color: "text-primary" },
-              { icon: School, label: "Workshops Conducted", value: branding?.statsWorkshops || "150+", color: "text-accent" },
-              { icon: MessageSquare, label: "Success Testimonials", value: branding?.statsTestimonials || "200+", color: "text-primary" }
-            ].map((stat, i) => (
-              <div key={i} className="flex flex-col items-center justify-center p-8 md:p-6 lg:p-10 text-center gap-4 transition-all duration-500 hover:scale-105">
-                <div className={cn("p-4 rounded-[1.5rem] finance-3d-shadow-inner mb-2", stat.color)}>
-                  <stat.icon className="w-8 h-8 md:w-10 md:h-10" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h3 className="text-3xl md:text-4xl lg:text-5xl font-headline font-bold text-primary tracking-tighter">
-                    <AnimatedNumber value={stat.value} />
-                  </h3>
-                  <p className="text-muted-foreground font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] mt-2">
-                    {stat.label}
-                  </p>
-                </div>
+        {isBrandingLoading ? (
+          <Skeleton className="w-full h-[400px] rounded-[3rem] finance-3d-shadow" />
+        ) : (
+          <div className="relative p-8 md:p-12 lg:p-16 rounded-[3rem] bg-white finance-3d-shadow overflow-hidden group border border-slate-50 flex flex-col items-center">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
+            
+            {/* India's No.1 Badge */}
+            {branding?.showNo1Badge && (
+              <div className="relative z-10 inline-flex items-center gap-3 px-8 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-amber-200 to-yellow-500 border-2 border-white/50 finance-3d-shadow mb-12 transition-all hover:scale-110 cursor-default group animate-bounce">
+                <Trophy className="w-6 h-6 text-primary fill-primary animate-pulse" />
+                <span className="text-xs md:text-base font-black text-primary tracking-widest uppercase">India's No.1 Financial Literacy Program</span>
               </div>
-            ))}
+            )}
+
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-slate-100 w-full">
+              {[
+                { icon: GraduationCap, label: "Students Enrolled", value: branding?.statsStudents || "5000+", color: "text-primary" },
+                { icon: School, label: "Workshops Conducted", value: branding?.statsWorkshops || "150+", color: "text-accent" },
+                { icon: MessageSquare, label: "Success Testimonials", value: branding?.statsTestimonials || "200+", color: "text-primary" }
+              ].map((stat, i) => (
+                <div key={i} className="flex flex-col items-center justify-center p-8 md:p-6 lg:p-10 text-center gap-4 transition-all duration-500 hover:scale-105">
+                  <div className={cn("p-4 rounded-[1.5rem] finance-3d-shadow-inner mb-2", stat.color)}>
+                    <stat.icon className="w-8 h-8 md:w-10 md:h-10" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <h3 className="text-3xl md:text-4xl lg:text-5xl font-headline font-bold text-primary tracking-tighter">
+                      <AnimatedNumber value={stat.value} />
+                    </h3>
+                    <p className="text-muted-foreground font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] mt-2">
+                      {stat.label}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="absolute -top-10 -left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
+            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-accent/10 rounded-full blur-3xl" />
           </div>
-          
-          <div className="absolute -top-10 -left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-accent/10 rounded-full blur-3xl" />
-        </div>
+        )}
       </section>
 
       {/* Vision & Mission Section */}
@@ -212,9 +216,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Demo Class Section - Conditional */}
-      {demoClass?.isActive && (
-        <section id="demo" className="max-w-7xl mx-auto px-4 md:px-6 py-12 scroll-mt-32 animate-in fade-in slide-in-from-bottom-10 duration-1000 min-h-[500px]">
+      {/* Demo Class Section - Persistent Placeholder to prevent jump */}
+      <section id="demo" className="max-w-7xl mx-auto px-4 md:px-6 py-12 scroll-mt-32 min-h-[500px]">
+        {isDemoLoading ? (
+          <Skeleton className="w-full h-[500px] rounded-[2.5rem] md:rounded-[4rem] finance-3d-shadow" />
+        ) : demoClass?.isActive ? (
           <Card className="relative overflow-hidden border-none bg-slate-900 text-white p-8 md:p-16 rounded-[2.5rem] md:rounded-[4rem] finance-3d-shadow group">
             <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-8">
@@ -253,8 +259,10 @@ export default function Home() {
             <div className="absolute -top-24 -right-24 w-96 h-96 bg-accent/10 rounded-full blur-[100px]" />
             <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-[100px]" />
           </Card>
-        </section>
-      )}
+        ) : (
+          <div className="h-0" /> // No extra gap if inactive
+        )}
+      </section>
 
       {/* Main Content Area */}
       <div className="relative z-10 space-y-4 pb-12 px-2 md:px-0">
