@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -137,14 +136,14 @@ export default function DemoClassPage() {
                 <p className="opacity-80 text-lg">If you liked this session, our programs offer even more value.</p>
                 
                 <div className="space-y-4">
-                  <Link href="/#courses" className="w-full">
+                  <Link href="/#courses" scroll={true} className="w-full">
                     <Button 
                       className="w-full h-16 rounded-2xl bg-accent text-primary font-bold text-xl hover:scale-105 transition-transform flex items-center justify-center gap-3 shadow-xl"
                     >
                       <ThumbsUp className="w-6 h-6" /> I am Interested
                     </Button>
                   </Link>
-                  <Link href="/#testimonials" className="w-full">
+                  <Link href="/#testimonials" scroll={true} className="w-full">
                     <Button 
                       variant="outline"
                       className="w-full h-16 rounded-2xl border-white/30 bg-white/10 text-white font-bold text-xl hover:bg-white/20 transition-all flex items-center justify-center gap-3"
