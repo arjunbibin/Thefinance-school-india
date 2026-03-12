@@ -19,33 +19,33 @@ export default function ThreeHero() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     containerRef.current.appendChild(renderer.domElement);
 
-    // Create a mesh for the "Wealth Grid"
-    const gridGeometry = new THREE.IcosahedronGeometry(8, 1);
+    // Create a mesh for the "Wealth Grid" - Increased size from 8 to 12
+    const gridGeometry = new THREE.IcosahedronGeometry(12, 1);
     const gridMaterial = new THREE.MeshPhongMaterial({ 
       color: 0x2E3192, 
       wireframe: true,
       transparent: true,
-      opacity: 0.15
+      opacity: 0.12
     });
     const grid = new THREE.Mesh(gridGeometry, gridMaterial);
     scene.add(grid);
 
-    // Create particles for "Data Flow"
-    const particlesCount = 600;
+    // Create particles for "Data Flow" - Increased spread to cover more area
+    const particlesCount = 800;
     const posArray = new Float32Array(particlesCount * 3);
     
     for (let i = 0; i < particlesCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 30;
+      posArray[i] = (Math.random() - 0.5) * 45;
     }
 
     const particlesGeometry = new THREE.BufferGeometry();
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
     
     const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.08,
+      size: 0.1,
       color: 0x00FFFF,
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.4,
       blending: THREE.AdditiveBlending
     });
 
@@ -57,29 +57,29 @@ export default function ThreeHero() {
     scene.add(ambientLight);
 
     const pointLight = new THREE.PointLight(0x00FFFF, 2.5);
-    pointLight.position.set(10, 10, 10);
+    pointLight.position.set(15, 15, 15);
     scene.add(pointLight);
 
-    camera.position.z = 12;
+    camera.position.z = 15;
 
     const animate = () => {
       requestAnimationFrame(animate);
 
-      // Smoothly interpolate mouse position for fluid motion
-      mouse.current.x += (targetMouse.current.x - mouse.current.x) * 0.05;
-      mouse.current.y += (targetMouse.current.y - mouse.current.y) * 0.05;
+      // Smoothly interpolate mouse position for fluid motion - Slowed down interpolation (0.02)
+      mouse.current.x += (targetMouse.current.x - mouse.current.x) * 0.02;
+      mouse.current.y += (targetMouse.current.y - mouse.current.y) * 0.02;
 
-      // Base rotation + Mouse influence
-      grid.rotation.y += 0.002 + (mouse.current.x * 0.01);
-      grid.rotation.x += 0.001 + (mouse.current.y * 0.01);
+      // Base rotation + Mouse influence - Reduced influence multiplier (0.005) for smoother pointing
+      grid.rotation.y += 0.001 + (mouse.current.x * 0.005);
+      grid.rotation.x += 0.0005 + (mouse.current.y * 0.005);
       
-      particlesMesh.rotation.y -= 0.001 + (mouse.current.x * 0.005);
-      particlesMesh.rotation.x -= (mouse.current.y * 0.005);
+      particlesMesh.rotation.y -= 0.0005 + (mouse.current.x * 0.002);
+      particlesMesh.rotation.x -= (mouse.current.y * 0.002);
       
       const positions = particlesGeometry.attributes.position.array as Float32Array;
       for (let i = 0; i < particlesCount * 3; i += 3) {
         // Subtle wave motion in particles
-        positions[i + 1] += Math.sin(Date.now() * 0.0005 + positions[i]) * 0.003;
+        positions[i + 1] += Math.sin(Date.now() * 0.0003 + positions[i]) * 0.002;
       }
       particlesGeometry.attributes.position.needsUpdate = true;
 
