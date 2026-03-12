@@ -145,7 +145,7 @@ export default function DemoClassPage() {
                     </Button>
                   </Link>
                   <Button 
-                    onClick={() => router.push('/testimonials')}
+                    onClick={() => router.push('/#demo')}
                     variant="outline"
                     className="w-full h-16 rounded-2xl border-white/30 bg-white/10 text-white font-bold text-xl hover:bg-white/20 transition-all flex items-center justify-center gap-3"
                   >

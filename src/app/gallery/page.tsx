@@ -29,7 +29,7 @@ export default function GalleryPage() {
       
       <main className="max-w-7xl mx-auto px-6 py-24">
         <div className="mb-12 flex items-center gap-4">
-          <Link href="/#memories-section">
+          <Link href="/#memories">
             <Button variant="ghost" className="rounded-xl flex items-center gap-2 font-bold hover:bg-white/50">
               <ChevronLeft className="w-5 h-5" /> Back to Home
             </Button>

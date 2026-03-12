@@ -50,7 +50,7 @@ export default function TeamPage() {
       
       <main className="relative z-10 flex-grow max-w-7xl mx-auto px-6 py-24 w-full">
         <div className="mb-12 flex items-center gap-4 animate-in fade-in duration-700">
-          <Link href="/#memories-section">
+          <Link href="/#memories">
             <Button variant="ghost" className="text-white hover:bg-white/10 rounded-xl flex items-center gap-2 font-bold">
               <ChevronLeft className="w-5 h-5" /> Back to Home
             </Button>

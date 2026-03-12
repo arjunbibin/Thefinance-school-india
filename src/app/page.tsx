@@ -40,7 +40,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 
-// Lazy load the heavy 3D engine to improve PageSpeed Scores (TBT)
+// Lazy load the heavy 3D engine to improve PageSpeed Scores
 const ThreeHero = dynamic(() => import('@/components/ThreeHero'), {
   ssr: false,
   loading: () => <div className="absolute inset-0 bg-background" />
@@ -69,11 +69,11 @@ export default function Home() {
   const demoThumb = demoClass?.videoUrl ? getYoutubeThumb(demoClass.videoUrl) : null;
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden selection:bg-accent selection:text-primary text-foreground">
+    <div className="relative min-h-screen overflow-x-hidden selection:bg-accent selection:text-primary text-foreground scroll-smooth">
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center pt-16 px-6 overflow-hidden">
+      <section className="relative min-h-[95vh] flex items-center justify-center pt-16 px-6 overflow-hidden">
         <ThreeHero />
         
         <div className="relative z-10 text-center max-w-5xl animate-in fade-in zoom-in duration-1000">
@@ -195,7 +195,7 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-headline font-bold">Practical <span className="text-accent">Empowerment</span></h2>
               <ul className="space-y-4">
                 {[
-                  "To provide practical financial education through live interaction and pre recorded videos.",
+                  "To provide practical financial education through live interaction and pre recorded videos only no practical workshop is included in courses.",
                   "To teach individuals how to manage income effectively.",
                   "To empower people to escape from scams and debt traps.",
                   "To develop ethical wealth creation habits."
@@ -258,11 +258,11 @@ export default function Home() {
 
       {/* Main Content Area */}
       <div className="relative z-10 space-y-4 pb-12 px-2 md:px-0">
-        <div id="courses" className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20 scroll-mt-32 min-h-[800px]">
+        <div id="courses" className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20 scroll-mt-32 min-h-[850px]">
           <CourseCatalog />
         </div>
 
-        <div id="memories" className="space-y-6 scroll-mt-32 min-h-[600px]">
+        <div id="memories" className="space-y-6 scroll-mt-32 min-h-[700px]">
           <ShowcaseSlideshow />
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-5 duration-700 px-6">
             <Link href="/gallery" className="w-full md:w-auto">
@@ -283,7 +283,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div id="video-showcase" className="scroll-mt-32 min-h-[500px]">
+        <div id="video-showcase" className="scroll-mt-32 min-h-[450px]">
           <VideoShowcase />
         </div>
         
@@ -332,7 +332,7 @@ export default function Home() {
               <div className="space-y-4">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-primary">Course Structure & <span className="text-accent">Support</span></h2>
                 <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  Our programs combine live interaction and pre recorded videos  only no practical workshop is included in courses.
+                  Our programs consist of live interaction and pre recorded videos only no practical workshop is included in courses.
                 </p>
               </div>
 
