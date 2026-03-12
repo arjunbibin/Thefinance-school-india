@@ -255,12 +255,12 @@ export default function Home() {
       )}
 
       {/* Main Content Area */}
-      <div className="relative z-10 space-y-8 pb-12 px-2 md:px-0">
+      <div className="relative z-10 space-y-4 pb-12 px-2 md:px-0">
         <div id="courses" className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20 scroll-mt-32 min-h-[1200px]">
           <CourseCatalog />
         </div>
 
-        <div id="memories" className="space-y-8 scroll-mt-32 min-h-[800px]">
+        <div id="memories" className="space-y-6 scroll-mt-32 min-h-[600px]">
           <ShowcaseSlideshow />
           <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-5 duration-700 px-6">
             <Link href="/gallery" className="w-full md:w-auto">
@@ -281,11 +281,11 @@ export default function Home() {
           </div>
         </div>
 
-        <div id="video-showcase" className="scroll-mt-32 min-h-[500px]">
+        <div id="video-showcase" className="scroll-mt-32 min-h-fit">
           <VideoShowcase />
         </div>
         
-        <div id="testimonials" className="scroll-mt-32 min-h-[800px]">
+        <div id="testimonials" className="scroll-mt-32 min-h-fit">
           <ReviewsSection />
         </div>
 

@@ -72,8 +72,8 @@ export default function VideoShowcase() {
   }, [currentIndex, isPlaying]);
 
   return (
-    <section id="showcase-section" className="py-24 px-6 max-w-7xl mx-auto relative overflow-hidden scroll-mt-24 min-h-[500px]">
-      <div className="text-center mb-16 animate-in fade-in slide-in-from-top-10 duration-1000">
+    <section id="showcase-section" className="py-8 md:py-12 px-6 max-w-7xl mx-auto relative overflow-hidden scroll-mt-24 min-h-fit">
+      <div className="text-center mb-8 animate-in fade-in slide-in-from-top-10 duration-1000">
         <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">Showcase</Badge>
         <h2 className="text-4xl md:text-6xl font-headline font-bold text-primary tracking-tight">Our <span className="text-accent">Success Stories</span> in Action</h2>
         <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">Watch our interactive workshops and the transformation of our students.</p>
