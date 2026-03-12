@@ -193,7 +193,7 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-headline font-bold">Practical <span className="text-accent">Empowerment</span></h2>
               <ul className="space-y-4">
                 {[
-                  "To provide practical financial education through live interactive sessions and videos.",
+                  "To provide practical financial education through live interaction and pre recorded videos.",
                   "To teach individuals how to manage income effectively.",
                   "To empower people to escape from scams and debt traps.",
                   "To develop ethical wealth creation habits."
@@ -256,7 +256,7 @@ export default function Home() {
 
       {/* Main Content Area */}
       <div className="relative z-10 space-y-4 pb-12 px-2 md:px-0">
-        <div id="courses" className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20 scroll-mt-32 min-h-[1200px]">
+        <div id="courses" className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20 scroll-mt-32 min-h-[800px]">
           <CourseCatalog />
         </div>
 
@@ -281,11 +281,11 @@ export default function Home() {
           </div>
         </div>
 
-        <div id="video-showcase" className="scroll-mt-32 min-h-fit">
+        <div id="video-showcase" className="scroll-mt-32">
           <VideoShowcase />
         </div>
         
-        <div id="testimonials" className="scroll-mt-32 min-h-fit">
+        <div id="testimonials" className="scroll-mt-32">
           <ReviewsSection />
         </div>
 
@@ -330,13 +330,13 @@ export default function Home() {
               <div className="space-y-4">
                 <h2 className="text-3xl md:text-5xl font-headline font-bold text-primary">Course Structure & <span className="text-accent">Support</span></h2>
                 <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  Our programs combine live interaction with pre-recorded videos and dedicated mentorship.
+                  Our programs combine live interaction and pre recorded videos  only no practical workshop is included in courses.
                 </p>
               </div>
 
               <div className="grid gap-6">
                 {[
-                  { icon: Clock, title: "9-Month Journey", desc: "Comprehensive curriculum that can be fast-tracked for accelerated learners.", color: "bg-primary/10" },
+                  { icon: Clock, title: "4-9 Month Journey", desc: "Comprehensive curriculum that can be fast-tracked for accelerated learners.", color: "bg-primary/10" },
                   { icon: Calendar, title: "Flexible Schedule", desc: "Weekly 1-hour live online classes on weekends and public holidays.", color: "bg-accent/10" },
                   { icon: Video, title: "Online Learning", desc: "A mix of live online interactive sessions and comprehensive pre-recorded video modules.", color: "bg-primary/10" }
                 ].map((item, i) => (
