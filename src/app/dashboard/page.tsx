@@ -850,7 +850,7 @@ export default function Dashboard() {
                   <CardContent className="p-10 space-y-8">
                     <form onSubmit={handleSaveTeam} className="grid md:grid-cols-2 gap-10">
                       <div className="space-y-4">
-                        <div className="space-y-2"><Label>Full Name</Label><Input value={teamForm.name} onChange={e => setTeamForm({...teamForm, name: e.target.value})} className="rounded-xl h-12" required /></div>
+                        <div className="space-y-2"><Label>Full Name</Label><Input value={teamForm.name} onChange={setTeamForm.bind(null, (prev: any) => ({ ...prev, name: '' }))} className="rounded-xl h-12" required /></div>
                         <div className="space-y-2"><Label>Professional Role (e.g. CEO, GM, etc.)</Label><Input value={teamForm.role} onChange={e => setTeamForm({...teamForm, role: e.target.value})} className="rounded-xl h-12" required /></div>
                         <div className="space-y-2"><Label>Brief Bio</Label><Textarea value={teamForm.bio} onChange={e => setTeamForm({...teamForm, bio: e.target.value})} className="rounded-xl h-24" /></div>
                         
