@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -32,7 +31,7 @@ export default function ReviewsSection() {
   );
 
   return (
-    <section id="testimonials-section" className="py-12 md:py-16 px-6 max-w-7xl mx-auto relative overflow-hidden scroll-mt-24 min-h-[600px]">
+    <section id="testimonials-section" className="py-12 md:py-16 px-6 max-w-7xl mx-auto relative overflow-hidden scroll-mt-24 min-h-[450px]">
       <div className="text-center mb-16 animate-in fade-in slide-in-from-top-10 duration-1000">
         <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">Testimonials</Badge>
         <h2 className="text-4xl md:text-6xl font-headline font-bold text-primary tracking-tight">Voices of <span className="text-accent">Success</span></h2>
@@ -43,7 +42,7 @@ export default function ReviewsSection() {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <Card key={i} className="h-[300px] border-none bg-white finance-3d-shadow rounded-[2.5rem] p-8">
+              <Card key={i} className="h-[280px] border-none bg-white finance-3d-shadow rounded-[2.5rem] p-8">
                 <div className="flex items-center gap-4 mb-6">
                   <Skeleton className="h-14 w-14 rounded-2xl" />
                   <div className="space-y-2 flex-1">
@@ -54,7 +53,6 @@ export default function ReviewsSection() {
                 <div className="space-y-3">
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-2/3" />
                 </div>
               </Card>
             ))}

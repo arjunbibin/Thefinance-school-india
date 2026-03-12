@@ -1,9 +1,8 @@
-
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import ThreeHero from '@/components/ThreeHero';
 import Navbar from '@/components/Navbar';
 import CourseCatalog from '@/components/sections/CourseCatalog';
 import ShowcaseSlideshow from '@/components/sections/ShowcaseSlideshow';
@@ -33,14 +32,17 @@ import {
   Users,
   MessageSquare,
   GraduationCap,
-  Sparkles,
   Trophy,
   School,
-  TrendingUp,
-  Award,
   PlayCircle
 } from 'lucide-react';
 import Image from 'next/image';
+
+// Lazy load the heavy 3D engine to improve PageSpeed Scores (TBT)
+const ThreeHero = dynamic(() => import('@/components/ThreeHero'), {
+  ssr: false,
+  loading: () => <div className="absolute inset-0 bg-background" />
+});
 
 export default function Home() {
   const db = useFirestore();
@@ -375,4 +377,3 @@ export default function Home() {
     </div>
   );
 }
-

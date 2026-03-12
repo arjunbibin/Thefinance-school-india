@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -36,7 +35,9 @@ import {
   updateDocumentNonBlocking, 
   addDocumentNonBlocking, 
   deleteDocumentNonBlocking,
-  setDocumentNonBlocking
+  setDocumentNonBlocking,
+  errorEmitter,
+  FirestorePermissionError
 } from '@/firebase';
 import { doc, collection, query, orderBy, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
@@ -312,7 +313,11 @@ export default function Dashboard() {
         setSelectedFiles(prev => ({ ...prev, 'demo-video': null }));
         toast({ title: "Demo Class Settings Saved" });
       } catch (err: any) {
-        toast({ variant: "destructive", title: "Upload Failed", description: err.message });
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+          path: demoClassRef.path,
+          operation: 'write',
+          requestResourceData: demoClassForm
+        }));
       }
     }
   };
@@ -357,7 +362,7 @@ export default function Dashboard() {
       setCustomCategoryInput('');
       setSelectedFiles(prev => ({ ...prev, course: null }));
       setUploadProgress(null);
-    } catch (err: any) { toast({ variant: "destructive", title: "Upload Failed", description: err.message }); }
+    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
   };
 
   const handleSaveTeam = async (e: React.FormEvent) => {
@@ -384,7 +389,7 @@ export default function Dashboard() {
       setEditingMemberId(null);
       setSelectedFiles(prev => ({ ...prev, team: null }));
       setUploadProgress(null);
-    } catch (err: any) { toast({ variant: "destructive", title: "Upload Failed", description: err.message }); }
+    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
   };
 
   const handleSaveReview = async (e: React.FormEvent) => {
@@ -410,7 +415,7 @@ export default function Dashboard() {
       setEditingReviewId(null);
       setSelectedFiles(prev => ({ ...prev, review: null }));
       setUploadProgress(null);
-    } catch (err: any) { toast({ variant: "destructive", title: "Upload Failed", description: err.message }); }
+    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
   };
 
   const handleSaveSlide = async (e: React.FormEvent) => {
@@ -424,7 +429,7 @@ export default function Dashboard() {
       setNewSlide({ title: '', description: '', imageUrl: '', order: 0 });
       setSelectedFiles(prev => ({ ...prev, slide: null }));
       setUploadProgress(null);
-    } catch (err: any) { toast({ variant: "destructive", title: "Upload Failed", description: err.message }); }
+    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
   };
 
   const handleSaveGallery = async (e: React.FormEvent) => {
@@ -438,7 +443,7 @@ export default function Dashboard() {
       setNewGalleryImg({ description: '', imageUrl: '' });
       setSelectedFiles(prev => ({ ...prev, gallery: null }));
       setUploadProgress(null);
-    } catch (err: any) { toast({ variant: "destructive", title: "Upload Failed", description: err.message }); }
+    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
   };
 
   const handleSaveVideo = async (e: React.FormEvent) => {
@@ -452,7 +457,7 @@ export default function Dashboard() {
       setSelectedFiles(prev => ({ ...prev, video: null }));
       setNewVideo({ title: '', videoUrl: '', order: 0, isYoutube: false });
       toast({ title: "Showcase Video Published" });
-    } catch (err: any) { toast({ variant: "destructive", title: "Upload Failed", description: err.message }); }
+    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
   };
 
   const handleSaveTestimonialVideo = async (e: React.FormEvent) => {
@@ -466,7 +471,7 @@ export default function Dashboard() {
       setSelectedFiles(prev => ({ ...prev, testimonialVideo: null }));
       setNewTestimonialVideo({ title: '', videoUrl: '', order: 0, isYoutube: false });
       toast({ title: "Testimonial Video Published" });
-    } catch (err: any) { toast({ variant: "destructive", title: "Upload Failed", description: err.message }); }
+    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
   };
 
   const confirmDelete = () => {

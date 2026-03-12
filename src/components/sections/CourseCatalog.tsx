@@ -1,4 +1,3 @@
-
 "use client"
 
 import React from 'react';
@@ -62,17 +61,13 @@ function CourseSkeleton() {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
       {[...Array(3)].map((_, i) => (
-        <Card key={i} className="border-none bg-white finance-3d-shadow overflow-hidden flex flex-col h-[600px] rounded-[2.5rem]">
+        <Card key={i} className="border-none bg-white finance-3d-shadow overflow-hidden flex flex-col h-[550px] rounded-[2.5rem]">
           <Skeleton className="h-56 w-full" />
           <div className="p-8 space-y-4">
             <Skeleton className="h-10 w-10 rounded-2xl" />
             <Skeleton className="h-8 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-full" />
             <Skeleton className="h-20 w-full" />
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-full" />
-              <Skeleton className="h-4 w-full" />
-            </div>
             <Skeleton className="h-12 w-full mt-auto rounded-xl" />
           </div>
         </Card>
@@ -96,9 +91,7 @@ export default function CourseCatalog() {
   };
 
   return (
-    <section className="py-12 md:py-16 px-6 max-w-7xl mx-auto relative overflow-hidden min-h-[1200px]">
-      <div className="absolute top-1/4 -right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-      
+    <section className="py-12 md:py-16 px-6 max-w-7xl mx-auto relative overflow-hidden min-h-[800px]">
       <div className="mb-12 text-center animate-in fade-in slide-in-from-top-10 duration-1000">
         <Badge variant="outline" className="mb-4 text-primary border-primary/20 px-6 py-1.5 finance-3d-shadow-inner bg-white/50 uppercase tracking-widest font-bold">Our Programs</Badge>
         <h2 className="text-4xl md:text-6xl font-headline font-bold mb-4 tracking-tight">Courses Designed for <span className="text-primary underline decoration-accent underline-offset-8">Future Leaders</span></h2>
@@ -126,6 +119,7 @@ export default function CourseCatalog() {
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                     data-ai-hint="child education"
                     draggable={false}
+                    priority={index < 3}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center z-10">
