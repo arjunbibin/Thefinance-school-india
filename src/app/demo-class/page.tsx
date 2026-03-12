@@ -137,12 +137,13 @@ export default function DemoClassPage() {
                 <p className="opacity-80 text-lg">If you liked this session, our programs offer even more value.</p>
                 
                 <div className="space-y-4">
-                  <Button 
-                    onClick={() => router.push('/#courses')}
-                    className="w-full h-16 rounded-2xl bg-accent text-primary font-bold text-xl hover:scale-105 transition-transform flex items-center justify-center gap-3 shadow-xl"
-                  >
-                    <ThumbsUp className="w-6 h-6" /> I am Interested
-                  </Button>
+                  <Link href="/#courses" className="w-full">
+                    <Button 
+                      className="w-full h-16 rounded-2xl bg-accent text-primary font-bold text-xl hover:scale-105 transition-transform flex items-center justify-center gap-3 shadow-xl"
+                    >
+                      <ThumbsUp className="w-6 h-6" /> I am Interested
+                    </Button>
+                  </Link>
                   <Button 
                     onClick={() => router.push('/testimonials')}
                     variant="outline"

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -282,20 +283,20 @@ export default function Home() {
           </div>
         </div>
 
-        <div id="video-showcase" className="scroll-mt-32">
+        <div id="video-showcase" className="scroll-mt-32 min-h-[500px]">
           <VideoShowcase />
         </div>
         
-        <div id="testimonials" className="scroll-mt-32">
+        <div id="testimonials" className="scroll-mt-32 min-h-[400px]">
           <ReviewsSection />
         </div>
 
-        <div id="workshops" className="scroll-mt-32">
+        <div id="workshops" className="scroll-mt-32 min-h-[400px]">
           <WorkshopInvitation />
         </div>
 
         {/* Attend Quiz CTA */}
-        <section id="quiz-cta" className="max-w-7xl mx-auto px-4 md:px-6 py-8 scroll-mt-32 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+        <section id="quiz-cta" className="max-w-7xl mx-auto px-4 md:px-6 py-8 scroll-mt-32 animate-in fade-in slide-in-from-bottom-10 duration-1000 min-h-[400px]">
           <Card className="p-8 py-12 md:p-24 border-none bg-gradient-to-br from-white via-slate-50 to-accent/5 finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] text-center relative overflow-hidden group">
              <div className="relative z-10 space-y-8 md:space-y-12">
                <div className="inline-flex items-center gap-3 px-6 md:px-8 py-2 md:py-3 rounded-full bg-accent/10 text-primary text-[10px] md:text-sm font-bold uppercase tracking-widest finance-3d-shadow-inner border border-accent/20">
@@ -325,7 +326,7 @@ export default function Home() {
 
         <ConnectWithUs />
 
-        <section id="structure" className="max-w-7xl mx-auto px-4 md:px-6 pt-4 pb-12 scroll-mt-32">
+        <section id="structure" className="max-w-7xl mx-auto px-4 md:px-6 pt-4 pb-12 scroll-mt-32 min-h-[400px]">
           <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
             <div className="space-y-8">
               <div className="space-y-4">
