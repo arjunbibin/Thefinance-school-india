@@ -5,6 +5,8 @@ import * as THREE from 'three';
 
 export default function ThreeHero() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const mouse = useRef({ x: 0, y: 0 });
+  const targetMouse = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -23,27 +25,27 @@ export default function ThreeHero() {
       color: 0x2E3192, 
       wireframe: true,
       transparent: true,
-      opacity: 0.1
+      opacity: 0.15
     });
     const grid = new THREE.Mesh(gridGeometry, gridMaterial);
     scene.add(grid);
 
     // Create particles for "Data Flow"
-    const particlesCount = 400;
+    const particlesCount = 600;
     const posArray = new Float32Array(particlesCount * 3);
     
     for (let i = 0; i < particlesCount * 3; i++) {
-      posArray[i] = (Math.random() - 0.5) * 20;
+      posArray[i] = (Math.random() - 0.5) * 30;
     }
 
     const particlesGeometry = new THREE.BufferGeometry();
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
     
     const particlesMaterial = new THREE.PointsMaterial({
-      size: 0.05,
+      size: 0.08,
       color: 0x00FFFF,
       transparent: true,
-      opacity: 0.8,
+      opacity: 0.6,
       blending: THREE.AdditiveBlending
     });
 
@@ -51,29 +53,51 @@ export default function ThreeHero() {
     scene.add(particlesMesh);
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
-    const pointLight = new THREE.PointLight(0x00FFFF, 2);
-    pointLight.position.set(5, 5, 5);
+    const pointLight = new THREE.PointLight(0x00FFFF, 2.5);
+    pointLight.position.set(10, 10, 10);
     scene.add(pointLight);
 
-    camera.position.z = 10;
+    camera.position.z = 12;
 
     const animate = () => {
       requestAnimationFrame(animate);
-      grid.rotation.y += 0.002;
-      grid.rotation.x += 0.001;
+
+      // Smoothly interpolate mouse position for fluid motion
+      mouse.current.x += (targetMouse.current.x - mouse.current.x) * 0.05;
+      mouse.current.y += (targetMouse.current.y - mouse.current.y) * 0.05;
+
+      // Base rotation + Mouse influence
+      grid.rotation.y += 0.002 + (mouse.current.x * 0.01);
+      grid.rotation.x += 0.001 + (mouse.current.y * 0.01);
       
-      particlesMesh.rotation.y -= 0.001;
+      particlesMesh.rotation.y -= 0.001 + (mouse.current.x * 0.005);
+      particlesMesh.rotation.x -= (mouse.current.y * 0.005);
       
       const positions = particlesGeometry.attributes.position.array as Float32Array;
       for (let i = 0; i < particlesCount * 3; i += 3) {
-        positions[i + 1] += Math.sin(Date.now() * 0.001 + positions[i]) * 0.005;
+        // Subtle wave motion in particles
+        positions[i + 1] += Math.sin(Date.now() * 0.0005 + positions[i]) * 0.003;
       }
       particlesGeometry.attributes.position.needsUpdate = true;
 
       renderer.render(scene, camera);
+    };
+
+    const handleMouseMove = (event: MouseEvent) => {
+      // Normalize mouse coordinates to -1 to 1
+      targetMouse.current.x = (event.clientX / window.innerWidth) * 2 - 1;
+      targetMouse.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (event.touches.length > 0) {
+        const touch = event.touches[0];
+        targetMouse.current.x = (touch.clientX / window.innerWidth) * 2 - 1;
+        targetMouse.current.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+      }
     };
 
     const handleResize = () => {
@@ -82,18 +106,26 @@ export default function ThreeHero() {
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
 
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('touchmove', handleTouchMove);
     window.addEventListener('resize', handleResize);
+    
     animate();
 
     return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('resize', handleResize);
-      if (containerRef.current) {
+      
+      if (containerRef.current && renderer.domElement) {
         containerRef.current.removeChild(renderer.domElement);
       }
+      
       gridGeometry.dispose();
       gridMaterial.dispose();
       particlesGeometry.dispose();
       particlesMaterial.dispose();
+      renderer.dispose();
     };
   }, []);
 
