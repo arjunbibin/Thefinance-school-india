@@ -12,6 +12,7 @@ import WorkshopInvitation from '@/components/sections/WorkshopInvitation';
 import ConnectWithUs from '@/components/sections/ConnectWithUs';
 import Footer from '@/components/Footer';
 import FinanceIcon3D from '@/components/FinanceIcon3D';
+import AnimatedNumber from '@/components/AnimatedNumber';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -152,7 +153,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 className="text-3xl md:text-4xl lg:text-5xl font-headline font-bold text-primary tracking-tighter">
-                    {stat.value}
+                    <AnimatedNumber value={stat.value} />
                   </h3>
                   <p className="text-muted-foreground font-bold text-[10px] md:text-xs uppercase tracking-[0.2em] mt-2">
                     {stat.label}
