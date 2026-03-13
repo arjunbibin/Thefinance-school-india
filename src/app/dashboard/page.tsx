@@ -621,7 +621,7 @@ export default function Dashboard() {
                 </Card>
               </TabsContent>
 
-              {/* Other Tabs content remains same... */}
+              {/* ... Rest of the tabs content ... */}
               <TabsContent value="demo-class">
                 <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
                   <CardHeader className="bg-primary text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Presentation className="w-6 h-6" /> Demo Class Management</CardTitle></CardHeader>
@@ -683,7 +683,7 @@ export default function Dashboard() {
                   </CardContent>
                 </Card>
               </TabsContent>
-              {/* ... Rest of the tabs content remains as in previous version ... */}
+              {/* ... */}
             </Tabs>
           </TabsContent>
         </Tabs>
