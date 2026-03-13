@@ -19,7 +19,7 @@ export default function ThreeHero() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     containerRef.current.appendChild(renderer.domElement);
 
-    // Create a mesh for the "Wealth Grid" - Increased size from 8 to 12
+    // Create a mesh for the "Wealth Grid" - Increased size to 12
     const gridGeometry = new THREE.IcosahedronGeometry(12, 1);
     const gridMaterial = new THREE.MeshPhongMaterial({ 
       color: 0x2E3192, 
@@ -30,7 +30,7 @@ export default function ThreeHero() {
     const grid = new THREE.Mesh(gridGeometry, gridMaterial);
     scene.add(grid);
 
-    // Create particles for "Data Flow" - Increased spread to cover more area
+    // Create particles for "Data Flow"
     const particlesCount = 800;
     const posArray = new Float32Array(particlesCount * 3);
     
@@ -65,11 +65,11 @@ export default function ThreeHero() {
     const animate = () => {
       requestAnimationFrame(animate);
 
-      // Smoothly interpolate mouse position for fluid motion - Slowed down interpolation (0.02)
+      // Smoothly interpolate mouse position for fluid motion
       mouse.current.x += (targetMouse.current.x - mouse.current.x) * 0.02;
       mouse.current.y += (targetMouse.current.y - mouse.current.y) * 0.02;
 
-      // Base rotation + Mouse influence - Reduced influence multiplier (0.005) for smoother pointing
+      // Base rotation + Mouse influence
       grid.rotation.y += 0.001 + (mouse.current.x * 0.005);
       grid.rotation.x += 0.0005 + (mouse.current.y * 0.005);
       
@@ -78,7 +78,6 @@ export default function ThreeHero() {
       
       const positions = particlesGeometry.attributes.position.array as Float32Array;
       for (let i = 0; i < particlesCount * 3; i += 3) {
-        // Subtle wave motion in particles
         positions[i + 1] += Math.sin(Date.now() * 0.0003 + positions[i]) * 0.002;
       }
       particlesGeometry.attributes.position.needsUpdate = true;
@@ -87,7 +86,6 @@ export default function ThreeHero() {
     };
 
     const handleMouseMove = (event: MouseEvent) => {
-      // Normalize mouse coordinates to -1 to 1
       targetMouse.current.x = (event.clientX / window.innerWidth) * 2 - 1;
       targetMouse.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
     };

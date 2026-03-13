@@ -60,7 +60,7 @@ export default function AnimatedNumber({ value }: AnimatedNumberProps) {
   }, [hasStarted, numericValue]);
 
   return (
-    <span ref={elementRef}>
+    <span ref={elementRef} className="tabular-nums">
       {displayValue.toLocaleString()}{suffix}
     </span>
   );

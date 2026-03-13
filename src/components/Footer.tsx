@@ -32,14 +32,6 @@ export default function Footer() {
     email: branding?.emailAddress ? `mailto:${branding.emailAddress}` : "mailto:support@financeschool.in"
   };
 
-  const workshopFormUrl = "https://thefinschool.nurturecrm.in/publicwebform/0dd471d0-33bc-4a23-a83f-7881c4577842";
-
-  const handleSocialClick = (url: string) => {
-    if (url && url !== "#") {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    }
-  };
-
   return (
     <footer className="bg-primary text-white pt-24 pb-12 px-6">
       <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 mb-16">
@@ -62,60 +54,23 @@ export default function Footer() {
             An Edu-Tech initiative focused on building financial awareness, leadership skills, and real-life readiness among children.
           </p>
           <div className="flex flex-wrap gap-4">
-            <button 
-              onClick={() => handleSocialClick(socialLinks.whatsapp)}
-              className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" 
-              title="WhatsApp"
-            >
-              <MessageCircle className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={() => handleSocialClick(socialLinks.facebook)}
-              className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" 
-              title="Facebook"
-            >
-              <Facebook className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={() => handleSocialClick(socialLinks.instagram)}
-              className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" 
-              title="Instagram"
-            >
-              <Instagram className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={() => handleSocialClick(socialLinks.youtube)}
-              className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" 
-              title="YouTube"
-            >
-              <Youtube className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={() => handleSocialClick(socialLinks.email)}
-              className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5" 
-              title="Email"
-            >
-              <Mail className="w-5 h-5" />
-            </button>
+            <button onClick={() => window.open(socialLinks.whatsapp, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><MessageCircle className="w-5 h-5" /></button>
+            <button onClick={() => window.open(socialLinks.facebook, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><Facebook className="w-5 h-5" /></button>
+            <button onClick={() => window.open(socialLinks.instagram, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><Instagram className="w-5 h-5" /></button>
+            <button onClick={() => window.open(socialLinks.youtube, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><Youtube className="w-5 h-5" /></button>
+            <button onClick={() => window.open(socialLinks.email, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><Mail className="w-5 h-5" /></button>
           </div>
 
-          {/* Mobile App Quick Links */}
           {branding?.showAppDownload && (
             <div className="mt-8 flex gap-4">
               {branding?.playStoreUrl && (
-                <button 
-                  onClick={() => window.open(branding.playStoreUrl, '_blank')}
-                  className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
-                >
+                <button onClick={() => window.open(branding.playStoreUrl, '_blank')} className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors">
                   <Smartphone className="w-4 h-4 text-accent" />
                   <span className="text-xs font-bold">Android App</span>
                 </button>
               )}
               {branding?.appStoreUrl && (
-                <button 
-                  onClick={() => window.open(branding.appStoreUrl, '_blank')}
-                  className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors"
-                >
+                <button onClick={() => window.open(branding.appStoreUrl, '_blank')} className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors">
                   <Apple className="w-4 h-4 text-white" />
                   <span className="text-xs font-bold">iOS App</span>
                 </button>
@@ -127,26 +82,17 @@ export default function Footer() {
         <div>
           <h4 className="font-headline font-bold mb-6">Our Programs</h4>
           <ul className="space-y-4 text-slate-400">
-            <li className="hover:text-accent cursor-pointer">Finance for Life</li>
-            <li className="hover:text-accent cursor-pointer">Rise and Lead</li>
-            <li className="hover:text-accent cursor-pointer">Little CEO (Premium)</li>
-            <li>
-              <Link 
-                href={`/register?url=${encodeURIComponent(workshopFormUrl)}`}
-                className="hover:text-accent cursor-pointer flex items-center gap-2"
-              >
-                Offline Workshops <ExternalLink className="w-3 h-3" />
-              </Link>
-            </li>
+            <li>Finance for Life</li>
+            <li>Rise and Lead</li>
+            <li>Little CEO (Premium)</li>
           </ul>
         </div>
 
         <div>
           <h4 className="font-headline font-bold mb-6">Support</h4>
           <ul className="space-y-4 text-slate-400">
-            <li className="hover:text-accent cursor-pointer">Mentor WhatsApp</li>
-            <li className="hover:text-accent cursor-pointer">Doubt Clearing</li>
-            <li className="hover:text-accent cursor-pointer">Recorded Sessions</li>
+            <li>Mentor WhatsApp</li>
+            <li>Doubt Clearing</li>
             <li>
               <Link href="/login" className="flex items-center gap-2 hover:text-accent cursor-pointer text-white/50 text-xs font-bold uppercase tracking-widest mt-4">
                 <ShieldCheck className="w-4 h-4" /> Staff Portal
@@ -156,13 +102,8 @@ export default function Footer() {
         </div>
       </div>
       
-      <div className="max-w-7xl mx-auto pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+      <div className="max-w-7xl mx-auto pt-8 border-t border-white/10 flex justify-between items-center text-sm text-slate-500">
         <p>© 2026 {appName}. Building tomorrow's entrepreneurs.</p>
-        <div className="flex gap-8">
-          <span className="flex items-center gap-2">
-            <Mail className="w-4 h-4" /> {branding?.emailAddress || "support@financeschool.in"}
-          </span>
-        </div>
       </div>
     </footer>
   );

@@ -42,7 +42,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 
-// Lazy load the heavy 3D engine to improve PageSpeed Scores
+// Lazy load the heavy 3D engine
 const ThreeHero = dynamic(() => import('@/components/ThreeHero'), {
   ssr: false,
   loading: () => <div className="absolute inset-0 bg-background" />
@@ -110,25 +110,6 @@ export default function Home() {
             </Link>
           </div>
         </div>
-
-        {/* Floating Interactive Icons */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden xl:block">
-           <FinanceIcon3D 
-            icon={Globe} 
-            className="absolute top-1/4 left-20 animate-float" 
-            style={{ animationDuration: '7s' }}
-           />
-           <FinanceIcon3D 
-            icon={Layers} 
-            className="absolute bottom-1/3 right-24 animate-float" 
-            style={{ animationDuration: '9s', animationDelay: '1s' }} 
-           />
-           <FinanceIcon3D 
-            icon={Shield} 
-            className="absolute top-1/3 right-1/4 animate-float" 
-            style={{ animationDuration: '8s', animationDelay: '2s' }} 
-           />
-        </div>
       </section>
 
       {/* Impact Stats Section */}
@@ -139,7 +120,6 @@ export default function Home() {
           <div className="relative p-8 md:p-12 lg:p-16 rounded-[3rem] bg-white finance-3d-shadow overflow-hidden group border border-slate-50 flex flex-col items-center">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 pointer-events-none" />
             
-            {/* India's No.1 Badge */}
             {branding?.showNo1Badge && (
               <div className="relative z-10 inline-flex items-center gap-3 px-8 py-3 rounded-full bg-gradient-to-r from-yellow-400 via-amber-200 to-yellow-500 border-2 border-white/50 finance-3d-shadow mb-12 transition-all hover:scale-110 cursor-default group animate-bounce">
                 <Trophy className="w-6 h-6 text-primary fill-primary animate-pulse" />
@@ -168,14 +148,11 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            
-            <div className="absolute -top-10 -left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
-            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-accent/10 rounded-full blur-3xl" />
           </div>
         )}
       </section>
 
-      {/* Vision & Mission Section */}
+      {/* Vision & Mission */}
       <section id="vision" className="max-w-7xl mx-auto px-4 md:px-6 py-12 scroll-mt-32">
         <div className="grid lg:grid-cols-2 gap-10 md:gap-16">
           <Card className="p-8 md:p-12 border-none bg-white finance-3d-shadow rounded-[2.5rem] md:rounded-[3rem] relative overflow-hidden group">
@@ -185,12 +162,9 @@ export default function Home() {
               </div>
               <h2 className="text-3xl md:text-4xl font-headline font-bold text-primary">Building a <span className="text-accent">Secure Future</span></h2>
               <p className="text-base md:text-xl text-muted-foreground leading-relaxed">
-                To build a financially literate and economically independent generation capable of
-                making informed, responsible, and confident financial decisions for a secure and
-                fulfilling life.
+                To build a financially literate and economically independent generation capable of making informed, responsible, and confident financial decisions for a secure and fulfilling life.
               </p>
             </div>
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-accent/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700" />
           </Card>
 
           <Card className="p-8 md:p-12 border-none bg-primary text-white rounded-[2.5rem] md:rounded-[3rem] finance-3d-shadow relative overflow-hidden">
@@ -213,12 +187,11 @@ export default function Home() {
                 ))}
               </ul>
             </div>
-            <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
           </Card>
         </div>
       </section>
 
-      {/* Demo Class Section - Persistent Placeholder to prevent jump */}
+      {/* Demo Class Section */}
       <section id="demo" className="max-w-7xl mx-auto px-4 md:px-6 py-12 scroll-mt-32 min-h-[500px]">
         {isDemoLoading ? (
           <Skeleton className="w-full h-[500px] rounded-[2.5rem] md:rounded-[4rem] finance-3d-shadow" />
@@ -253,28 +226,22 @@ export default function Home() {
                       <PlayCircle className="w-10 h-10 fill-primary" />
                     </div>
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-accent/20" />
                 </div>
               </Link>
             </div>
-            {/* Background Orbs */}
-            <div className="absolute -top-24 -right-24 w-96 h-96 bg-accent/10 rounded-full blur-[100px]" />
-            <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-primary/10 rounded-full blur-[100px]" />
           </Card>
-        ) : (
-          <div className="h-0" /> // No extra gap if inactive
-        )}
+        ) : null}
       </section>
 
-      {/* Main Content Area */}
-      <div className="relative z-10 space-y-4 pb-12 px-2 md:px-0">
+      {/* Dynamic Content Sections */}
+      <div className="space-y-4 pb-12">
         <div id="courses" className="bg-white/40 backdrop-blur-sm rounded-[2.5rem] md:rounded-[4rem] mx-2 md:mx-4 py-8 md:py-12 finance-3d-shadow-inner border border-white/20 scroll-mt-32 min-h-[850px]">
           <CourseCatalog />
         </div>
 
         <div id="memories" className="space-y-6 scroll-mt-32 min-h-[700px]">
           <ShowcaseSlideshow />
-          <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-5 duration-700 px-6">
+          <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 px-6">
             <Link href="/gallery" className="w-full md:w-auto">
               <Button className="h-14 md:h-16 px-8 rounded-2xl bg-primary text-white font-bold text-sm md:text-lg finance-3d-shadow hover:scale-105 transition-transform flex items-center gap-3 w-full border-none">
                 See More Memories <ArrowRight className="w-5 h-5" />
@@ -301,10 +268,6 @@ export default function Home() {
           <ReviewsSection />
         </div>
 
-        <div id="workshops" className="scroll-mt-32 min-h-[400px]">
-          <WorkshopInvitation />
-        </div>
-
         {/* App Download Section */}
         {!isBrandingLoading && branding?.showAppDownload && (
           <section id="download" className="max-w-7xl mx-auto px-4 md:px-6 py-12 animate-in fade-in slide-in-from-bottom-10 duration-1000">
@@ -317,14 +280,11 @@ export default function Home() {
                   Access Wealth on <br />
                   <span className="text-accent italic drop-shadow-sm">The Go</span>
                 </h2>
-                <p className="text-base md:text-2xl text-primary-foreground/80 max-w-3xl mx-auto leading-relaxed font-medium">
-                  Take the academy with you. Download our official app for a seamless learning experience across all your devices.
-                </p>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8">
                   {branding?.playStoreUrl && (
                     <Button 
                       onClick={() => window.open(branding.playStoreUrl, '_blank')}
-                      className="h-16 md:h-20 px-8 md:px-12 rounded-2xl bg-white text-primary font-bold text-lg md:text-xl finance-3d-shadow hover:scale-105 active:scale-95 transition-all flex items-center gap-4 group/play shadow-[0_20px_40px_rgba(0,0,0,0.2)] border-none"
+                      className="h-16 md:h-20 px-8 md:px-12 rounded-2xl bg-white text-primary font-bold text-lg md:text-xl finance-3d-shadow hover:scale-105 transition-all flex items-center gap-4 group/play shadow-[0_20px_40px_rgba(0,0,0,0.2)] border-none"
                     >
                       <Smartphone className="w-6 h-6 md:w-8 group-hover/play:rotate-12 transition-transform" /> 
                       Google Play
@@ -333,7 +293,7 @@ export default function Home() {
                   {branding?.appStoreUrl && (
                     <Button 
                       onClick={() => window.open(branding.appStoreUrl, '_blank')}
-                      className="h-16 md:h-20 px-8 md:px-12 rounded-2xl bg-white text-primary font-bold text-lg md:text-xl finance-3d-shadow hover:scale-105 active:scale-95 transition-all flex items-center gap-4 group/apple shadow-[0_20px_40px_rgba(0,0,0,0.2)] border-none"
+                      className="h-16 md:h-20 px-8 md:px-12 rounded-2xl bg-white text-primary font-bold text-lg md:text-xl finance-3d-shadow hover:scale-105 transition-all flex items-center gap-4 group/apple shadow-[0_20px_40px_rgba(0,0,0,0.2)] border-none"
                     >
                       <Apple className="w-6 h-6 md:w-8 group-hover/apple:-rotate-12 transition-transform" /> 
                       App Store
@@ -341,53 +301,23 @@ export default function Home() {
                   )}
                 </div>
               </div>
-              <div className="absolute top-0 right-0 w-64 md:w-[500px] h-64 md:h-[500px] bg-white/5 rounded-full blur-[100px] -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-1000" />
-              <div className="absolute bottom-0 left-0 w-64 md:w-[500px] h-64 md:h-[500px] bg-accent/10 rounded-full blur-[100px] -ml-20 -mb-20 group-hover:scale-125 transition-transform duration-1000" />
             </Card>
           </section>
         )}
 
-        {/* Attend Quiz CTA */}
-        <section id="quiz-cta" className="max-w-7xl mx-auto px-4 md:px-6 py-8 scroll-mt-32 animate-in fade-in slide-in-from-bottom-10 duration-1000 min-h-[400px]">
-          <Card className="p-8 py-12 md:p-24 border-none bg-gradient-to-br from-white via-slate-50 to-accent/5 finance-3d-shadow rounded-[2.5rem] md:rounded-[4rem] text-center relative overflow-hidden group">
-             <div className="relative z-10 space-y-8 md:space-y-12">
-               <div className="inline-flex items-center gap-3 px-6 md:px-8 py-2 md:py-3 rounded-full bg-accent/10 text-primary text-[10px] md:text-sm font-bold uppercase tracking-widest finance-3d-shadow-inner border border-accent/20">
-                 <Trophy className="w-4 h-4 md:w-6 md:h-6 text-accent animate-bounce" /> Skill Assessment
-               </div>
-               <h2 className="text-3xl md:text-5xl lg:text-8xl font-headline font-bold text-primary tracking-tighter leading-tight md:leading-[0.9]">
-                 Ready to Test Your <br />
-                 <span className="text-accent italic drop-shadow-sm">Financial IQ?</span>
-               </h2>
-               <p className="text-base md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
-                 Put your knowledge to the ultimate test! Join our elite interactive quiz platform to unlock your full potential.
-               </p>
-               <div className="pt-4 md:pt-8">
-                 <Link href="/quiz">
-                   <Button className="h-16 md:h-20 lg:h-24 px-8 md:px-12 lg:px-20 rounded-2xl lg:rounded-[2rem] bg-primary text-white font-bold text-lg md:text-xl lg:text-4xl finance-3d-shadow hover:scale-105 active:scale-95 transition-all flex items-center gap-4 md:gap-8 mx-auto group shadow-[0_20px_40px_rgba(79,70,229,0.3)] border-none">
-                     <GraduationCap className="w-6 h-6 md:w-10 lg:w-14 lg:h-14 group-hover:rotate-12 transition-transform" /> 
-                     Attend Quiz 
-                     <ArrowRight className="w-5 h-5 md:w-8 lg:w-10 lg:h-10 group-hover:translate-x-3 transition-transform" />
-                   </Button>
-                 </Link>
-               </div>
-             </div>
-             <div className="absolute top-0 right-0 w-64 md:w-[500px] h-64 md:h-[500px] bg-accent/10 rounded-full blur-[100px] -mr-20 -mt-20 group-hover:scale-125 transition-transform duration-1000" />
-             <div className="absolute bottom-0 left-0 w-64 md:w-[500px] h-64 md:h-[500px] bg-primary/10 rounded-full blur-[100px] -ml-20 -mb-20 group-hover:scale-125 transition-transform duration-1000" />
-          </Card>
-        </section>
+        <div id="workshops" className="scroll-mt-32 min-h-[400px]">
+          <WorkshopInvitation />
+        </div>
 
         <ConnectWithUs />
 
         <section id="structure" className="max-w-7xl mx-auto px-4 md:px-6 pt-4 pb-12 scroll-mt-32 min-h-[400px]">
           <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
             <div className="space-y-8">
-              <div className="space-y-4">
-                <h2 className="text-3xl md:text-5xl font-headline font-bold text-primary">Course Structure & <span className="text-accent">Support</span></h2>
-                <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                  Our programs consist of live interaction and pre recorded videos only no practical workshop is included in courses.
-                </p>
-              </div>
-
+              <h2 className="text-3xl md:text-5xl font-headline font-bold text-primary">Course Structure & <span className="text-accent">Support</span></h2>
+              <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
+                Our programs consist of live interaction and pre recorded videos only no practical workshop is included in courses.
+              </p>
               <div className="grid gap-6">
                 {[
                   { icon: Clock, title: "4-9 Month Journey", desc: "Comprehensive curriculum that can be fast-tracked for accelerated learners.", color: "bg-primary/10" },
@@ -421,7 +351,6 @@ export default function Home() {
                     ))}
                   </div>
                </div>
-               <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
             </Card>
           </div>
         </section>
