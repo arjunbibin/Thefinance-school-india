@@ -4,10 +4,9 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, PlayCircle, Award, Users, Briefcase, BookOpen, ShoppingCart, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Star, PlayCircle, Award, Users, Briefcase, BookOpen, GraduationCap, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/app/lib/placeholder-images';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
@@ -24,7 +23,7 @@ export default function CourseCatalog() {
   const coursesQuery = useMemoFirebase(() => query(collection(db, 'courses'), orderBy('order', 'asc')), [db]);
   const { data: remoteCourses, isLoading } = useCollection(coursesQuery);
 
-  const handleBuyNow = (link: string) => {
+  const handleEnrollNow = (link: string) => {
     if (link) {
       router.push(`/register?url=${encodeURIComponent(link)}`);
     }
@@ -74,10 +73,10 @@ export default function CourseCatalog() {
               </CardContent>
               <CardFooter className="pt-0 pb-8 px-6">
                 <Button 
-                  onClick={() => handleBuyNow(course.buyLink)}
+                  onClick={() => handleEnrollNow(course.buyLink)}
                   className="w-full h-12 bg-primary text-white font-bold rounded-xl shadow-lg hover:scale-[1.02] transition-all flex items-center justify-center gap-2"
                 >
-                  <ShoppingCart className="w-5 h-5" /> Buy Now <ArrowRight className="w-4 h-4" />
+                  <GraduationCap className="w-5 h-5" /> Enroll Now <ArrowRight className="w-4 h-4" />
                 </Button>
               </CardFooter>
             </Card>
