@@ -11,7 +11,6 @@ import VideoShowcase from '@/components/sections/VideoShowcase';
 import WorkshopInvitation from '@/components/sections/WorkshopInvitation';
 import ConnectWithUs from '@/components/sections/ConnectWithUs';
 import Footer from '@/components/Footer';
-import FinanceIcon3D from '@/components/FinanceIcon3D';
 import AnimatedNumber from '@/components/AnimatedNumber';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,7 +21,6 @@ import { doc } from 'firebase/firestore';
 import { 
   Globe, 
   Layers, 
-  Shield, 
   Zap, 
   Clock, 
   Calendar, 

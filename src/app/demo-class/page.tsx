@@ -7,9 +7,8 @@ import Link from 'next/link';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { PlayCircle, ThumbsUp, ThumbsDown, ChevronLeft, BookOpen, MessageSquare } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, ChevronLeft, BookOpen, MessageSquare } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function DemoClassPage() {
@@ -85,10 +84,14 @@ export default function DemoClassPage() {
               <h3 className="text-3xl font-headline font-bold">Ready to start your journey?</h3>
               <div className="space-y-4">
                 <Link href="/#courses" className="block">
-                  <Button className="w-full h-16 rounded-2xl bg-accent text-primary font-bold text-xl shadow-xl hover:scale-105 transition-transform"><ThumbsUp className="w-6 h-6 mr-2" /> I am Interested</Button>
+                  <Button className="w-full h-16 rounded-2xl bg-accent text-primary font-bold text-xl shadow-xl hover:scale-105 transition-transform flex items-center justify-center gap-3">
+                    <ThumbsUp className="w-6 h-6" /> I am Interested
+                  </Button>
                 </Link>
                 <Link href="/#testimonials" className="block">
-                  <Button variant="outline" className="w-full h-16 rounded-2xl border-white/30 bg-white/10 text-white font-bold text-xl hover:bg-white/20 transition-all"><ThumbsDown className="w-6 h-6 mr-2" /> Not Interested</Button>
+                  <Button variant="outline" className="w-full h-16 rounded-2xl border-white/30 bg-white/10 text-white font-bold text-xl hover:bg-white/20 transition-all flex items-center justify-center gap-3">
+                    <ThumbsDown className="w-6 h-6" /> Not Interested
+                  </Button>
                 </Link>
               </div>
             </Card>

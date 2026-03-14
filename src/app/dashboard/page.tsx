@@ -9,21 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { 
   useUser, 
   useFirestore, 
@@ -44,43 +32,26 @@ import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { 
   LogOut, 
   ShieldAlert, 
-  Users, 
   Trash2, 
   Upload, 
-  BookOpen, 
-  XCircle, 
-  UserSquare, 
-  Video, 
-  Play, 
-  Edit2,
   Settings,
-  ImageIcon,
   Globe,
-  Layout,
-  Clapperboard,
   Mail,
   Facebook,
   Instagram,
   Youtube,
   MessageCircle,
-  PlusCircle,
-  RotateCcw,
   GraduationCap,
-  Star,
-  Quote,
-  Briefcase,
-  Crown,
   Trophy,
-  Activity,
   School,
   MessageSquare,
   Presentation,
-  Link2,
+  Play,
+  Activity,
   Smartphone,
   Apple
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import Image from 'next/image';
 
 export default function Dashboard() {
   const { user, isUserLoading } = useUser();
@@ -114,27 +85,6 @@ export default function Dashboard() {
     }
   }, [user, isUserLoading, router, profile, isProfileLoading, toast]);
 
-  const slidesQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'slides'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
-  const { data: slides } = useCollection(slidesQuery);
-
-  const galleryQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'gallery'), orderBy('createdAt', 'desc')) : null, [db, isAuthorized]);
-  const { data: galleryItems } = useCollection(galleryQuery);
-
-  const coursesQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'courses'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
-  const { data: courses } = useCollection(coursesQuery);
-
-  const teamQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'team'), orderBy('createdAt', 'desc')) : null, [db, isAuthorized]);
-  const { data: teamMembers } = useCollection(teamQuery);
-
-  const videoQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'videos'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
-  const { data: videoGallery } = useCollection(videoQuery);
-
-  const testimonialVideosQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'testimonialVideos'), orderBy('order', 'asc')) : null, [db, isAuthorized]);
-  const { data: testimonialVideoGallery } = useCollection(testimonialVideosQuery);
-
-  const reviewsQuery = useMemoFirebase(() => isAuthorized ? query(collection(db, 'reviews'), orderBy('createdAt', 'desc')) : null, [db, isAuthorized]);
-  const { data: reviews } = useCollection(reviewsQuery);
-
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
 
@@ -167,14 +117,6 @@ export default function Dashboard() {
       });
     }
   }, [demoClass]);
-
-  const uniqueCategories = useMemo(() => {
-    const cats = new Set(['Foundational', 'Leadership', 'Premium']);
-    courses?.forEach(c => {
-      if (c.category) cats.add(c.category);
-    });
-    return Array.from(cats);
-  }, [courses]);
 
   const [brandingForm, setBrandingForm] = useState({ 
     appName: '', 
@@ -218,26 +160,8 @@ export default function Dashboard() {
     }
   }, [branding]);
 
-  const [courseForm, setCourseForm] = useState({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
-  const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
-  const [isCustomCategory, setIsCustomCategory] = useState(false);
-  const [customCategoryInput, setCustomCategoryInput] = useState('');
-
-  const [teamForm, setTeamForm] = useState({ id: '', name: '', role: '', bio: '', imageUrl: '', leadershipType: 'team', order: 0 });
-  const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
-
-  const [reviewForm, setReviewForm] = useState({ id: '', userName: '', userPhoto: '', designation: 'Student', content: '', rating: 5 });
-  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
-
-  const [newSlide, setNewSlide] = useState({ title: '', description: '', imageUrl: '', order: 0 });
-  const [newGalleryImg, setNewGalleryImg] = useState({ description: '', imageUrl: '' });
-  const [newVideo, setNewVideo] = useState({ title: '', videoUrl: '', order: 0, isYoutube: false });
-  const [newTestimonialVideo, setNewTestimonialVideo] = useState({ title: '', videoUrl: '', order: 0, isYoutube: false });
-  
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({});
-
-  const [itemToDelete, setItemToDelete] = useState<{ path: string; id: string } | null>(null);
 
   const handleLogout = async () => {
     localStorage.removeItem('activeSessionId');
@@ -248,26 +172,11 @@ export default function Dashboard() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const file = e.target.files?.[0];
     if (file) {
-      if ((type === 'video' || type === 'testimonialVideo' || type === 'slide' || type === 'demo-video') && file.type.startsWith('video/') && file.size > 50 * 1024 * 1024) {
+      if ((type === 'demo-video') && file.type.startsWith('video/') && file.size > 50 * 1024 * 1024) {
         toast({ variant: "destructive", title: "File Too Large", description: "Videos are limited to 50MB." });
         return;
       }
-      if (file.type.startsWith('image/') && file.size > 5 * 1024 * 1024) {
-        toast({ variant: "destructive", title: "File Too Large", description: "Images must be smaller than 5MB." });
-        return;
-      }
-
       setSelectedFiles(prev => ({ ...prev, [type]: file }));
-      
-      const previewUrl = URL.createObjectURL(file);
-      if (type === 'slide') setNewSlide(prev => ({ ...prev, imageUrl: previewUrl }));
-      else if (type === 'gallery') setNewGalleryImg(prev => ({ ...prev, imageUrl: previewUrl }));
-      else if (type === 'course') setCourseForm(prev => ({ ...prev, imageUrl: previewUrl }));
-      else if (type === 'team') setTeamForm(prev => ({ ...prev, imageUrl: previewUrl }));
-      else if (type === 'review') setReviewForm(prev => ({ ...prev, userPhoto: previewUrl }));
-      else if (type === 'video') setNewVideo(prev => ({ ...prev, videoUrl: previewUrl, isYoutube: false }));
-      else if (type === 'testimonialVideo') setNewTestimonialVideo(prev => ({ ...prev, videoUrl: previewUrl, isYoutube: false }));
-      else if (type === 'demo-video') setDemoClassForm(prev => ({ ...prev, videoUrl: previewUrl, isYoutube: false }));
     }
   };
 
@@ -330,177 +239,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleSaveCourse = async (e: React.FormEvent) => {
-    e.preventDefault();
-    let finalImageUrl = courseForm.imageUrl;
-    const finalCategory = isCustomCategory ? customCategoryInput : courseForm.category;
-
-    if (!finalCategory) {
-      toast({ variant: "destructive", title: "Category Required" });
-      return;
-    }
-
-    try {
-      if (selectedFiles['course']) finalImageUrl = await uploadFile(selectedFiles['course'], 'courses');
-      const highlightsArray = typeof courseForm.highlights === 'string' ? courseForm.highlights.split(',').map(h => h.trim()).filter(h => h !== '') : (courseForm.highlights || []);
-      const data = { 
-        title: courseForm.title, 
-        subtitle: courseForm.subtitle, 
-        description: courseForm.description, 
-        imageUrl: finalImageUrl, 
-        category: finalCategory, 
-        rating: Number(courseForm.rating), 
-        lessons: courseForm.lessons, 
-        highlights: highlightsArray, 
-        buyLink: courseForm.buyLink, 
-        order: Number(courseForm.order) 
-      };
-
-      if (editingCourseId) {
-        updateDocumentNonBlocking(doc(db, 'courses', editingCourseId), data);
-        toast({ title: "Course Updated" });
-      } else {
-        addDocumentNonBlocking(collection(db, 'courses'), { ...data, createdAt: serverTimestamp() });
-        toast({ title: "Course Added" });
-      }
-
-      setCourseForm({ id: '', title: '', subtitle: '', description: '', imageUrl: '', category: 'Foundational', rating: 5.0, lessons: '', highlights: '', buyLink: '', order: 0 });
-      setEditingCourseId(null);
-      setIsCustomCategory(false);
-      setCustomCategoryInput('');
-      setSelectedFiles(prev => ({ ...prev, course: null }));
-      setUploadProgress(null);
-    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
-  };
-
-  const handleSaveTeam = async (e: React.FormEvent) => {
-    e.preventDefault();
-    let finalImageUrl = teamForm.imageUrl;
-    try {
-      if (selectedFiles['team']) finalImageUrl = await uploadFile(selectedFiles['team'], 'team');
-      const data = { 
-        name: teamForm.name, 
-        role: teamForm.role, 
-        bio: teamForm.bio, 
-        imageUrl: finalImageUrl, 
-        leadershipType: teamForm.leadershipType, 
-        order: Number(teamForm.order) 
-      };
-      if (editingMemberId) {
-        updateDocumentNonBlocking(doc(db, 'team', editingMemberId), data);
-        toast({ title: "Team Member Updated" });
-      } else {
-        addDocumentNonBlocking(collection(db, 'team'), { ...data, createdAt: serverTimestamp() });
-        toast({ title: "Team Member Added" });
-      }
-      setTeamForm({ id: '', name: '', role: '', bio: '', imageUrl: '', leadershipType: 'team', order: 0 });
-      setEditingMemberId(null);
-      setSelectedFiles(prev => ({ ...prev, team: null }));
-      setUploadProgress(null);
-    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
-  };
-
-  const handleSaveReview = async (e: React.FormEvent) => {
-    e.preventDefault();
-    let finalImageUrl = reviewForm.userPhoto;
-    try {
-      if (selectedFiles['review']) finalImageUrl = await uploadFile(selectedFiles['review'], 'reviews');
-      const data = { 
-        userName: reviewForm.userName, 
-        userPhoto: finalImageUrl, 
-        designation: reviewForm.designation,
-        content: reviewForm.content, 
-        rating: Number(reviewForm.rating) 
-      };
-      if (editingReviewId) {
-        updateDocumentNonBlocking(doc(db, 'reviews', editingReviewId), data);
-        toast({ title: "Testimonial Updated" });
-      } else {
-        addDocumentNonBlocking(collection(db, 'reviews'), { ...data, createdAt: serverTimestamp() });
-        toast({ title: "Testimonial Added" });
-      }
-      setReviewForm({ id: '', userName: '', userPhoto: '', designation: 'Student', content: '', rating: 5 });
-      setEditingReviewId(null);
-      setSelectedFiles(prev => ({ ...prev, review: null }));
-      setUploadProgress(null);
-    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
-  };
-
-  const handleSaveSlide = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedFiles['slide'] && !newSlide.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image or GIF/Video is required." });
-    try {
-      let finalImageUrl = newSlide.imageUrl;
-      if (selectedFiles['slide']) finalImageUrl = await uploadFile(selectedFiles['slide'], 'slides');
-      addDocumentNonBlocking(collection(db, 'slides'), { title: newSlide.title, description: newSlide.description, imageUrl: finalImageUrl, order: Number(newSlide.order), createdAt: serverTimestamp() });
-      toast({ title: "Slide Added Successfully" });
-      setNewSlide({ title: '', description: '', imageUrl: '', order: 0 });
-      setSelectedFiles(prev => ({ ...prev, slide: null }));
-      setUploadProgress(null);
-    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
-  };
-
-  const handleSaveGallery = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedFiles['gallery'] && !newGalleryImg.imageUrl) return toast({ variant: "destructive", title: "Required", description: "Image is required." });
-    try {
-      let finalImageUrl = newGalleryImg.imageUrl;
-      if (selectedFiles['gallery']) finalImageUrl = await uploadFile(selectedFiles['gallery'], 'gallery');
-      addDocumentNonBlocking(collection(db, 'gallery'), { description: newGalleryImg.description, imageUrl: finalImageUrl, createdAt: serverTimestamp() });
-      toast({ title: "Memory Image Added" });
-      setNewGalleryImg({ description: '', imageUrl: '' });
-      setSelectedFiles(prev => ({ ...prev, gallery: null }));
-      setUploadProgress(null);
-    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
-  };
-
-  const handleSaveVideo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newVideo.isYoutube && !selectedFiles['video']) return toast({ variant: "destructive", title: "Required", description: "Video file is required." });
-    try {
-      let finalUrl = newVideo.videoUrl;
-      if (!newVideo.isYoutube && selectedFiles['video']) finalUrl = await uploadFile(selectedFiles['video'], 'videos');
-      addDocumentNonBlocking(collection(db, 'videos'), { title: newVideo.title, videoUrl: finalUrl, order: Number(newVideo.order), createdAt: serverTimestamp() });
-      setUploadProgress(null);
-      setSelectedFiles(prev => ({ ...prev, video: null }));
-      setNewVideo({ title: '', videoUrl: '', order: 0, isYoutube: false });
-      toast({ title: "Showcase Video Published" });
-    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
-  };
-
-  const handleSaveTestimonialVideo = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTestimonialVideo.isYoutube && !selectedFiles['testimonialVideo']) return toast({ variant: "destructive", title: "Required", description: "Video file is required." });
-    try {
-      let finalUrl = newTestimonialVideo.videoUrl;
-      if (!newTestimonialVideo.isYoutube && selectedFiles['testimonialVideo']) finalUrl = await uploadFile(selectedFiles['testimonialVideo'], 'testimonialVideos');
-      addDocumentNonBlocking(collection(db, 'testimonialVideos'), { title: newTestimonialVideo.title, videoUrl: finalUrl, order: Number(newTestimonialVideo.order), createdAt: serverTimestamp() });
-      setUploadProgress(null);
-      setSelectedFiles(prev => ({ ...prev, testimonialVideo: null }));
-      setNewTestimonialVideo({ title: '', videoUrl: '', order: 0, isYoutube: false });
-      toast({ title: "Testimonial Video Published" });
-    } catch (err: any) { toast({ variant: "destructive", title: "Operation Failed", description: err.message }); }
-  };
-
-  const confirmDelete = () => {
-    if (!itemToDelete) return;
-    deleteDocumentNonBlocking(doc(db, itemToDelete.path, itemToDelete.id));
-    toast({ title: "Item Removed Successfully" });
-    setItemToDelete(null);
-  };
-
-  const isVideoUrl = (url: string) => {
-    if (!url) return false;
-    const lowerUrl = url.toLowerCase().split('?')[0];
-    return (
-      lowerUrl.endsWith('.mp4') || 
-      lowerUrl.endsWith('.webm') || 
-      lowerUrl.endsWith('.ogg') || 
-      lowerUrl.endsWith('.mov') ||
-      url.includes('contentType=video')
-    );
-  };
-
   if (isUserLoading || isProfileLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
   if (!isAuthorized) return null;
 
@@ -522,16 +260,10 @@ export default function Dashboard() {
           </TabsList>
 
           <TabsContent value="web-edit" className="space-y-12">
-            <Tabs defaultValue="testimonials-video" className="w-full">
+            <Tabs defaultValue="branding" className="w-full">
               <TabsList className="flex flex-wrap h-auto gap-2 bg-slate-100 p-2 rounded-[2rem] mb-10 overflow-x-auto shadow-inner">
-                <TabsTrigger value="testimonials-video" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Testimonial Videos</TabsTrigger>
-                <TabsTrigger value="reviews" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Text Testimonials</TabsTrigger>
-                <TabsTrigger value="videos" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Success Stories</TabsTrigger>
-                <TabsTrigger value="courses" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Academic Courses</TabsTrigger>
-                <TabsTrigger value="team" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Leadership Team</TabsTrigger>
-                <TabsTrigger value="assets" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Slides & Gallery</TabsTrigger>
-                <TabsTrigger value="demo-class" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Demo Class</TabsTrigger>
                 <TabsTrigger value="branding" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Configuration</TabsTrigger>
+                <TabsTrigger value="demo-class" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md">Demo Class</TabsTrigger>
               </TabsList>
 
               {uploadProgress !== null && (
@@ -621,7 +353,6 @@ export default function Dashboard() {
                 </Card>
               </TabsContent>
 
-              {/* ... Rest of the tabs content ... */}
               <TabsContent value="demo-class">
                 <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
                   <CardHeader className="bg-primary text-white p-10"><CardTitle className="text-2xl font-headline font-bold flex items-center gap-3"><Presentation className="w-6 h-6" /> Demo Class Management</CardTitle></CardHeader>
@@ -672,7 +403,7 @@ export default function Dashboard() {
                         <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 flex items-center justify-center relative aspect-video w-full finance-3d-shadow">
                           {demoClassForm.isYoutube && getYoutubeId(demoClassForm.videoUrl) ? (
                             <iframe src={`https://www.youtube.com/embed/${getYoutubeId(demoClassForm.videoUrl)}?rel=0&modestbranding=1&iv_load_policy=3&showinfo=0&controls=1`} className="w-full h-full" />
-                          ) : demoClassForm.videoUrl && isVideoUrl(demoClassForm.videoUrl) ? (
+                          ) : demoClassForm.videoUrl ? (
                             <video key={demoClassForm.videoUrl} src={demoClassForm.videoUrl} className="w-full h-full object-cover" controls />
                           ) : (
                             <div className="text-white/20 flex flex-col items-center gap-2"><Play className="w-12 h-12 opacity-20" /><p className="text-sm font-bold">No Content Loaded</p></div>
@@ -683,7 +414,6 @@ export default function Dashboard() {
                   </CardContent>
                 </Card>
               </TabsContent>
-              {/* ... */}
             </Tabs>
           </TabsContent>
         </Tabs>

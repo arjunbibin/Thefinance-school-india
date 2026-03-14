@@ -9,7 +9,6 @@ import {
   MessageCircle, 
   Mail, 
   ShieldCheck,
-  ExternalLink,
   Smartphone,
   Apple 
 } from 'lucide-react';
@@ -62,17 +61,17 @@ export default function Footer() {
           </div>
 
           {branding?.showAppDownload && (
-            <div className="mt-8 flex gap-4">
+            <div className="mt-8 flex flex-wrap gap-4">
               {branding?.playStoreUrl && (
                 <button onClick={() => window.open(branding.playStoreUrl, '_blank')} className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors">
                   <Smartphone className="w-4 h-4 text-accent" />
-                  <span className="text-xs font-bold">Android App</span>
+                  <span className="text-xs font-bold">Google Play</span>
                 </button>
               )}
               {branding?.appStoreUrl && (
                 <button onClick={() => window.open(branding.appStoreUrl, '_blank')} className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors">
                   <Apple className="w-4 h-4 text-white" />
-                  <span className="text-xs font-bold">iOS App</span>
+                  <span className="text-xs font-bold">App Store</span>
                 </button>
               )}
             </div>
