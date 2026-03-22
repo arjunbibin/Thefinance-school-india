@@ -21,9 +21,6 @@ import {
   useMemoFirebase, 
   useAuth, 
   useStorage, 
-  updateDocumentNonBlocking, 
-  addDocumentNonBlocking, 
-  deleteDocumentNonBlocking,
   setDocumentNonBlocking
 } from '@/firebase';
 import { doc, collection, query, orderBy, deleteDoc } from 'firebase/firestore';
@@ -36,7 +33,6 @@ import {
   Settings,
   GraduationCap,
   Trophy,
-  School,
   MessageSquare,
   Presentation,
   Play,
@@ -78,7 +74,7 @@ export default function Dashboard() {
       return;
     }
 
-    if (!isAuthorized) {
+    if (!isAuthorized && profile) {
       router.push('/');
       toast({ 
         variant: "destructive", 
