@@ -24,11 +24,9 @@ import {
   updateDocumentNonBlocking, 
   addDocumentNonBlocking, 
   deleteDocumentNonBlocking,
-  setDocumentNonBlocking,
-  errorEmitter,
-  FirestorePermissionError
+  setDocumentNonBlocking
 } from '@/firebase';
-import { doc, collection, query, orderBy, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { doc, collection, query, orderBy, deleteDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { 
   LogOut, 
@@ -36,12 +34,6 @@ import {
   Trash2, 
   Upload, 
   Settings,
-  Globe,
-  Mail,
-  Facebook,
-  Instagram,
-  Youtube,
-  MessageCircle,
   GraduationCap,
   Trophy,
   School,
@@ -50,13 +42,10 @@ import {
   Play,
   Activity,
   Smartphone,
-  Apple,
   Users,
   ImageIcon,
   Plus,
   Pencil,
-  Video,
-  Star,
   Quote
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -71,27 +60,31 @@ export default function Dashboard() {
   const { toast } = useToast();
   
   // Refs for file inputs
-  const slideFileInputRef = useRef<HTMLInputElement>(null);
-  const galleryFileInputRef = useRef<HTMLInputElement>(null);
-  const courseFileInputRef = useRef<HTMLInputElement>(null);
-  const teamFileInputRef = useRef<HTMLInputElement>(null);
-  const videoFileInputRef = useRef<HTMLInputElement>(null);
-  const testimonialVideoFileInputRef = useRef<HTMLInputElement>(null);
-  const reviewFileInputRef = useRef<HTMLInputElement>(null);
   const demoVideoFileInputRef = useRef<HTMLInputElement>(null);
   
   // Auth & Profile
   const profileRef = useMemoFirebase(() => user ? doc(db, 'userProfiles', user.uid) : null, [db, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
-  const isAuthorized = !!(user && profile && profile.role !== 'user');
+  
+  // Robust authorization check
+  const isAuthorized = !!(user && profile && (profile.role === 'admin' || profile.role === 'staff' || profile.role === 'ceo'));
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
+    // Only attempt redirect if we are sure loading is finished
+    if (isUserLoading || isProfileLoading) return;
+
+    if (!user) {
       router.push('/login');
+      return;
     }
-    if (!isProfileLoading && !isAuthorized && user) {
+
+    if (!isAuthorized) {
       router.push('/');
-      toast({ variant: "destructive", title: "Unauthorized", description: "Access restricted to staff." });
+      toast({ 
+        variant: "destructive", 
+        title: "Unauthorized", 
+        description: "Access restricted to staff. Role: " + (profile?.role || 'none') 
+      });
     }
   }, [user, isUserLoading, router, profile, isProfileLoading, isAuthorized, toast]);
 
@@ -110,9 +103,6 @@ export default function Dashboard() {
 
   const galleryQuery = useMemoFirebase(() => query(collection(db, 'gallery'), orderBy('createdAt', 'desc')), [db]);
   const { data: gallery } = useCollection(galleryQuery);
-
-  const slidesQuery = useMemoFirebase(() => query(collection(db, 'slides'), orderBy('order', 'asc')), [db]);
-  const { data: slides } = useCollection(slidesQuery);
 
   const reviewsQuery = useMemoFirebase(() => query(collection(db, 'reviews'), orderBy('createdAt', 'desc')), [db]);
   const { data: reviews } = useCollection(reviewsQuery);
@@ -146,7 +136,6 @@ export default function Dashboard() {
     });
   }, [demoClass]);
 
-  // Handlers
   const handleLogout = async () => {
     localStorage.removeItem('activeSessionId');
     await auth.signOut();
@@ -195,7 +184,6 @@ export default function Dashboard() {
     }
   };
 
-  // Generic Item Handlers (Simplified)
   const handleDeleteItem = async (col: string, id: string) => {
     if (confirm('Are you sure you want to delete this item?')) {
       try {
@@ -357,7 +345,13 @@ export default function Dashboard() {
                 <Card key={course.id} className="finance-3d-shadow border-none bg-white rounded-[2rem] overflow-hidden flex flex-col">
                    <div className="relative h-48 w-full"><Image src={course.imageUrl} alt={course.title} fill className="object-cover" /></div>
                    <div className="p-6 flex-grow space-y-3">
-                      <div className="flex justify-between items-start"><Badge>{course.category}</Badge><div className="flex gap-2"><Button size="icon" variant="ghost" className="h-8 w-8"><Pencil className="w-4 h-4" /></Button><Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => handleDeleteItem('courses', course.id)}><Trash2 className="w-4 h-4" /></Button></div></div>
+                      <div className="flex justify-between items-start">
+                        <Badge>{course.category}</Badge>
+                        <div className="flex gap-2">
+                          <Button size="icon" variant="ghost" className="h-8 w-8"><Pencil className="w-4 h-4" /></Button>
+                          <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => handleDeleteItem('courses', course.id)}><Trash2 className="w-4 h-4" /></Button>
+                        </div>
+                      </div>
                       <h4 className="font-bold text-xl">{course.title}</h4>
                       <p className="text-sm text-muted-foreground line-clamp-2">{course.description}</p>
                    </div>
@@ -389,7 +383,7 @@ export default function Dashboard() {
             <Tabs defaultValue="gallery">
               <TabsList className="bg-transparent gap-4 mb-6">
                 <TabsTrigger value="gallery" className="rounded-xl px-6 py-2">Gallery Images</TabsTrigger>
-                <TabsTrigger value="slides" className="rounded-xl px-6 py-2">Homepage Slides</TabsTrigger>
+                <TabsTrigger value="reviews" className="rounded-xl px-6 py-2">Reviews</TabsTrigger>
               </TabsList>
               <TabsContent value="gallery" className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 <Card className="aspect-square finance-3d-shadow border-none bg-white rounded-[2rem] flex items-center justify-center border-2 border-dashed cursor-pointer hover:border-primary transition-all">
@@ -402,15 +396,15 @@ export default function Dashboard() {
                   </Card>
                 ))}
               </TabsContent>
-              <TabsContent value="slides" className="space-y-6">
-                {slides?.map(slide => (
-                  <Card key={slide.id} className="finance-3d-shadow border-none bg-white rounded-[2rem] p-6 flex flex-col md:flex-row gap-6 items-center">
-                    <div className="relative h-32 w-64 rounded-xl overflow-hidden shrink-0"><Image src={slide.imageUrl} alt="Slide" fill className="object-cover" /></div>
+              <TabsContent value="reviews" className="space-y-6">
+                {reviews?.map(review => (
+                  <Card key={review.id} className="finance-3d-shadow border-none bg-white rounded-[2rem] p-6 flex flex-col md:flex-row gap-6 items-center">
+                    <div className="relative h-16 w-16 rounded-full overflow-hidden shrink-0"><Image src={review.userPhoto || 'https://picsum.photos/seed/user/100/100'} alt="User" fill className="object-cover" /></div>
                     <div className="flex-grow">
-                      <h4 className="font-bold">{slide.title}</h4>
-                      <p className="text-sm text-muted-foreground">{slide.description}</p>
+                      <h4 className="font-bold">{review.userName}</h4>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{review.content}</p>
                     </div>
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteItem('slides', slide.id)}><Trash2 className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteItem('reviews', review.id)}><Trash2 className="w-4 h-4" /></Button>
                   </Card>
                 ))}
               </TabsContent>
