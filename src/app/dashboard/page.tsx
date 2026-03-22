@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -62,8 +61,7 @@ import {
   Star,
   Crown,
   Video,
-  CheckCircle2,
-  Quote
+  ListChecks
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -131,7 +129,7 @@ export default function Dashboard() {
   // Forms
   const [brandingForm, setBrandingForm] = useState<any>({});
   const [demoClassForm, setDemoClassForm] = useState<any>({});
-  const [courseForm, setCourseForm] = useState({ title: '', subtitle: '', description: '', category: 'Foundational', lessons: '', rating: '5.0', buyLink: '', order: 0, imageUrl: '' });
+  const [courseForm, setCourseForm] = useState({ title: '', subtitle: '', description: '', highlights: '', category: 'Foundational', lessons: '', rating: '5.0', buyLink: '', order: 0, imageUrl: '' });
   const [teamForm, setTeamForm] = useState({ name: '', role: '', bio: '', leadershipType: 'team', imageUrl: '' });
   const [slideForm, setSlideForm] = useState({ title: '', description: '', order: 0, imageUrl: '' });
   const [galleryForm, setGalleryForm] = useState({ description: '', imageUrl: '' });
@@ -186,15 +184,26 @@ export default function Dashboard() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      const dataToSave = { ...form };
+      if (col === 'courses' && typeof dataToSave.highlights === 'string') {
+        dataToSave.highlights = dataToSave.highlights.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0);
+      }
+      
       if (editingItem) {
-        updateDocumentNonBlocking(doc(db, col, editingItem.id), form);
+        updateDocumentNonBlocking(doc(db, col, editingItem.id), dataToSave);
         toast({ title: "Updated successfully" });
       } else {
-        await addDocumentNonBlocking(collection(db, col), { ...form, createdAt: serverTimestamp() });
+        await addDocumentNonBlocking(collection(db, col), { ...dataToSave, createdAt: serverTimestamp() });
         toast({ title: "Added successfully" });
       }
-      setForm({});
       setEditingItem(null);
+      // Reset form to defaults
+      if (col === 'courses') setCourseForm({ title: '', subtitle: '', description: '', highlights: '', category: 'Foundational', lessons: '', rating: '5.0', buyLink: '', order: 0, imageUrl: '' });
+      if (col === 'team') setTeamForm({ name: '', role: '', bio: '', leadershipType: 'team', imageUrl: '' });
+      if (col === 'slides') setSlideForm({ title: '', description: '', order: 0, imageUrl: '' });
+      if (col === 'gallery') setGalleryForm({ description: '', imageUrl: '' });
+      if (col === 'testimonialVideos') setTestimonialForm({ title: '', videoUrl: '', order: 0 });
+      if (col === 'reviews') setReviewForm({ userName: '', userPhoto: '', designation: 'Student', rating: 5, content: '' });
     } finally { setIsSubmitting(false); }
   };
 
@@ -218,8 +227,8 @@ export default function Dashboard() {
       <main className="flex-grow pb-24 px-6 max-w-7xl mx-auto w-full pt-16">
         <div className="mb-12 flex items-center justify-between flex-wrap gap-6">
           <div>
-            <h1 className="text-4xl md:text-6xl font-headline font-bold text-primary tracking-tight">Staff <span className="text-accent">Portal</span></h1>
-            <p className="text-muted-foreground mt-2 flex items-center gap-2 font-medium"><ShieldAlert className="w-4 h-4 text-accent" /> Authorized: {profile?.firstName}</p>
+            <h1 className="text-4xl md:text-6xl font-headline font-bold text-primary tracking-tight">Staff <span className="text-accent">Portal</span> <span className="text-sm font-code text-slate-400">v1.6</span></h1>
+            <p className="text-muted-foreground mt-2 flex items-center gap-2 font-medium"><ShieldAlert className="w-4 h-4 text-accent" /> Authenticated: {profile?.firstName} ({profile?.role})</p>
           </div>
           <Button onClick={handleLogout} variant="outline" className="border-destructive/20 text-destructive font-bold h-12 rounded-xl bg-white finance-3d-shadow hover:bg-destructive hover:text-white transition-all"><LogOut className="w-4 h-4 mr-2" /> End Session</Button>
         </div>
@@ -326,7 +335,7 @@ export default function Dashboard() {
 
           <TabsContent value="courses">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <Dialog onOpenChange={(open) => { if(!open) { setEditingItem(null); setCourseForm({ title: '', subtitle: '', description: '', category: 'Foundational', lessons: '', rating: '5.0', buyLink: '', order: 0, imageUrl: '' }); } }}>
+              <Dialog onOpenChange={(open) => { if(!open) { setEditingItem(null); setCourseForm({ title: '', subtitle: '', description: '', highlights: '', category: 'Foundational', lessons: '', rating: '5.0', buyLink: '', order: 0, imageUrl: '' }); } }}>
                 <DialogTrigger asChild>
                   <Card className="finance-3d-shadow border-none bg-white rounded-[2rem] p-8 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 group hover:border-primary transition-colors cursor-pointer min-h-[400px]">
                     <Plus className="w-8 h-8 text-primary mb-4" />
@@ -356,6 +365,7 @@ export default function Dashboard() {
                        </div>
                     </div>
                     <div className="space-y-2 col-span-2"><Label>Buy/Enroll Link</Label><Input value={courseForm.buyLink} onChange={e => setCourseForm({...courseForm, buyLink: e.target.value})} placeholder="https://..." /></div>
+                    <div className="space-y-2 col-span-2"><Label>Key Topics (Comma separated)</Label><Input value={courseForm.highlights} onChange={e => setCourseForm({...courseForm, highlights: e.target.value})} placeholder="Budgeting, Stocks, Taxes..." /></div>
                     <div className="space-y-2 col-span-2"><Label>Description</Label><Textarea value={courseForm.description} onChange={e => setCourseForm({...courseForm, description: e.target.value})} /></div>
                     <DialogFooter className="col-span-2 pt-4"><Button type="submit" className="w-full" disabled={isSubmitting}>{editingItem ? 'Update Course' : 'Add Course'}</Button></DialogFooter>
                   </form>
@@ -366,7 +376,7 @@ export default function Dashboard() {
                    <div className="relative h-48 w-full">
                       <Image src={course.imageUrl} alt={course.title} fill className="object-cover" />
                       <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <Button size="icon" variant="secondary" className="h-10 w-10 rounded-xl" onClick={() => { setEditingItem(course); setCourseForm(course); document.querySelector('[data-state="closed"]')?.dispatchEvent(new Event('click')); }}><Pencil className="w-4 h-4" /></Button>
+                         <Button size="icon" variant="secondary" className="h-10 w-10 rounded-xl" onClick={() => { setEditingItem(course); setCourseForm({...course, highlights: Array.isArray(course.highlights) ? course.highlights.join(', ') : course.highlights}); }}><Pencil className="w-4 h-4" /></Button>
                          <Button size="icon" variant="destructive" className="h-10 w-10 rounded-xl" onClick={() => handleDeleteItem('courses', course.id)}><Trash2 className="w-4 h-4" /></Button>
                       </div>
                    </div>
