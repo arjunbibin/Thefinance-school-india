@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -20,7 +19,7 @@ const FALLBACK_TEAM = [
 
 export default function TeamPage() {
   const db = useFirestore();
-  const teamQuery = useMemoFirebase(() => query(collection(db, 'team'), orderBy('createdAt', 'desc')), [db]);
+  const teamQuery = useMemoFirebase(() => query(collection(db, 'team')), [db]);
   const { data: remoteTeam, isLoading } = useCollection(teamQuery);
 
   const sortedMembers = React.useMemo(() => {

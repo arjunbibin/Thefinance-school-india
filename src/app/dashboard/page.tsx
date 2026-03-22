@@ -66,7 +66,8 @@ import {
   Instagram,
   Youtube,
   Linkedin,
-  MessageCircle
+  MessageCircle,
+  Link as LinkIcon
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -342,7 +343,7 @@ export default function Dashboard() {
                   <div className="space-y-6">
                     <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border mb-6">
                       <Label className="font-bold text-primary flex items-center gap-2"><Activity className="w-4 h-4" /> Enable Demo Section</Label>
-                      <Switch checked={demoClassForm.isActive || false} onCheckedChange={v => setBrandingForm({...brandingForm, isActive: v})} />
+                      <Switch checked={demoClassForm.isActive || false} onCheckedChange={v => setDemoClassForm({...demoClassForm, isActive: v})} />
                     </div>
                     <div className="space-y-2"><Label>Display Title</Label><Input value={demoClassForm.title || ''} onChange={e => setDemoClassForm({...demoClassForm, title: e.target.value})} className="rounded-xl h-12" required /></div>
                     <div className="space-y-2">
