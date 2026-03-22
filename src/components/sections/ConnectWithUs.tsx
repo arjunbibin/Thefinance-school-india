@@ -9,7 +9,8 @@ import {
   Youtube, 
   MessageCircle, 
   Mail, 
-  Sparkles
+  Sparkles,
+  Linkedin
 } from 'lucide-react';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -46,6 +47,14 @@ export default function ConnectWithUs() {
       hoverGlow: 'group-hover/item:shadow-[0_0_30px_rgba(37,99,235,0.6)]',
     },
     { 
+      name: 'LinkedIn', 
+      icon: Linkedin, 
+      url: branding?.linkedinUrl, 
+      color: 'text-blue-700', 
+      bgColor: 'bg-blue-700/10',
+      hoverGlow: 'group-hover/item:shadow-[0_0_30px_rgba(29,78,216,0.6)]',
+    },
+    { 
       name: 'YouTube', 
       icon: Youtube, 
       url: branding?.youtubeUrl, 
@@ -53,18 +62,10 @@ export default function ConnectWithUs() {
       bgColor: 'bg-red-600/10',
       hoverGlow: 'group-hover/item:shadow-[0_0_30px_rgba(220,38,38,0.6)]',
     },
-    { 
-      name: 'Email', 
-      icon: Mail, 
-      url: branding?.emailAddress ? `mailto:${branding.emailAddress}` : null, 
-      color: 'text-primary', 
-      bgColor: 'bg-primary/10',
-      hoverGlow: 'group-hover/item:shadow-[0_0_30px_rgba(79,70,229,0.6)]',
-    },
   ];
 
   const handleOpen = (url: string | undefined | null) => {
-    if (url && url !== "#") {
+    if (url && url !== "#" && url.trim() !== "") {
       window.open(url, '_blank', 'noopener,noreferrer');
     }
   };
@@ -85,33 +86,36 @@ export default function ConnectWithUs() {
 
       <Card className="p-8 md:p-16 lg:p-20 border-none bg-white finance-3d-shadow rounded-[3rem] md:rounded-[4rem] relative overflow-hidden group">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-y-12 gap-x-6 md:gap-12 items-center justify-items-center relative z-10">
-          {socialLinks.map((social, index) => (
-            <div 
-              key={social.name}
-              onClick={() => handleOpen(social.url)}
-              className={cn(
-                "flex flex-col items-center gap-4 cursor-pointer transition-all duration-300 group/item animate-float",
-                !social.url && "opacity-30 grayscale cursor-not-allowed pointer-events-none"
-              )}
-              style={{ animationDelay: `${index * 0.4}s` }}
-            >
-              <div className={cn(
-                "p-6 md:p-10 rounded-[2rem] lg:rounded-[2.5rem] transition-all duration-500 group-hover/item:scale-115 group-hover/item:rotate-12 shadow-inner relative overflow-hidden",
-                social.bgColor,
-                social.color,
-                social.hoverGlow
-              )}>
-                <div className="absolute inset-0 bg-white/40 opacity-0 group-hover/item:opacity-30 transition-opacity" />
-                <social.icon className="w-10 h-10 md:w-16 md:h-16" strokeWidth={1.2} />
+          {socialLinks.map((social, index) => {
+            const isAvailable = social.url && social.url !== "#" && social.url.trim() !== "";
+            return (
+              <div 
+                key={social.name}
+                onClick={() => handleOpen(social.url)}
+                className={cn(
+                  "flex flex-col items-center gap-4 cursor-pointer transition-all duration-300 group/item animate-float",
+                  !isAvailable && "opacity-30 grayscale cursor-not-allowed pointer-events-none"
+                )}
+                style={{ animationDelay: `${index * 0.4}s` }}
+              >
+                <div className={cn(
+                  "p-6 md:p-10 rounded-[2rem] lg:rounded-[2.5rem] transition-all duration-500 group-hover/item:scale-115 group-hover/item:rotate-12 shadow-inner relative overflow-hidden",
+                  social.bgColor,
+                  social.color,
+                  social.hoverGlow
+                )}>
+                  <div className="absolute inset-0 bg-white/40 opacity-0 group-hover/item:opacity-30 transition-opacity" />
+                  <social.icon className="w-10 h-10 md:w-16 md:h-16" strokeWidth={1.2} />
+                </div>
+                <div className="text-center">
+                  <span className="font-headline font-bold text-primary text-sm md:text-xl block">{social.name}</span>
+                  <span className="text-[10px] text-accent font-bold uppercase tracking-[0.2em] opacity-0 group-hover/item:opacity-100 transition-all transform translate-y-2 group-hover/item:translate-y-0">
+                    Connect
+                  </span>
+                </div>
               </div>
-              <div className="text-center">
-                <span className="font-headline font-bold text-primary text-sm md:text-xl block">{social.name}</span>
-                <span className="text-[10px] text-accent font-bold uppercase tracking-[0.2em] opacity-0 group-hover/item:opacity-100 transition-all transform translate-y-2 group-hover/item:translate-y-0">
-                  Connect
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         
         {/* Dynamic Background Accents */}

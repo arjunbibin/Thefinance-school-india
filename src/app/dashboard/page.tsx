@@ -61,7 +61,12 @@ import {
   Star,
   Crown,
   Video,
-  ListChecks
+  ListChecks,
+  Facebook,
+  Instagram,
+  Youtube,
+  Linkedin,
+  MessageCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -197,7 +202,7 @@ export default function Dashboard() {
         toast({ title: "Added successfully" });
       }
       setEditingItem(null);
-      // Reset form to defaults
+      // Reset forms
       if (col === 'courses') setCourseForm({ title: '', subtitle: '', description: '', highlights: '', category: 'Foundational', lessons: '', rating: '5.0', buyLink: '', order: 0, imageUrl: '' });
       if (col === 'team') setTeamForm({ name: '', role: '', bio: '', leadershipType: 'team', imageUrl: '' });
       if (col === 'slides') setSlideForm({ title: '', description: '', order: 0, imageUrl: '' });
@@ -205,6 +210,19 @@ export default function Dashboard() {
       if (col === 'testimonialVideos') setTestimonialForm({ title: '', videoUrl: '', order: 0 });
       if (col === 'reviews') setReviewForm({ userName: '', userPhoto: '', designation: 'Student', rating: 5, content: '' });
     } finally { setIsSubmitting(false); }
+  };
+
+  const getYoutubeId = (url: string) => {
+    if (!url) return null;
+    const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[1].length === 11) ? match[1] : null;
+  };
+
+  const isVideoUrl = (url: string) => {
+    if (!url) return false;
+    const lowerUrl = url.toLowerCase().split('?')[0];
+    return lowerUrl.endsWith('.mp4') || lowerUrl.endsWith('.webm') || lowerUrl.endsWith('.mov') || lowerUrl.endsWith('.gif');
   };
 
   const sortedTeam = React.useMemo(() => {
@@ -276,8 +294,28 @@ export default function Dashboard() {
                   </div>
                   <div className="space-y-6">
                     <h3 className="font-headline font-bold text-xl text-primary border-b pb-2">Social & App Presence</h3>
-                    <div className="space-y-2"><Label>WhatsApp URL</Label><Input value={brandingForm.whatsappUrl || ''} onChange={e => setBrandingForm({...brandingForm, whatsappUrl: e.target.value})} className="rounded-xl h-12" /></div>
-                    <div className="space-y-2"><Label>YouTube URL</Label><Input value={brandingForm.youtubeUrl || ''} onChange={e => setBrandingForm({...brandingForm, youtubeUrl: e.target.value})} className="rounded-xl h-12" /></div>
+                    <div className="space-y-4 bg-slate-50 p-6 rounded-3xl border finance-3d-shadow-inner">
+                      <div className="space-y-2">
+                        <Label className="flex items-center gap-2"><MessageCircle className="w-4 h-4 text-green-500" /> WhatsApp URL</Label>
+                        <Input value={brandingForm.whatsappUrl || ''} onChange={e => setBrandingForm({...brandingForm, whatsappUrl: e.target.value})} className="rounded-xl h-12 bg-white" placeholder="https://wa.me/..." />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="flex items-center gap-2"><Instagram className="w-4 h-4 text-pink-500" /> Instagram URL</Label>
+                        <Input value={brandingForm.instagramUrl || ''} onChange={e => setBrandingForm({...brandingForm, instagramUrl: e.target.value})} className="rounded-xl h-12 bg-white" placeholder="https://instagram.com/..." />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="flex items-center gap-2"><Facebook className="w-4 h-4 text-blue-600" /> Facebook URL</Label>
+                        <Input value={brandingForm.facebookUrl || ''} onChange={e => setBrandingForm({...brandingForm, facebookUrl: e.target.value})} className="rounded-xl h-12 bg-white" placeholder="https://facebook.com/..." />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="flex items-center gap-2"><Youtube className="w-4 h-4 text-red-600" /> YouTube URL</Label>
+                        <Input value={brandingForm.youtubeUrl || ''} onChange={e => setBrandingForm({...brandingForm, youtubeUrl: e.target.value})} className="rounded-xl h-12 bg-white" placeholder="https://youtube.com/..." />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="flex items-center gap-2"><Linkedin className="w-4 h-4 text-blue-700" /> LinkedIn URL</Label>
+                        <Input value={brandingForm.linkedinUrl || ''} onChange={e => setBrandingForm({...brandingForm, linkedinUrl: e.target.value})} className="rounded-xl h-12 bg-white" placeholder="https://linkedin.com/..." />
+                      </div>
+                    </div>
                     <div className="space-y-2"><Label>Support Email</Label><Input value={brandingForm.emailAddress || ''} onChange={e => setBrandingForm({...brandingForm, emailAddress: e.target.value})} className="rounded-xl h-12" /></div>
                     <div className="p-6 rounded-3xl bg-slate-50 border space-y-4 mt-6">
                       <div className="flex items-center justify-between bg-white p-4 rounded-2xl border mb-2">
@@ -304,7 +342,7 @@ export default function Dashboard() {
                   <div className="space-y-6">
                     <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border mb-6">
                       <Label className="font-bold text-primary flex items-center gap-2"><Activity className="w-4 h-4" /> Enable Demo Section</Label>
-                      <Switch checked={demoClassForm.isActive || false} onCheckedChange={v => setDemoClassForm({...demoClassForm, isActive: v})} />
+                      <Switch checked={demoClassForm.isActive || false} onCheckedChange={v => setBrandingForm({...brandingForm, isActive: v})} />
                     </div>
                     <div className="space-y-2"><Label>Display Title</Label><Input value={demoClassForm.title || ''} onChange={e => setDemoClassForm({...demoClassForm, title: e.target.value})} className="rounded-xl h-12" required /></div>
                     <div className="space-y-2">
@@ -323,8 +361,8 @@ export default function Dashboard() {
                   <div className="space-y-4">
                     <Label className="font-bold">Video Preview</Label>
                     <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 aspect-video finance-3d-shadow relative">
-                       {demoClassForm.videoUrl?.includes('youtu') ? (
-                         <iframe src={`https://www.youtube.com/embed/${demoClassForm.videoUrl.split('v=')[1] || demoClassForm.videoUrl.split('/').pop()}`} className="w-full h-full" />
+                       {getYoutubeId(demoClassForm.videoUrl) ? (
+                         <iframe src={`https://www.youtube.com/embed/${getYoutubeId(demoClassForm.videoUrl)}`} className="w-full h-full" />
                        ) : demoClassForm.videoUrl ? <video src={demoClassForm.videoUrl} className="w-full h-full object-cover" controls /> : <div className="absolute inset-0 flex items-center justify-center text-white/20"><Play className="w-16 h-16" /></div>}
                     </div>
                   </div>
@@ -470,7 +508,7 @@ export default function Dashboard() {
                         <div className="space-y-2"><Label>Description</Label><Input value={slideForm.description} onChange={e => setSlideForm({...slideForm, description: e.target.value})} /></div>
                         <div className="space-y-2"><Label>Order</Label><Input type="number" value={slideForm.order} onChange={e => setSlideForm({...slideForm, order: parseInt(e.target.value)})} /></div>
                         <div className="space-y-2">
-                           <Label>Media URL / Upload (Image/Video)</Label>
+                           <Label>Media URL / Upload (Image/Video/GIF)</Label>
                            <div className="flex gap-2">
                               <Input value={slideForm.imageUrl} onChange={e => setSlideForm({...slideForm, imageUrl: e.target.value})} placeholder="https://..." />
                               <div className="relative">
@@ -483,18 +521,28 @@ export default function Dashboard() {
                       </form>
                     </DialogContent>
                   </Dialog>
-                  {slides?.map(slide => (
-                    <Card key={slide.id} className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden relative group aspect-video">
-                       {slide.imageUrl?.includes('video') || slide.imageUrl?.endsWith('.mp4') ? <video src={slide.imageUrl} className="w-full h-full object-cover" /> : <Image src={slide.imageUrl} alt="Slide" fill className="object-cover" />}
-                       <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                         <h4 className="text-white font-bold mb-2">{slide.title}</h4>
-                         <div className="flex gap-2">
-                            <Button size="sm" variant="secondary" onClick={() => { setEditingItem(slide); setSlideForm(slide); }}><Pencil className="w-4 h-4 mr-2" /> Edit</Button>
-                            <Button size="sm" variant="destructive" onClick={() => handleDeleteItem('slides', slide.id)}><Trash2 className="w-4 h-4 mr-2" /> Delete</Button>
+                  {slides?.map(slide => {
+                    const ytId = getYoutubeId(slide.imageUrl);
+                    const isVideo = isVideoUrl(slide.imageUrl);
+                    return (
+                      <Card key={slide.id} className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden relative group aspect-video">
+                         {ytId ? (
+                           <iframe src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full pointer-events-none" />
+                         ) : isVideo ? (
+                           <video src={slide.imageUrl} className="w-full h-full object-cover" muted loop autoPlay />
+                         ) : (
+                           <Image src={slide.imageUrl} alt="Slide" fill className="object-cover" />
+                         )}
+                         <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                           <h4 className="text-white font-bold mb-2 truncate">{slide.title}</h4>
+                           <div className="flex gap-2">
+                              <Button size="sm" variant="secondary" onClick={() => { setEditingItem(slide); setSlideForm(slide); }}><Pencil className="w-4 h-4 mr-2" /> Edit</Button>
+                              <Button size="sm" variant="destructive" onClick={() => handleDeleteItem('slides', slide.id)}><Trash2 className="w-4 h-4 mr-2" /> Delete</Button>
+                           </div>
                          </div>
-                       </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    );
+                  })}
                 </div>
               </TabsContent>
 
@@ -561,18 +609,30 @@ export default function Dashboard() {
                     </form>
                   </DialogContent>
                 </Dialog>
-                {testimonials?.map(item => (
-                  <Card key={item.id} className="aspect-[9/16] finance-3d-shadow border-none bg-slate-900 rounded-[2.5rem] overflow-hidden relative group">
-                    <div className="absolute inset-0 flex items-center justify-center"><Video className="w-12 h-12 text-white/10" /></div>
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-4">
-                       <p className="text-white font-bold text-center px-4">{item.title}</p>
-                       <div className="flex gap-2">
-                         <Button variant="secondary" size="sm" onClick={() => { setEditingItem(item); setTestimonialForm(item); }}><Pencil className="w-4 h-4" /></Button>
-                         <Button variant="destructive" size="sm" onClick={() => handleDeleteItem('testimonialVideos', item.id)}><Trash2 className="w-4 h-4" /></Button>
-                       </div>
-                    </div>
-                  </Card>
-                ))}
+                {testimonials?.map(item => {
+                  const ytId = getYoutubeId(item.videoUrl);
+                  const isVideo = isVideoUrl(item.videoUrl);
+                  return (
+                    <Card key={item.id} className="aspect-[9/16] finance-3d-shadow border-none bg-slate-900 rounded-[2.5rem] overflow-hidden relative group">
+                      <div className="w-full h-full">
+                        {ytId ? (
+                           <iframe src={`https://www.youtube.com/embed/${ytId}`} className="w-full h-full pointer-events-none" />
+                        ) : isVideo ? (
+                           <video src={item.videoUrl} className="w-full h-full object-cover" muted />
+                        ) : (
+                           <div className="absolute inset-0 flex items-center justify-center"><Video className="w-12 h-12 text-white/10" /></div>
+                        )}
+                      </div>
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-4">
+                         <p className="text-white font-bold text-center px-4 truncate">{item.title}</p>
+                         <div className="flex gap-2">
+                           <Button variant="secondary" size="sm" onClick={() => { setEditingItem(item); setTestimonialForm(item); }}><Pencil className="w-4 h-4" /></Button>
+                           <Button variant="destructive" size="sm" onClick={() => handleDeleteItem('testimonialVideos', item.id)}><Trash2 className="w-4 h-4" /></Button>
+                         </div>
+                      </div>
+                    </Card>
+                  );
+                })}
               </TabsContent>
             </Tabs>
           </TabsContent>

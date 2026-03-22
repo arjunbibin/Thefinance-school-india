@@ -10,7 +10,8 @@ import {
   Mail, 
   ShieldCheck,
   Smartphone,
-  Apple 
+  Apple,
+  Linkedin
 } from 'lucide-react';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -28,6 +29,7 @@ export default function Footer() {
     facebook: branding?.facebookUrl || "#",
     instagram: branding?.instagramUrl || "#",
     youtube: branding?.youtubeUrl || "#",
+    linkedin: branding?.linkedinUrl || "#",
     email: branding?.emailAddress ? `mailto:${branding.emailAddress}` : "mailto:support@financeschool.in"
   };
 
@@ -53,10 +55,11 @@ export default function Footer() {
             An Edu-Tech initiative focused on building financial awareness, leadership skills, and real-life readiness among children.
           </p>
           <div className="flex flex-wrap gap-4">
-            <button onClick={() => window.open(socialLinks.whatsapp, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><MessageCircle className="w-5 h-5" /></button>
-            <button onClick={() => window.open(socialLinks.facebook, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><Facebook className="w-5 h-5" /></button>
-            <button onClick={() => window.open(socialLinks.instagram, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><Instagram className="w-5 h-5" /></button>
-            <button onClick={() => window.open(socialLinks.youtube, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><Youtube className="w-5 h-5" /></button>
+            {branding?.whatsappUrl && <button onClick={() => window.open(socialLinks.whatsapp, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><MessageCircle className="w-5 h-5" /></button>}
+            {branding?.facebookUrl && <button onClick={() => window.open(socialLinks.facebook, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><Facebook className="w-5 h-5" /></button>}
+            {branding?.instagramUrl && <button onClick={() => window.open(socialLinks.instagram, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><Instagram className="w-5 h-5" /></button>}
+            {branding?.youtubeUrl && <button onClick={() => window.open(socialLinks.youtube, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><Youtube className="w-5 h-5" /></button>}
+            {branding?.linkedinUrl && <button onClick={() => window.open(socialLinks.linkedin, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><Linkedin className="w-5 h-5" /></button>}
             <button onClick={() => window.open(socialLinks.email, '_blank')} className="p-2.5 rounded-xl bg-white/10 hover:bg-accent hover:text-primary transition-all cursor-pointer border border-white/5"><Mail className="w-5 h-5" /></button>
           </div>
 
