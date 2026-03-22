@@ -74,7 +74,8 @@ export default function Dashboard() {
       return;
     }
 
-    if (!isAuthorized && profile) {
+    // If we have a profile and they aren't authorized, send them home
+    if (profile && !isAuthorized) {
       router.push('/');
       toast({ 
         variant: "destructive", 
@@ -192,7 +193,7 @@ export default function Dashboard() {
   };
 
   if (isUserLoading || isProfileLoading) return <div className="min-h-screen flex items-center justify-center bg-background"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
-  if (!isAuthorized) return null;
+  if (!user || !isAuthorized) return null;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -382,11 +383,11 @@ export default function Dashboard() {
                 <TabsTrigger value="reviews" className="rounded-xl px-6 py-2">Reviews</TabsTrigger>
               </TabsList>
               <TabsContent value="gallery" className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <Card className="aspect-square finance-3d-shadow border-none bg-white rounded-[2rem] flex items-center justify-center border-2 border-dashed cursor-pointer hover:border-primary transition-all">
+                <Card className="aspect-square finance-3d-shadow border-none bg-white rounded-[2.5rem] flex items-center justify-center border-2 border-dashed cursor-pointer hover:border-primary transition-all">
                   <Plus className="w-8 h-8 text-primary" />
                 </Card>
                 {gallery?.map(item => (
-                  <Card key={item.id} className="aspect-square finance-3d-shadow border-none bg-white rounded-[2rem] overflow-hidden relative group">
+                  <Card key={item.id} className="aspect-square finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden relative group">
                     <Image src={item.imageUrl} alt="Memory" fill className="object-cover" />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><Button variant="destructive" size="icon" onClick={() => handleDeleteItem('gallery', item.id)}><Trash2 className="w-4 h-4" /></Button></div>
                   </Card>
@@ -394,7 +395,7 @@ export default function Dashboard() {
               </TabsContent>
               <TabsContent value="reviews" className="space-y-6">
                 {reviews?.map(review => (
-                  <Card key={review.id} className="finance-3d-shadow border-none bg-white rounded-[2rem] p-6 flex flex-col md:flex-row gap-6 items-center">
+                  <Card key={review.id} className="finance-3d-shadow border-none bg-white rounded-[2.5rem] p-6 flex flex-col md:flex-row gap-6 items-center">
                     <div className="relative h-16 w-16 rounded-full overflow-hidden shrink-0"><Image src={review.userPhoto || 'https://picsum.photos/seed/user/100/100'} alt="User" fill className="object-cover" /></div>
                     <div className="flex-grow">
                       <h4 className="font-bold">{review.userName}</h4>
