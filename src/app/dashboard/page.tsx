@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { 
   useUser, 
   useFirestore, 
@@ -51,7 +52,7 @@ import {
   Smartphone,
   Apple,
   Users,
-  Image as ImageIcon,
+  ImageIcon,
   Plus,
   Pencil,
   Video,
