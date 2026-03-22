@@ -14,6 +14,21 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger,
+  DialogFooter
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { 
   useUser, 
   useFirestore, 
   useDoc, 
@@ -21,9 +36,10 @@ import {
   useMemoFirebase, 
   useAuth, 
   useStorage, 
-  setDocumentNonBlocking
+  setDocumentNonBlocking,
+  addDocumentNonBlocking
 } from '@/firebase';
-import { doc, collection, query, orderBy, deleteDoc } from 'firebase/firestore';
+import { doc, collection, query, orderBy, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { 
   LogOut, 
@@ -42,7 +58,10 @@ import {
   ImageIcon,
   Plus,
   Pencil,
-  Quote
+  Quote,
+  Star,
+  CheckCircle2,
+  Crown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
@@ -55,32 +74,24 @@ export default function Dashboard() {
   const router = useRouter();
   const { toast } = useToast();
   
-  // Refs for file inputs
-  const demoVideoFileInputRef = useRef<HTMLInputElement>(null);
-  
   // Auth & Profile
   const profileRef = useMemoFirebase(() => user ? doc(db, 'userProfiles', user.uid) : null, [db, user]);
   const { data: profile, isLoading: isProfileLoading } = useDoc(profileRef);
   
-  // Robust authorization check
   const isAuthorized = !!(user && profile && (profile.role === 'admin' || profile.role === 'staff' || profile.role === 'ceo'));
 
   useEffect(() => {
-    // Only attempt redirect if we are sure loading is finished
     if (isUserLoading || isProfileLoading) return;
-
     if (!user) {
       router.push('/login');
       return;
     }
-
-    // If we have a profile and they aren't authorized, send them home
     if (profile && !isAuthorized) {
       router.push('/');
       toast({ 
         variant: "destructive", 
         title: "Unauthorized", 
-        description: "Access restricted to staff. Role: " + (profile?.role || 'none') 
+        description: "Access restricted. Role: " + (profile?.role || 'none') 
       });
     }
   }, [user, isUserLoading, router, profile, isProfileLoading, isAuthorized, toast]);
@@ -98,22 +109,31 @@ export default function Dashboard() {
   const teamQuery = useMemoFirebase(() => query(collection(db, 'team'), orderBy('createdAt', 'desc')), [db]);
   const { data: team } = useCollection(teamQuery);
 
+  const slidesQuery = useMemoFirebase(() => query(collection(db, 'slides'), orderBy('order', 'asc')), [db]);
+  const { data: slides } = useCollection(slidesQuery);
+
   const galleryQuery = useMemoFirebase(() => query(collection(db, 'gallery'), orderBy('createdAt', 'desc')), [db]);
   const { data: gallery } = useCollection(galleryQuery);
 
   const reviewsQuery = useMemoFirebase(() => query(collection(db, 'reviews'), orderBy('createdAt', 'desc')), [db]);
   const { data: reviews } = useCollection(reviewsQuery);
 
-  // States
+  // General States
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-  const [selectedFiles, setSelectedFiles] = useState<Record<string, File | null>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Forms
   const [brandingForm, setBrandingForm] = useState({ 
     appName: '', logoUrl: '', tagline: '', whatsappUrl: '', facebookUrl: '', instagramUrl: '', youtubeUrl: '', emailAddress: '', quizUrl: '',
     statsStudents: '', statsWorkshops: '', statsTestimonials: '', showNo1Badge: false, showAppDownload: false, playStoreUrl: '', appStoreUrl: ''
   });
 
   const [demoClassForm, setDemoClassForm] = useState({ title: '', description: '', videoUrl: '', isActive: false, isYoutube: true });
+
+  const [newCourse, setNewCourse] = useState({ title: '', subtitle: '', description: '', category: 'Foundational', lessons: '', rating: '5.0', buyLink: '', order: 0, imageUrl: '' });
+  const [newTeamMember, setNewTeamMember] = useState({ name: '', role: '', bio: '', leadershipType: 'team', imageUrl: '' });
+  const [newSlide, setNewSlide] = useState({ title: '', description: '', order: 0, imageUrl: '' });
+  const [newGalleryItem, setNewGalleryItem] = useState({ description: '', imageUrl: '' });
 
   useEffect(() => { 
     if (branding) setBrandingForm({ 
@@ -139,17 +159,6 @@ export default function Dashboard() {
     router.push('/');
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: string) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (type.includes('video') && file.size > 50 * 1024 * 1024) {
-        toast({ variant: "destructive", title: "File Too Large", description: "Videos are limited to 50MB." });
-        return;
-      }
-      setSelectedFiles(prev => ({ ...prev, [type]: file }));
-    }
-  };
-
   const uploadFile = async (file: File, folder: string): Promise<string> => {
     return new Promise((resolve, reject) => {
       const storageRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
@@ -170,13 +179,7 @@ export default function Dashboard() {
   const handleSaveDemoClass = async (e: React.FormEvent) => {
     e.preventDefault();
     if (demoClassRef) {
-      let finalVideoUrl = demoClassForm.videoUrl;
-      if (!demoClassForm.isYoutube && selectedFiles['demo-video']) {
-        finalVideoUrl = await uploadFile(selectedFiles['demo-video'], 'demo_class');
-      }
-      setDocumentNonBlocking(demoClassRef, { ...demoClassForm, videoUrl: finalVideoUrl, id: 'demo_class', lastUpdated: new Date().toISOString() }, { merge: true });
-      setUploadProgress(null);
-      setSelectedFiles(prev => ({ ...prev, 'demo-video': null }));
+      setDocumentNonBlocking(demoClassRef, { ...demoClassForm, id: 'demo_class', lastUpdated: new Date().toISOString() }, { merge: true });
       toast({ title: "Demo Class Updated" });
     }
   };
@@ -189,6 +192,54 @@ export default function Dashboard() {
       } catch (e) {
         toast({ variant: "destructive", title: "Delete Failed" });
       }
+    }
+  };
+
+  const handleAddCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await addDocumentNonBlocking(collection(db, 'courses'), { ...newCourse, createdAt: serverTimestamp() });
+      setNewCourse({ title: '', subtitle: '', description: '', category: 'Foundational', lessons: '', rating: '5.0', buyLink: '', order: 0, imageUrl: '' });
+      toast({ title: "Course Added" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAddTeamMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await addDocumentNonBlocking(collection(db, 'team'), { ...newTeamMember, createdAt: serverTimestamp() });
+      setNewTeamMember({ name: '', role: '', bio: '', leadershipType: 'team', imageUrl: '' });
+      toast({ title: "Team Member Added" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAddSlide = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await addDocumentNonBlocking(collection(db, 'slides'), { ...newSlide, createdAt: serverTimestamp() });
+      setNewSlide({ title: '', description: '', order: 0, imageUrl: '' });
+      toast({ title: "Slide Added" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAddGallery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await addDocumentNonBlocking(collection(db, 'gallery'), { ...newGalleryItem, createdAt: serverTimestamp() });
+      setNewGalleryItem({ description: '', imageUrl: '' });
+      toast({ title: "Memory Added" });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -207,37 +258,14 @@ export default function Dashboard() {
           <Button onClick={handleLogout} variant="outline" className="border-destructive/20 text-destructive font-bold h-12 rounded-xl bg-white finance-3d-shadow hover:bg-destructive hover:text-white transition-all"><LogOut className="w-4 h-4 mr-2" /> End Session</Button>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-          {[
-            { label: 'Courses', count: courses?.length || 0, icon: GraduationCap },
-            { label: 'Team', count: team?.length || 0, icon: Users },
-            { label: 'Gallery', count: gallery?.length || 0, icon: ImageIcon },
-            { label: 'Reviews', count: reviews?.length || 0, icon: Quote },
-          ].map((stat, i) => (stat.icon && (
-            <Card key={i} className="finance-3d-shadow border-none rounded-3xl p-6 bg-white flex flex-col items-center gap-2 text-center">
-              <div className="p-3 bg-slate-50 rounded-2xl text-primary"><stat.icon className="w-6 h-6" /></div>
-              <div className="text-2xl font-headline font-bold text-primary">{stat.count}</div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{stat.label}</div>
-            </Card>
-          )))}
-        </div>
-
         <Tabs defaultValue="branding" className="w-full">
           <TabsList className="flex flex-wrap h-auto gap-2 bg-slate-100 p-2 rounded-[2rem] mb-10 overflow-x-auto shadow-inner sticky top-24 z-30">
             <TabsTrigger value="branding" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md flex items-center gap-2"><Settings className="w-4 h-4" /> Branding</TabsTrigger>
             <TabsTrigger value="demo-class" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md flex items-center gap-2"><Presentation className="w-4 h-4" /> Demo Class</TabsTrigger>
             <TabsTrigger value="courses" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md flex items-center gap-2"><GraduationCap className="w-4 h-4" /> Courses</TabsTrigger>
             <TabsTrigger value="team" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md flex items-center gap-2"><Users className="w-4 h-4" /> Team</TabsTrigger>
-            <TabsTrigger value="memories" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md flex items-center gap-2"><ImageIcon className="w-4 h-4" /> Memories</TabsTrigger>
+            <TabsTrigger value="memories" className="rounded-full px-6 py-2 font-bold data-[state=active]:bg-white data-[state=active]:shadow-md flex items-center gap-2"><ImageIcon className="w-4 h-4" /> Campus Content</TabsTrigger>
           </TabsList>
-
-          {uploadProgress !== null && (
-            <Card className="mb-10 p-6 border-none finance-3d-shadow bg-primary text-white animate-in zoom-in-95">
-              <div className="flex justify-between items-center mb-4"><span className="font-bold flex items-center gap-2"><Upload className="w-4 h-4" /> Processing Cloud Upload...</span><span className="font-headline font-bold">{Math.round(uploadProgress)}%</span></div>
-              <Progress value={uploadProgress} className="h-3 bg-white/20" />
-            </Card>
-          )}
 
           <TabsContent value="branding">
             <Card className="finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden">
@@ -298,33 +326,16 @@ export default function Dashboard() {
                       <Switch checked={demoClassForm.isActive} onCheckedChange={v => setDemoClassForm({...demoClassForm, isActive: v})} />
                     </div>
                     <div className="space-y-2"><Label>Display Title</Label><Input value={demoClassForm.title} onChange={e => setDemoClassForm({...demoClassForm, title: e.target.value})} className="rounded-xl h-12" required /></div>
-                    <div className="p-4 bg-slate-50 rounded-2xl border space-y-4">
-                      <div className="flex items-center space-x-3 bg-white p-3 rounded-xl border">
-                        <Switch checked={demoClassForm.isYoutube} onCheckedChange={v => setDemoClassForm({...demoClassForm, isYoutube: v, videoUrl: ''})} />
-                        <Label className="font-bold">Use YouTube Link</Label>
-                      </div>
-                      {demoClassForm.isYoutube ? (
-                        <Input value={demoClassForm.videoUrl} onChange={e => setDemoClassForm({...demoClassForm, videoUrl: e.target.value})} className="rounded-xl h-12" placeholder="https://youtube.com/..." />
-                      ) : (
-                        <div className="space-y-4">
-                          <Button type="button" variant="outline" className="w-full rounded-xl border-dashed h-14 bg-white" onClick={() => demoVideoFileInputRef.current?.click()}>
-                            <Upload className="w-4 h-4 mr-2" /> {selectedFiles['demo-video'] ? 'File Selected' : 'Select MP4 Video'}
-                          </Button>
-                          <input type="file" ref={demoVideoFileInputRef} onChange={e => handleFileChange(e, 'demo-video')} accept="video/*" className="hidden" />
-                        </div>
-                      )}
-                    </div>
+                    <div className="space-y-2"><Label>Video URL (YouTube/MP4)</Label><Input value={demoClassForm.videoUrl} onChange={e => setDemoClassForm({...demoClassForm, videoUrl: e.target.value})} className="rounded-xl h-12" required /></div>
                     <div className="space-y-2"><Label>Description</Label><Textarea value={demoClassForm.description} onChange={e => setDemoClassForm({...demoClassForm, description: e.target.value})} className="rounded-xl min-h-[120px]" /></div>
-                    <Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg" disabled={uploadProgress !== null}>Save Demo Settings</Button>
+                    <Button type="submit" className="w-full h-14 rounded-xl font-bold text-lg">Save Demo Settings</Button>
                   </div>
                   <div className="space-y-4">
                     <Label className="font-bold">Video Preview</Label>
                     <div className="border-4 border-slate-50 rounded-[2rem] overflow-hidden bg-slate-900 aspect-video finance-3d-shadow">
-                      {demoClassForm.isYoutube && demoClassForm.videoUrl.includes('youtu') ? (
-                        <iframe src={`https://www.youtube.com/embed/${demoClassForm.videoUrl.split('v=')[1] || demoClassForm.videoUrl.split('/').pop()}`} className="w-full h-full" />
-                      ) : demoClassForm.videoUrl ? (
-                        <video src={demoClassForm.videoUrl} className="w-full h-full object-cover" controls />
-                      ) : <div className="h-full flex items-center justify-center text-white/20"><Play className="w-12 h-12" /></div>}
+                       {demoClassForm.videoUrl.includes('youtu') ? (
+                         <iframe src={`https://www.youtube.com/embed/${demoClassForm.videoUrl.split('v=')[1] || demoClassForm.videoUrl.split('/').pop()}`} className="w-full h-full" />
+                       ) : <video src={demoClassForm.videoUrl} className="w-full h-full object-cover" controls />}
                     </div>
                   </div>
                 </form>
@@ -334,20 +345,39 @@ export default function Dashboard() {
 
           <TabsContent value="courses">
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <Card className="finance-3d-shadow border-none bg-white rounded-[2rem] p-8 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 group hover:border-primary transition-colors cursor-pointer" onClick={() => toast({ title: "Module Locked", description: "Batch editing coming soon." })}>
-                <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-primary/10 mb-4 transition-colors"><Plus className="w-8 h-8 text-primary" /></div>
-                <span className="font-bold text-primary">Add New Course</span>
-              </Card>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Card className="finance-3d-shadow border-none bg-white rounded-[2rem] p-8 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 group hover:border-primary transition-colors cursor-pointer">
+                    <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-primary/10 mb-4 transition-colors"><Plus className="w-8 h-8 text-primary" /></div>
+                    <span className="font-bold text-primary">Add New Course</span>
+                  </Card>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader><DialogTitle>Create New Course</DialogTitle></DialogHeader>
+                  <form onSubmit={handleAddCourse} className="grid grid-cols-2 gap-4 pt-4">
+                    <div className="space-y-2 col-span-2"><Label>Course Title</Label><Input value={newCourse.title} onChange={e => setNewCourse({...newCourse, title: e.target.value})} required /></div>
+                    <div className="space-y-2 col-span-2"><Label>Subtitle</Label><Input value={newCourse.subtitle} onChange={e => setNewCourse({...newCourse, subtitle: e.target.value})} /></div>
+                    <div className="space-y-2"><Label>Category</Label>
+                      <Select value={newCourse.category} onValueChange={v => setNewCourse({...newCourse, category: v})}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent><SelectItem value="Foundational">Foundational</SelectItem><SelectItem value="Leadership">Leadership</SelectItem><SelectItem value="Premium">Premium</SelectItem></SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2"><Label>Order (Sort)</Label><Input type="number" value={newCourse.order} onChange={e => setNewCourse({...newCourse, order: parseInt(e.target.value)})} /></div>
+                    <div className="space-y-2 col-span-2"><Label>Image URL</Label><Input value={newCourse.imageUrl} onChange={e => setNewCourse({...newCourse, imageUrl: e.target.value})} placeholder="https://..." /></div>
+                    <div className="space-y-2 col-span-2"><Label>Buy/Enroll Link</Label><Input value={newCourse.buyLink} onChange={e => setNewCourse({...newCourse, buyLink: e.target.value})} placeholder="https://..." /></div>
+                    <div className="space-y-2 col-span-2"><Label>Description</Label><Textarea value={newCourse.description} onChange={e => setNewCourse({...newCourse, description: e.target.value})} /></div>
+                    <DialogFooter className="col-span-2 pt-4"><Button type="submit" className="w-full" disabled={isSubmitting}>Add Course</Button></DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
               {courses?.map(course => (
                 <Card key={course.id} className="finance-3d-shadow border-none bg-white rounded-[2rem] overflow-hidden flex flex-col">
                    <div className="relative h-48 w-full"><Image src={course.imageUrl} alt={course.title} fill className="object-cover" /></div>
                    <div className="p-6 flex-grow space-y-3">
                       <div className="flex justify-between items-start">
                         <Badge>{course.category}</Badge>
-                        <div className="flex gap-2">
-                          <Button size="icon" variant="ghost" className="h-8 w-8"><Pencil className="w-4 h-4" /></Button>
-                          <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => handleDeleteItem('courses', course.id)}><Trash2 className="w-4 h-4" /></Button>
-                        </div>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => handleDeleteItem('courses', course.id)}><Trash2 className="w-4 h-4" /></Button>
                       </div>
                       <h4 className="font-bold text-xl">{course.title}</h4>
                       <p className="text-sm text-muted-foreground line-clamp-2">{course.description}</p>
@@ -359,49 +389,107 @@ export default function Dashboard() {
 
           <TabsContent value="team">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <Card className="finance-3d-shadow border-none bg-white rounded-[2rem] p-8 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 group hover:border-accent transition-colors cursor-pointer" onClick={() => toast({ title: "Module Locked", description: "Batch editing coming soon." })}>
-                <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-accent/10 mb-4 transition-colors"><Plus className="w-8 h-8 text-accent" /></div>
-                <span className="font-bold text-accent">Add Team Member</span>
-              </Card>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Card className="finance-3d-shadow border-none bg-white rounded-[2rem] p-8 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 group hover:border-accent transition-colors cursor-pointer">
+                    <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-accent/10 mb-4 transition-colors"><Plus className="w-8 h-8 text-accent" /></div>
+                    <span className="font-bold text-accent">Add Team Member</span>
+                  </Card>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader><DialogTitle>New Team Member</DialogTitle></DialogHeader>
+                  <form onSubmit={handleAddTeamMember} className="space-y-4 pt-4">
+                    <div className="space-y-2"><Label>Full Name</Label><Input value={newTeamMember.name} onChange={e => setNewTeamMember({...newTeamMember, name: e.target.value})} required /></div>
+                    <div className="space-y-2"><Label>Role Title</Label><Input value={newTeamMember.role} onChange={e => setNewTeamMember({...newTeamMember, role: e.target.value})} required /></div>
+                    <div className="space-y-2"><Label>Leadership Tier</Label>
+                      <Select value={newTeamMember.leadershipType} onValueChange={v => setNewTeamMember({...newTeamMember, leadershipType: v})}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent><SelectItem value="ceo">CEO / Founder</SelectItem><SelectItem value="co-founder">Co-Founder</SelectItem><SelectItem value="team">Staff Member</SelectItem></SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2"><Label>Profile Image URL</Label><Input value={newTeamMember.imageUrl} onChange={e => setNewTeamMember({...newTeamMember, imageUrl: e.target.value})} placeholder="https://..." /></div>
+                    <div className="space-y-2"><Label>Bio/Quote</Label><Textarea value={newTeamMember.bio} onChange={e => setNewTeamMember({...newTeamMember, bio: e.target.value})} /></div>
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>Save Member</Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
               {team?.map(member => (
-                <Card key={member.id} className="finance-3d-shadow border-none bg-white rounded-[2rem] p-6 text-center space-y-4">
-                   <div className="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-slate-100"><Image src={member.imageUrl || 'https://picsum.photos/seed/user/100/100'} alt={member.name} fill className="object-cover" /></div>
+                <Card key={member.id} className="finance-3d-shadow border-none bg-white rounded-[2rem] p-6 text-center space-y-4 relative">
+                   <div className="relative w-24 h-24 mx-auto rounded-full overflow-hidden border-2 border-slate-100">
+                     <Image src={member.imageUrl || 'https://picsum.photos/seed/user/100/100'} alt={member.name} fill className="object-cover" />
+                   </div>
                    <div>
+                     <div className="flex justify-center mb-1">
+                        {member.leadershipType === 'ceo' ? <Crown className="w-4 h-4 text-yellow-500" /> : member.leadershipType === 'co-founder' ? <Star className="w-4 h-4 text-slate-400" /> : <Users className="w-4 h-4 text-accent" />}
+                     </div>
                      <h4 className="font-bold">{member.name}</h4>
                      <p className="text-xs text-accent font-bold uppercase">{member.role}</p>
                    </div>
-                   <div className="flex justify-center gap-2 pt-2 border-t"><Button size="icon" variant="ghost" className="h-8 w-8 text-destructive" onClick={() => handleDeleteItem('team', member.id)}><Trash2 className="w-4 h-4" /></Button></div>
+                   <Button size="icon" variant="ghost" className="absolute top-2 right-2 text-destructive" onClick={() => handleDeleteItem('team', member.id)}><Trash2 className="w-4 h-4" /></Button>
                 </Card>
               ))}
             </div>
           </TabsContent>
 
           <TabsContent value="memories">
-            <Tabs defaultValue="gallery">
+            <Tabs defaultValue="slides">
               <TabsList className="bg-transparent gap-4 mb-6">
-                <TabsTrigger value="gallery" className="rounded-xl px-6 py-2">Gallery Images</TabsTrigger>
-                <TabsTrigger value="reviews" className="rounded-xl px-6 py-2">Reviews</TabsTrigger>
+                <TabsTrigger value="slides" className="rounded-xl px-6 py-2">Slideshow</TabsTrigger>
+                <TabsTrigger value="gallery" className="rounded-xl px-6 py-2">Gallery</TabsTrigger>
               </TabsList>
+              
+              <TabsContent value="slides" className="space-y-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Card className="finance-3d-shadow border-none bg-white rounded-[2rem] p-8 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 group hover:border-primary transition-colors cursor-pointer min-h-[200px]">
+                        <Plus className="w-8 h-8 text-primary mb-2" />
+                        <span className="font-bold text-primary">Add Home Slide</span>
+                      </Card>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader><DialogTitle>New Homepage Slide</DialogTitle></DialogHeader>
+                      <form onSubmit={handleAddSlide} className="space-y-4 pt-4">
+                        <div className="space-y-2"><Label>Title</Label><Input value={newSlide.title} onChange={e => setNewSlide({...newSlide, title: e.target.value})} /></div>
+                        <div className="space-y-2"><Label>Description</Label><Input value={newSlide.description} onChange={e => setNewSlide({...newSlide, description: e.target.value})} /></div>
+                        <div className="space-y-2"><Label>Order</Label><Input type="number" value={newSlide.order} onChange={e => setNewSlide({...newSlide, order: parseInt(e.target.value)})} /></div>
+                        <div className="space-y-2"><Label>Media URL (Image/Video)</Label><Input value={newSlide.imageUrl} onChange={e => setNewSlide({...newSlide, imageUrl: e.target.value})} required /></div>
+                        <Button type="submit" className="w-full">Add Slide</Button>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                  {slides?.map(slide => (
+                    <Card key={slide.id} className="finance-3d-shadow border-none bg-white rounded-[2rem] overflow-hidden relative group aspect-video">
+                       <Image src={slide.imageUrl} alt="Slide" fill className="object-cover" />
+                       <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <h4 className="text-white font-bold">{slide.title}</h4>
+                         <Button variant="destructive" size="sm" className="mt-2 w-fit" onClick={() => handleDeleteItem('slides', slide.id)}><Trash2 className="w-4 h-4 mr-2" /> Delete</Button>
+                       </div>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
               <TabsContent value="gallery" className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <Card className="aspect-square finance-3d-shadow border-none bg-white rounded-[2.5rem] flex items-center justify-center border-2 border-dashed cursor-pointer hover:border-primary transition-all">
-                  <Plus className="w-8 h-8 text-primary" />
-                </Card>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Card className="aspect-square finance-3d-shadow border-none bg-white rounded-[2.5rem] flex items-center justify-center border-2 border-dashed cursor-pointer hover:border-primary transition-all">
+                      <Plus className="w-8 h-8 text-primary" />
+                    </Card>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader><DialogTitle>Add Memory</DialogTitle></DialogHeader>
+                    <form onSubmit={handleAddGallery} className="space-y-4 pt-4">
+                      <div className="space-y-2"><Label>Image URL</Label><Input value={newGalleryItem.imageUrl} onChange={e => setNewGalleryItem({...newGalleryItem, imageUrl: e.target.value})} required /></div>
+                      <div className="space-y-2"><Label>Description</Label><Input value={newGalleryItem.description} onChange={e => setNewGalleryItem({...newGalleryItem, description: e.target.value})} /></div>
+                      <Button type="submit" className="w-full">Add to Gallery</Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
                 {gallery?.map(item => (
                   <Card key={item.id} className="aspect-square finance-3d-shadow border-none bg-white rounded-[2.5rem] overflow-hidden relative group">
                     <Image src={item.imageUrl} alt="Memory" fill className="object-cover" />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><Button variant="destructive" size="icon" onClick={() => handleDeleteItem('gallery', item.id)}><Trash2 className="w-4 h-4" /></Button></div>
-                  </Card>
-                ))}
-              </TabsContent>
-              <TabsContent value="reviews" className="space-y-6">
-                {reviews?.map(review => (
-                  <Card key={review.id} className="finance-3d-shadow border-none bg-white rounded-[2.5rem] p-6 flex flex-col md:flex-row gap-6 items-center">
-                    <div className="relative h-16 w-16 rounded-full overflow-hidden shrink-0"><Image src={review.userPhoto || 'https://picsum.photos/seed/user/100/100'} alt="User" fill className="object-cover" /></div>
-                    <div className="flex-grow">
-                      <h4 className="font-bold">{review.userName}</h4>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{review.content}</p>
-                    </div>
-                    <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteItem('reviews', review.id)}><Trash2 className="w-4 h-4" /></Button>
                   </Card>
                 ))}
               </TabsContent>
