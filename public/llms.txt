@@ -1,0 +1,16 @@
+# The Finance School India
+
+> Let's Deal with The Wealth
+
+The Finance School India empowers students and working professionals to take charge of their money, manage their wealth, learn practical investing, avoid frauds and scams, and think like a CEO.
+
+## Link Tree & Connect with us
+- **Main Platform**: https://finance-school-india.web.app
+- **Socials**: Find us on Instagram, Facebook, WhatsApp, and YouTube.
+
+## About Us
+Our mission is to increase financial literacy in India and beyond. We provide actionable insights and step-by-step guides on budgeting, investing, and growing wealth securely.
+
+## Interactive Features
+- **Free Interactive Quiz**: Available at `/quiz` to test your financial knowledge and receive personalized recommendations.
+- **Expert Articles and Tools**: Real-world guidance on how to avoid scams and make smart investment decisions.

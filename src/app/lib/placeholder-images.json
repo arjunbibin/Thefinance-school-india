@@ -1,0 +1,119 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-bg",
+      "description": "Abstract 3D financial grid",
+      "imageUrl": "https://picsum.photos/seed/finance1/1200/800",
+      "imageHint": "finance technology"
+    },
+    {
+      "id": "course-1",
+      "description": "Market Fundamentals Course",
+      "imageUrl": "https://picsum.photos/seed/invest/400/300",
+      "imageHint": "stock market"
+    },
+    {
+      "id": "course-2",
+      "description": "Advanced Crypto Assets Course",
+      "imageUrl": "https://picsum.photos/seed/crypto/400/300",
+      "imageHint": "blockchain crypto"
+    },
+    {
+      "id": "course-3",
+      "description": "Wealth Architecture Course",
+      "imageUrl": "https://picsum.photos/seed/money/400/300",
+      "imageHint": "savings wealth"
+    },
+    {
+      "id": "avatar-user",
+      "description": "User profile avatar",
+      "imageUrl": "https://picsum.photos/seed/user123/100/100",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "app-logo",
+      "description": "The Finance School Logo",
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-6721629864-6b462.firebasestorage.app/o/logo%2Flogo.png?alt=media&token=1c70983d-c10f-440b-a75b-99d4013b1c9c",
+      "imageHint": "finance logo"
+    },
+    {
+      "id": "slide-1",
+      "description": "Students engaging in financial workshops",
+      "imageUrl": "https://picsum.photos/seed/school1/1200/600",
+      "imageHint": "students learning"
+    },
+    {
+      "id": "slide-2",
+      "description": "Interactive leadership training sessions",
+      "imageUrl": "https://picsum.photos/seed/school2/1200/600",
+      "imageHint": "leadership seminar"
+    },
+    {
+      "id": "slide-3",
+      "description": "Practical money management workshops",
+      "imageUrl": "https://picsum.photos/seed/school3/1200/600",
+      "imageHint": "business workshop"
+    },
+    {
+      "id": "gallery-1",
+      "description": "Group project collaboration",
+      "imageUrl": "https://picsum.photos/seed/gal1/800/600",
+      "imageHint": "teamwork students"
+    },
+    {
+      "id": "gallery-2",
+      "description": "Digital learning classroom",
+      "imageUrl": "https://picsum.photos/seed/gal2/800/600",
+      "imageHint": "modern classroom"
+    },
+    {
+      "id": "gallery-3",
+      "description": "Award ceremony for top students",
+      "imageUrl": "https://picsum.photos/seed/gal3/800/600",
+      "imageHint": "student achievement"
+    },
+    {
+      "id": "gallery-4",
+      "description": "One-on-one mentor support session",
+      "imageUrl": "https://picsum.photos/seed/gal4/800/600",
+      "imageHint": "mentorship session"
+    },
+    {
+      "id": "gallery-5",
+      "description": "Stock market simulation workshop",
+      "imageUrl": "https://picsum.photos/seed/gal5/800/600",
+      "imageHint": "trading floor"
+    },
+    {
+      "id": "gallery-6",
+      "description": "Outdoor group learning",
+      "imageUrl": "https://picsum.photos/seed/gal6/800/600",
+      "imageHint": "campus life"
+    },
+    {
+      "id": "team-ceo",
+      "description": "CEO Profile",
+      "imageUrl": "https://picsum.photos/seed/ceo1/400/400",
+      "imageHint": "professional man"
+    },
+    {
+      "id": "team-cofounder",
+      "description": "Co-Founder Profile",
+      "imageUrl": "https://picsum.photos/seed/cofounder1/400/400",
+      "imageHint": "professional woman"
+    },
+    {
+      "id": "team-manager1",
+      "description": "General Manager",
+      "imageUrl": "https://picsum.photos/seed/gm1/400/400",
+      "imageHint": "professional person"
+    },
+    {
+      "id": "team-techhead",
+      "description": "Tech Head",
+      "imageUrl": "https://picsum.photos/seed/tech1/400/400",
+      "imageHint": "software engineer"
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+
+{
+  "entities": {
+    "DemoClass": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "DemoClass",
+      "type": "object",
+      "description": "Represents a single demo class offered by FinanceVerse 3D, including its video content and administrative control.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the DemoClass entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "The title of the demo class, displayed to users."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed text description to be displayed under the demo class video."
+        },
+        "videoUrl": {
+          "type": "string",
+          "description": "The URL of the demo class video, which can be a YouTube private link or an MP4 file URL.",
+          "format": "uri"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "A flag indicating whether the 'Attend Demo Class' section should be visible and accessible to users. (Managed by admin panel)"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "description": "The timestamp indicating when the demo class information was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "videoUrl",
+        "isActive"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/system_settings/demo_class",
+        "definition": {
+          "entityName": "DemoClass",
+          "schema": {
+            "$ref": "#/backend/entities/DemoClass"
+          },
+          "description": "The single document containing the global DemoClass configuration.",
+          "params": []
+        }
+      },
+      {
+        "path": "/admin_users/{adminUserId}",
+        "definition": {
+          "entityName": "adminUser",
+          "schema": {
+            "$ref": "#/backend/entities/AdminUser"
+          },
+          "description": "Collection representing admin roles.",
+          "params": [
+            {
+              "name": "adminUserId",
+              "description": "The unique Firebase Authentication User ID (UID) of the administrator."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "Fixed path segments to satisfy DocumentReference requirements (even count)."
+  }
+}
