@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Trophy } from 'lucide-react';
+import logoStatic from '@/images/logo.png';
 
 export default function Navbar() {
   const db = useFirestore();
@@ -13,7 +14,7 @@ export default function Navbar() {
   const brandingRef = useMemoFirebase(() => doc(db, 'config', 'branding'), [db]);
   const { data: branding } = useDoc(brandingRef);
 
-  const logoUrl = branding?.logoUrl || "https://firebasestorage.googleapis.com/v0/b/studio-6721629864-6b462.firebasestorage.app/o/logo%2Flogo.png?alt=media&token=1c70983d-c10f-440b-a75b-99d4013b1c9c";
+  const logoUrl = logoStatic;
   const appName = branding?.appName || 'The Finance School India';
   const tagline = branding?.tagline || "Let's Deal with The Wealth";
 
